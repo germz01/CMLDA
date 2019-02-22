@@ -28,8 +28,15 @@ A_F = {
         'f': lambda x: np.where(x < 0, 0, x),
         'fdev': lambda x: np.where(x < 0, 0, 1),
         'range': (0, np.Inf)
+    },
+    'softmax':
+    {
+        'f': lambda x: np.exp(x)/np.sum(np.exp(x)),
+        'fdev': lambda x: np.diag(np.diag(x)) - np.dot(x, x.T),
+        'range': (0, 1)
     }
 }
+
 
 if __name__ == "__main__":
 
