@@ -1,0 +1,37 @@
+* added hypergrid.py
+aggiunta classe HyperRandomGrid per generare una griglia random.
+
+Prende in input un dizionario contenente per ciascun parametro gli
+estremi dell'intervallo in cui li vogliamo far variare.
+
+Ho utilizzato una classe in modo da utilizzare come griglia un iteratore, così che se vogliamo fare una ricerca estesa con una griglia molto
+grande abbiamo meno problemi di memoria.
+
+La classe HyperGrid() genera invece una griglia uniforme.
+Inizialmente pensavo di utilizzare questa classe anche per generare una griglia random.
+Ma la griglia random utilizzava ancora il prodotto cartesiano
+tra i vettori per i parametri differenti. Ciò non è necessario, e
+anzi controproducente, poichè si ottiene una griglia con valori ripetuti, mentre il vantaggio di avere una griglia random è proprio quello
+di avere valori sempre diversi per ciascun record della griglia.
+
+* added holdout.py
+aggiunta classe holdout. Ho utilizzato una classe in modo da poter
+accedere ai vari oggetti in modo immediato. Con una funzione ci sarebbero stati troppi output.
+
+Bisogna poi gestire sia per questo metodo che per la cross-validation
+le learning curve brutte, al momento holdout seleziona il miglior
+errore finale, ma può capitare che questo corrisponda a una
+learning curve molto sporca.
+
+* nn.py
+aggiunto metodo get_params per estrarre i parametri utilizzati
+nella fase di train, salvati nel dizionario self.params.
+Ho spezzato in due l'input di regularizer -> reg_lambda, reg_method
+in modo da gestire meglio la generazione della griglia
+
+* utils.py
+plot.error()
+aggiunta funzione per il grafico della learning curve con valore dei parametri
+
+* testing.py
+aggiunta prova con griglia ed holdout
