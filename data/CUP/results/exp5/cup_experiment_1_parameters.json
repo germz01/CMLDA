@@ -1,0 +1,31 @@
+{
+    "info": "batch with early stopping", 
+    "grid_size": 200, 
+    "param_ranges": {
+        "w_par": 6.0, 
+        "epsilon": 1, 
+        "activation": "relu", 
+        "batch_size": "batch", 
+        "epochs": 3000, 
+        "reg_method": "l2", 
+        "alpha": 0.9, 
+        "early_stop_min_epochs": 500, 
+        "early_stop": "PQ", 
+        "task": "regression", 
+        "hidden_sizes": [
+            [
+                50, 
+                2500
+            ]
+        ], 
+        "reg_lambda": 0.0, 
+        "eta": [
+            0.008, 
+            0.02
+        ], 
+        "w_method": "DL"
+    }, 
+    "experiment": 1, 
+    "ntrials": 1, 
+    "nfolds": 3
+}
