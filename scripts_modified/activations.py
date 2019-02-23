@@ -1,35 +1,121 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
 from scipy.special import expit
 
 
-def identity(x, fdev=False):
-    if fdev:
+def identity(x, dev=False):
+    """
+    This function implements the identity function.
+
+    Parameters
+    ----------
+    x: numpy.ndarray
+        the input vector
+
+    dev: bool
+        whether or not to compute the function's derivative
+        (Default value = False)
+
+    Returns
+    -------
+    The function's output, or its derivative.
+    """
+    if dev:
         return np.ones(x.shape)
+
     return x
 
 
-def sigmoid(x, fdev=False):
-    if fdev:
+def sigmoid(x, dev=False):
+    """
+    This function implements the sigmoid function.
+
+    Parameters
+    ----------
+    x: numpy.ndarray
+        the input vector
+
+    dev: bool
+        whether or not to compute the function's derivative
+        (Default value = False)
+
+    Returns
+    -------
+    The function's output, or its derivative.
+    """
+    if dev:
         return expit(x) * (1. - expit(x))
+
     return expit(x)
 
 
-def tanh(x, fdev=False):
-    if fdev:
+def tanh(x, dev=False):
+    """
+    This function implements the hyperbolic tangent function.
+
+    Parameters
+    ----------
+    x: numpy.ndarray
+        the input vector
+
+    dev: bool
+        whether or not to compute the function's derivative
+        (Default value = False)
+
+    Returns
+    -------
+    The function's output, or its derivative.
+    """
+    if dev:
         return 1 - np.tanh(x)**2
+
     return np.tanh(x)
 
 
-def relu(x, fdev=False):
-    if fdev:
+def relu(x, dev=False):
+    """
+    This function implements the rectified linear function.
+
+    Parameters
+    ----------
+    x: numpy.ndarray
+        the input vector
+
+    dev: bool
+        whether or not to compute the function's derivative
+        (Default value = False)
+
+    Returns
+    -------
+    The function's output, or its derivative.
+    """
+    if dev:
         return np.where(x < 0, 0, 1)
+
     return np.where(x < 0, 0, x)
 
 
-def softmax(x, fdev=False):
-    if fdev:
-        return np.diag(np.diag(x)) - np.dot(x, x.T)
+def softmax(x, dev=False):
+    """
+    This function implements the softmax function.
+
+    Parameters
+    ----------
+    x: numpy.ndarray
+        the input vector
+
+    dev: bool
+        whether or not to compute the function's derivative
+        (Default value = False)
+
+    Returns
+    -------
+    The function's output, or its derivative.
+    """
+    if dev:
+        return np.diagflat(softmax(x)) - np.dot(softmax(x), softmax(x).T)
+
     return np.exp(x)/np.sum(np.exp(x))
 
 
@@ -46,9 +132,6 @@ def print_fun(fun, x, key):
 
 
 if __name__ == "__main__":
-
-    import matplotlib.pyplot as plt
-
     fpath = '../images/'
 
     x = np.arange(-5, 5, 0.01)
