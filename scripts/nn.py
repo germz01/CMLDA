@@ -188,12 +188,12 @@ class NeuralNetwork(object):
             either 'DL' or 'uniform'
             (Default value = 'DL')
 
-        activation: list
+        activation: list or str
             the activation function to use for each layer, either
-            'sigmoid', 'relu', 'tanh', 'identity'. len(hidden_sizes) + 1
-            functions must be provided because also the output layer's
-            activation function is requested
-            (Default value = ['sigmoid', 'sigmoid'])
+            'sigmoid', 'relu', 'tanh', 'identity' or 'softmax'.
+            len(hidden_sizes) + 1 functions must be provided because also the
+            output layer's activation function is requested
+            (Default value = 'sigmoid')
 
         task: str
             the task that the neural network has to perform, either
@@ -206,7 +206,7 @@ class NeuralNetwork(object):
 
         self.hidden_sizes = hidden_sizes
         self.n_layers = len(hidden_sizes) + 1
-        self.topology = u.compose_topology(X, self.hidden_sizes, y)
+        self.topology = u.compose_topology(X, self.hidden_sizes, y, task)
 
         # self.X = X
 
