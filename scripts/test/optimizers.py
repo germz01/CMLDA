@@ -140,11 +140,58 @@ class CGD(Optimizer):
     """
     """
 
-    def __init__(self):
+    def __init__(self, nn):
         """
         """
 
-        super(CGD, self).__init__()
+        super(CGD, self).__init__(nn)
+        self.error = np.Inf
+        self.error_prev = np.Inf
+        self.error_per_epochs = []
+
+    def optimize(self, nn, X, y, epochs, error_goal, beta_m, **kwargs):
+        """
+        """
+
+        k = 0
+        g_prev = 0
+
+        while self.error >= error_goal or k != epochs:
+            dataset = np.hstack((X, y))
+            np.random.shuffle(dataset)
+            X, y = np.hsplit(dataset, [X.shape[1]])
+
+            error = super(SGD, self).forward_propagation(nn, X, y)
+            super(SGD, self).back_propagation(nn, X, y)
+            self.error_per_epochs.append(error)
+
+            g = self.flat_weights(self.delta_W, self.delta_b)
+            beta = self.get_beta(g, g_prev, beta_m, **kwargs)
+            d = self.get_direction(k, g, beta)
+
+            k += 1
+
+    def flat_weights(self, W, b):
+        """
+        This function flattens the network's biases and weights matrices into
+        a single column vector, after concateneting each weights matrix with
+        the corresponding bias column vector.
+
+        Parameters
+        ----------
+        W: list
+            a list of weights' matrices
+
+        b: list
+            a list of biases column vectors
+
+        Returns
+        -------
+        A column vector.
+        """
+        to_return = [np.hstack((b[l], W[l])).flatten() for l in range(len(W))]
+
+        return np.concatenate(to_return.reshape(-1, 1))
 
     def get_direction(self, k, g, beta, d_prev=0, method='standard'):
         """
@@ -188,9 +235,7 @@ class CGD(Optimizer):
         return (-(1 + beta * ((g.T.dot(d_prev)) / np.linalg.norm(g))) * g) \
             + (beta * d_prev)
 
-    def get_beta(self, g, g_prev, method, d_prev=None, error=None,
-                 error_prev=None, w=None, w_prev=None, rho=None,
-                 plus=False):
+    def get_beta(self, g, g_prev, method, plus=False, **kwargs):
         """
         This function implements various types of beta.
 
@@ -204,41 +249,45 @@ class CGD(Optimizer):
             the vector which contains the gradient for every weight
             in the network for the previous algorithm's iteration
 
-        d_prev: numpy.ndarray
-            the previous epoch's direction
-            (Default value = None)
-
         method: str
             the formula used to compute the beta, either 'hs' or
             'pr' or 'fr'
-
-        error: float
-            the error for the current epoch
-            (Default value = None)
-
-        error_prev: float
-            the error for previous epoch
-            (Default value = None)
-
-        w: numpy.ndarray
-            the weights' column vector for current epoch
-            (Default value = None)
-
-        w_prev: numpy.ndarray
-            the weights' column vector for the previous epoch
-            (Default value = None)
-
-        rho: float
-            an hyperparameter between 0 and 1
-            (Default value = None)
 
         plus: bool
             whether or not to use the modified HS formula
             (Default value = False)
 
+        kwargs: dict
+            a dictionary containing the parameters for various betas'
+            initialization formulas; the parameters can be the following
+
+            d_prev: numpy.ndarray
+                the previous epoch's direction
+                (Default value = None)
+
+            error: float
+                the error for the current epoch
+                (Default value = None)
+
+            error_prev: float
+                the error for previous epoch
+                (Default value = None)
+
+            w: numpy.ndarray
+                the weights' column vector for current epoch
+                (Default value = None)
+
+            w_prev: numpy.ndarray
+                the weights' column vector for the previous epoch
+                (Default value = None)
+
+            rho: float
+                an hyperparameter between 0 and 1
+                (Default value = None)
+
         Returns
         -------
-        The beta computed with the Hestenes-Stiefel's formula.
+        The beta computed with the specified formula.
         """
 
         assert method in ['hs', 'pr', 'fr']
@@ -246,20 +295,23 @@ class CGD(Optimizer):
         beta = 0.0
 
         if method == 'hs':
-            assert d_prev is not None
-            beta = (g.T.dot(g - g_prev)) / ((g - g_prev).T.dot(d_prev))
+            assert 'd_prev' in kwargs
+            beta = (g.T.dot(g - g_prev)) / \
+                ((g - g_prev).T.dot(kwargs['d_prev']))
         elif method == 'pr':
             beta = (g.T.dot(g-g_prev)) / (np.linalg.norm(g_prev))**2
         elif method == 'fr':
             beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
         else:
-            assert error is not None and error_prev is not None and \
-                rho is not None and plus is True
+            assert 'error' in kwargs and 'error_prev' in kwargs and \
+                'rho' in kwargs and plus is True
 
-            s = w - w_prev
-            teta = (2 * (error_prev - error)) + (g + g_prev).T.dot(s)
-            y_tilde = (g - g_prev) + ((rho * ((max(teta, 0)) / s.T.dot(s)))
+            s = kwargs['w'] - kwargs['w_prev']
+            teta = (2 * (kwargs['error_prev'] - kwargs['error'])) + \
+                (g + g_prev).T.dot(s)
+            y_tilde = (g - g_prev) + ((kwargs['rho'] *
+                                      ((max(teta, 0)) / s.T.dot(s)))
                                       * s)
-            beta = (g.T.dot(y_tilde)) / (d_prev.T.dot(y_tilde))
+            beta = (g.T.dot(y_tilde)) / (kwargs['d_prev'].T.dot(y_tilde))
 
         return max(beta, 0) if plus else beta
