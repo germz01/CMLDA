@@ -188,12 +188,11 @@ class CGD(Optimizer):
         return (-(1 + beta * ((g.T.dot(d_prev)) / np.linalg.norm(g))) * g) \
             + (beta * d_prev)
 
-    def beta_mhsp():
-        pass
-
-    def beta_hs(self, g, g_prev, d_prev, plus=False):
+    def get_beta(self, g, g_prev, method, d_prev=None, error=None,
+                 error_prev=None, w=None, w_prev=None, rho=None,
+                 plus=False):
         """
-        This function implements the Hestenes-Stiefel's beta.
+        This function implements various types of beta.
 
         Parameters
         ----------
@@ -207,6 +206,31 @@ class CGD(Optimizer):
 
         d_prev: numpy.ndarray
             the previous epoch's direction
+            (Default value = None)
+
+        method: str
+            the formula used to compute the beta, either 'hs' or
+            'pr' or 'fr'
+
+        error: float
+            the error for the current epoch
+            (Default value = None)
+
+        error_prev: float
+            the error for previous epoch
+            (Default value = None)
+
+        w: numpy.ndarray
+            the weights' column vector for current epoch
+            (Default value = None)
+
+        w_prev: numpy.ndarray
+            the weights' column vector for the previous epoch
+            (Default value = None)
+
+        rho: float
+            an hyperparameter between 0 and 1
+            (Default value = None)
 
         plus: bool
             whether or not to use the modified HS formula
@@ -217,58 +241,25 @@ class CGD(Optimizer):
         The beta computed with the Hestenes-Stiefel's formula.
         """
 
-        beta = (g.T.dot(g - g_prev)) / ((g - g_prev).T.dot(d_prev))
+        assert method in ['hs', 'pr', 'fr']
 
-        return max(beta, 0) if plus else beta
+        beta = 0.0
 
-    def beta_fr(self, g, g_prev, plus=False):
-        """
-        This function implements the Fletcher-Reeves beta.
+        if method == 'hs':
+            assert d_prev is not None
+            beta = (g.T.dot(g - g_prev)) / ((g - g_prev).T.dot(d_prev))
+        elif method == 'pr':
+            beta = (g.T.dot(g-g_prev)) / (np.linalg.norm(g_prev))**2
+        elif method == 'fr':
+            beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
+        else:
+            assert error is not None and error_prev is not None and \
+                rho is not None and plus is True
 
-        Parameters
-        ----------
-        g: numpy.ndarray
-            the vector which contains the gradient for every weight
-            in the network
-
-        g_prev: numpy.ndarray
-            the vector which contains the gradient for every weight
-            in the network for the previous algorithm's iteration
-
-        plus: bool
-            whether or not to use the modified FR formula
-            (Default value = False)
-
-        Returns
-        -------
-        The beta computed with the Fletcher-Reeves formula.
-        """
-        beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
-
-        return max(beta, 0) if plus else beta
-
-    def beta_pr(self, g, g_prev, plus=False):
-        """
-        This function implements the Polak-Ribiere beta.
-
-        Parameters
-        ----------
-        g: numpy.ndarray
-            the vector which contains the gradient for every weight
-            in the network
-
-        g_prev: numpy.ndarray
-            the vector which contains the gradient for every weight
-            in the network for the previous algorithm's iteration
-
-        plus: bool
-            whether or not to use the modified PR formula
-            (Default value = False)
-
-        Returns
-        -------
-        The beta computed with the Polak-Ribiere formula.
-        """
-        beta = (g.T.dot(g-g_prev)) / (np.linalg.norm(g_prev))**2
+            s = w - w_prev
+            teta = (2 * (error_prev - error)) + (g + g_prev).T.dot(s)
+            y_tilde = (g - g_prev) + ((rho * ((max(teta, 0)) / s.T.dot(s)))
+                                      * s)
+            beta = (g.T.dot(y_tilde)) / (d_prev.T.dot(y_tilde))
 
         return max(beta, 0) if plus else beta
