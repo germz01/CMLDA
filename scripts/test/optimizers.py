@@ -137,9 +137,138 @@ class SGD(Optimizer):
 
 class CGD(Optimizer):
 
-    """docstring for CGD"""
-    def __init__(
-                 self, arg):
-        super(CGD, self).__init__()
-        self.arg = arg
+    """
+    """
 
+    def __init__(self):
+        """
+        """
+
+        super(CGD, self).__init__()
+
+    def get_direction(self, k, g, beta, d_prev=0, method='standard'):
+        """
+        This functions is used in order to get the current descent
+        direction.
+
+        Parameters
+        ----------
+        k: int
+            the current epoch
+
+        g: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network
+
+        beta: float
+            the beta constant for the current epoch
+
+        d_prev: numpy.ndarray
+            the previous epoch's direction
+            (Default value = 0)
+
+        method: str
+            the choosen method for the direction's calculus as
+            suggested in 'A new conjugate gradient algorithm for
+            training neural networks based on a modified secant
+            equation', either 'standard' or 'plus'
+            (Default value = 'standard')
+
+        Returns
+        -------
+        The gradient descent for epoch k.
+        """
+
+        if k == 0:
+            return -g
+
+        if method == 'standard':
+            return (-g + (beta * d_prev))
+
+        return (-(1 + beta * ((g.T.dot(d_prev)) / np.linalg.norm(g))) * g) \
+            + (beta * d_prev)
+
+    def beta_mhsp():
+        pass
+
+    def beta_hs(self, g, g_prev, d_prev, plus=False):
+        """
+        This function implements the Hestenes-Stiefel's beta.
+
+        Parameters
+        ----------
+        g: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network
+
+        g_prev: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network for the previous algorithm's iteration
+
+        d_prev: numpy.ndarray
+            the previous epoch's direction
+
+        plus: bool
+            whether or not to use the modified HS formula
+            (Default value = False)
+
+        Returns
+        -------
+        The beta computed with the Hestenes-Stiefel's formula.
+        """
+
+        beta = (g.T.dot(g - g_prev)) / ((g - g_prev).T.dot(d_prev))
+
+        return max(beta, 0) if plus else beta
+
+    def beta_fr(self, g, g_prev, plus=False):
+        """
+        This function implements the Fletcher-Reeves beta.
+
+        Parameters
+        ----------
+        g: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network
+
+        g_prev: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network for the previous algorithm's iteration
+
+        plus: bool
+            whether or not to use the modified FR formula
+            (Default value = False)
+
+        Returns
+        -------
+        The beta computed with the Fletcher-Reeves formula.
+        """
+        beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
+
+        return max(beta, 0) if plus else beta
+
+    def beta_pr(self, g, g_prev, plus=False):
+        """
+        This function implements the Polak-Ribiere beta.
+
+        Parameters
+        ----------
+        g: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network
+
+        g_prev: numpy.ndarray
+            the vector which contains the gradient for every weight
+            in the network for the previous algorithm's iteration
+
+        plus: bool
+            whether or not to use the modified PR formula
+            (Default value = False)
+
+        Returns
+        -------
+        The beta computed with the Polak-Ribiere formula.
+        """
+        beta = (g.T.dot(g-g_prev)) / (np.linalg.norm(g_prev))**2
+
+        return max(beta, 0) if plus else beta
