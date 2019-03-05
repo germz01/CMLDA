@@ -188,12 +188,12 @@ class NeuralNetwork(object):
             either 'DL' or 'uniform'
             (Default value = 'DL')
 
-        activation: list
+        activation: list or str
             the activation function to use for each layer, either
-            'sigmoid', 'relu', 'tanh', 'identity'. len(hidden_sizes) + 1
-            functions must be provided because also the output layer's
-            activation function is requested
-            (Default value = ['sigmoid', 'sigmoid'])
+            'sigmoid', 'relu', 'tanh', 'identity' or 'softmax'.
+            len(hidden_sizes) + 1 functions must be provided because also the
+            output layer's activation function is requested
+            (Default value = 'sigmoid')
 
         task: str
             the task that the neural network has to perform, either
@@ -206,7 +206,7 @@ class NeuralNetwork(object):
 
         self.hidden_sizes = hidden_sizes
         self.n_layers = len(hidden_sizes) + 1
-        self.topology = u.compose_topology(X, self.hidden_sizes, y)
+        self.topology = u.compose_topology(X, self.hidden_sizes, y, task)
 
         # self.X = X
 
@@ -262,9 +262,10 @@ class NeuralNetwork(object):
         Parameters
         ----------
         activation: list or str
-            if list represents the activation functions that have to setted
-            for every network's layer else represents the single activation
-            functions that has to be setted for every network's layer
+            if activation is a list then it represents the activation functions
+            for each one of the network's layers, else if activation is a
+            strings it represents the activation function that has to be used
+            for each one of the network's layers
 
         task: str
             the task the network has to pursue, either 'classifier' or
@@ -272,19 +273,25 @@ class NeuralNetwork(object):
 
         Returns
         -------
-        A list of activation functions
+        A list of activation functions.
         """
+        to_return = list()
+
         if type(activation) is list:
             assert len(activation) == self.n_layers
 
-            return activation
+            [to_return.append(act.functions[funct]) for funct in activation]
         elif type(activation) is str:
-            acts = [activation for l in range(self.n_layers)]
+            assert activation in ['identity', 'sigmoid', 'tanh', 'relu',
+                                  'softmax']
 
-            if task == 'regression':
-                acts[-1] = 'identity'
+            [to_return.append(act.functions[activation])
+             for l in range(self.n_layers)]
 
-            return acts
+        if task == 'regression':
+            to_return[-1] = act.functions['identity']
+
+        return to_return
 
     def set_weights(self, w_par=6, w_method='DL'):
         """
@@ -424,8 +431,7 @@ class NeuralNetwork(object):
         for i in range(self.n_layers):
             self.a[i] = self.b[i] + (self.W[i].dot(x.T if i == 0
                                                    else self.h[i - 1]))
-
-            self.h[i] = act.A_F[self.activation[i]]['f'](self.a[i])
+            self.h[i] = self.activation[i](self.a[i])
 
         return lss.mean_squared_error(self.h[-1].T, y)
 
@@ -450,7 +456,7 @@ class NeuralNetwork(object):
         for layer in reversed(range(self.n_layers)):
             g = np.multiply(
                 g,
-                act.A_F[self.activation[layer]]['fdev'](self.a[layer]))
+                self.activation[layer](self.a[layer], dev=True))
             # update bias, sum over patterns
             self.delta_b[layer] = g.sum(axis=1).reshape(-1, 1)
 

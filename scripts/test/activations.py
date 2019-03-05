@@ -131,6 +131,19 @@ def print_fun(fun, x, key):
     plt.close()
 
 
+# This dictionary allows an easier access to the activation functions
+# during the network's creation. It permits to call an activation function
+# simply via functions['function_name'](function_input[, dev_yes_or_no]).
+
+functions = {
+    'identity': identity,
+    'sigmoid': sigmoid,
+    'tanh': tanh,
+    'relu': relu,
+    'softmax': softmax
+}
+
+
 if __name__ == "__main__":
     fpath = '../images/'
 
