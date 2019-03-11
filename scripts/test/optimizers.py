@@ -149,7 +149,8 @@ class CGD(Optimizer):
         self.error_prev = np.Inf
         self.error_per_epochs = []
 
-    def optimize(self, nn, X, y, epochs, error_goal, beta_m, **kwargs):
+    def optimize(self, nn, X, y, epochs, error_goal, beta_m,
+                 sigma_1=1e-4, sigma_2=.5, **kwargs):
         """
         """
 
@@ -168,6 +169,9 @@ class CGD(Optimizer):
             g = self.flat_weights(self.delta_W, self.delta_b)
             beta = self.get_beta(g, g_prev, beta_m, **kwargs)
             d = self.get_direction(k, g, beta)
+
+            eta = self.awls(self.flat_weights(nn.W, nn.b), g, d, sigma_1,
+                            sigma_2, nn, error)
 
             k += 1
 
@@ -191,7 +195,42 @@ class CGD(Optimizer):
         """
         to_return = [np.hstack((b[l], W[l])).flatten() for l in range(len(W))]
 
-        return np.concatenate(to_return.reshape(-1, 1))
+        return np.concatenate(to_return).reshape(-1, 1)
+
+    def deflat_weights(self, W, n_layer, topology):
+        """
+        This functions return the column vector from the optimizer reshaped
+        as the original list of weights' matrices.
+
+        Parameters
+        ----------
+        W: numpy.ndarray
+            the column vector containing the network's weights
+
+        n_layer: int
+            a number representing the number of network's layer
+
+        topology: list
+            a list containing the number of neurons for each network's layer
+
+        Returns
+        -------
+        A list of weights' matrices.
+        """
+        to_ret = []
+        to_app = None
+        ws = topology[0] * topology[1]
+
+        for layer in range(1, n_layer):
+            if layer == 1:
+                to_app = W[0:ws, :]
+            else:
+                to_app = W[ws:ws + (topology[layer - 1] * topology[layer]), :]
+
+            to_ret.append(to_app.reshape(topology[layer], topology[layer - 1]))
+            ws = topology[layer - 1] * topology[layer]
+
+        return to_ret
 
     def get_direction(self, k, g, beta, d_prev=0, method='standard'):
         """
@@ -315,3 +354,58 @@ class CGD(Optimizer):
             beta = (g.T.dot(y_tilde)) / (kwargs['d_prev'].T.dot(y_tilde))
 
         return max(beta, 0) if plus else beta
+
+    def awls(self, W, g, d, sigma_1, sigma_2, nn, x, y, error):
+        """
+        This function implements the searching for the optimal learning rate
+        under the strong Armijo-Wolfe condition.
+
+        Parameters
+        ----------
+        W: numpy.ndarray
+            a column vector representing the network's weigths
+
+        g: numpy.ndarray
+            a column vector representing the gradients for the network
+
+        d: numpy.ndarray
+            a column vector representing the current descent direction
+
+        sigma_1, sigma_2: float
+            hyperparameters involved in the Armijo-Wolfe condition
+
+        nn: nn.NeuralNetwork
+            the neural network
+
+        x: np.ndarray
+            the design set
+
+        y: np.ndarray
+            a column vector representing the target values for the design set
+
+        error: float
+            the error for the current epoch computed with the unmodified
+            weights
+
+        Returns
+        -------
+        The optimal learning rate.
+        """
+        # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
+        to_check = [0.25, 0.50, 0.75]
+        g_d = g.T.dot(d)
+
+        for alpha in to_check:
+            new_W = self.deflat_weights(W + (alpha * d), nn.n_layers,
+                                        nn.topology)
+            nn.W = new_W
+
+            new_error = self.forward_propagation(nn, x, y)
+
+            if new_error - error <= sigma_1 * alpha * g_d:
+                self.back_propagation(nn, x, y)
+
+                new_g = self.flat_weights(nn.delta_W, nn.delta_b)
+
+                if np.absolute(new_g.T.dot(d)) <= sigma_2 * np.absolute(g_d):
+                    return alpha
