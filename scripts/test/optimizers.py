@@ -149,15 +149,51 @@ class CGD(Optimizer):
         self.error_prev = np.Inf
         self.error_per_epochs = []
 
-    def optimize(self, nn, X, y, epochs, error_goal, beta_m,
+    def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
                  sigma_1=1e-4, sigma_2=.5, **kwargs):
         """
+        This function implements the optimization procedure following the
+        Conjugate Gradient Descent, as described in the paper 'A new conjugate
+        gradient algorithm for training neural networks based on a modified
+        secant equation.'.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        max_epochs: int
+            the maximum number of iterations for optimizing the network
+
+        error_goal: float
+            the stopping criteria based on a threshold for the maximum error
+            allowed
+
+        beta_m: str
+            the method for computing the beta constant
+
+        sigma_1, sigma_2: float
+            the hyperparameters for the line search respecting the strong
+            Armijo-Wolfe condition
+
+        **kwargs: dict
+            a dictionary of parameters requested in order to compute different
+            beta's formulas
+
+        Returns
+        -------
         """
 
         k = 0
         g_prev = 0
 
-        while self.error >= error_goal or k != epochs:
+        while self.error >= error_goal or k != max_epochs:
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
@@ -174,9 +210,9 @@ class CGD(Optimizer):
                             sigma_2, nn, error)
 
             new_W = self.flat_weights(nn.W_copy, nn.b_copy) + (eta * d)
-            new_W, new_b = self.unflat_weights(new_W, nn.n_layer, nn.topology)
-            nn.W = new_W
-            nn.b = new_b
+            nn.W, nn.b = self.unflat_weights(new_W, nn.n_layer, nn.topology)
+            nn.W_copy = [w.copy() for w in nn.W]
+            nn.b_copy = [b.copy() for b in nn.b]
 
             k += 1
 
@@ -198,6 +234,7 @@ class CGD(Optimizer):
         -------
         A column vector.
         """
+
         to_return = [np.hstack((b[l], W[l])).flatten() for l in range(len(W))]
 
         return np.concatenate(to_return).reshape(-1, 1)
@@ -222,6 +259,7 @@ class CGD(Optimizer):
         -------
         A list of weights' matrices.
         """
+
         to_ret_W, to_ret_b = [], []
         # sommiamo topology[1] perche consideriamo il BIAS
         ws = 0
@@ -405,6 +443,7 @@ class CGD(Optimizer):
         -------
         The optimal learning rate.
         """
+
         # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
         alphas = [0.25, 0.50, 0.75]
         g_d = g.T.dot(d)
