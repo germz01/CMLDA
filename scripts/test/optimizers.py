@@ -173,6 +173,11 @@ class CGD(Optimizer):
             eta = self.awls(self.flat_weights(nn.W, nn.b), g, d, sigma_1,
                             sigma_2, nn, error)
 
+            new_W = self.flat_weights(nn.W_copy, nn.b_copy) + (eta * d)
+            new_W, new_b = self.unflat_weights(new_W, nn.n_layer, nn.topology)
+            nn.W = new_W
+            nn.b = new_b
+
             k += 1
 
     def flat_weights(self, W, b):
@@ -197,7 +202,7 @@ class CGD(Optimizer):
 
         return np.concatenate(to_return).reshape(-1, 1)
 
-    def deflat_weights(self, W, n_layer, topology):
+    def unflat_weights(W, n_layer, topology):
         """
         This functions return the column vector from the optimizer reshaped
         as the original list of weights' matrices.
@@ -217,20 +222,29 @@ class CGD(Optimizer):
         -------
         A list of weights' matrices.
         """
-        to_ret = []
-        to_app = None
-        ws = topology[0] * topology[1]
+        to_ret_W, to_ret_b = [], []
+        # sommiamo topology[1] perche consideriamo il BIAS
+        ws = 0
 
         for layer in range(1, n_layer):
-            if layer == 1:
-                to_app = W[0:ws, :]
-            else:
-                to_app = W[ws:ws + (topology[layer - 1] * topology[layer]), :]
+            to_app_W, to_app_b = [], []
 
-            to_ret.append(to_app.reshape(topology[layer], topology[layer - 1]))
-            ws = topology[layer - 1] * topology[layer]
+            for i in range(topology[layer]):
+                bias_position = (i * topology[layer - 1] + i) if layer == 1 \
+                    else ws + (i * topology[layer - 1] + i)
+                to_app_b.append(W[bias_position, :])
+                to_app_W.append(W[bias_position + 1:bias_position + 1 +
+                                topology[layer - 1]])
+            to_app_W = np.vstack(to_app_W)
+            to_app_b = np.vstack(to_app_b)
 
-        return to_ret
+            to_ret_W.append(to_app_W.reshape(topology[layer],
+                                             topology[layer - 1]))
+            to_ret_b.append(to_app_b.reshape(topology[layer], 1))
+
+            ws += (topology[layer - 1] * topology[layer]) + topology[layer]
+
+        return to_ret_W, to_ret_b
 
     def get_direction(self, k, g, beta, d_prev=0, method='standard'):
         """
@@ -357,8 +371,8 @@ class CGD(Optimizer):
 
     def awls(self, W, g, d, sigma_1, sigma_2, nn, x, y, error):
         """
-        This function implements the searching for the optimal learning rate
-        under the strong Armijo-Wolfe condition.
+        This function implements the searching for an optimal learning rate
+        respecting the strong Armijo-Wolfe conditions.
 
         Parameters
         ----------
@@ -392,19 +406,19 @@ class CGD(Optimizer):
         The optimal learning rate.
         """
         # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
-        to_check = [0.25, 0.50, 0.75]
+        alphas = [0.25, 0.50, 0.75]
         g_d = g.T.dot(d)
 
-        for alpha in to_check:
-            new_W = self.deflat_weights(W + (alpha * d), nn.n_layers,
-                                        nn.topology)
+        for alpha in alphas:
+            new_W, new_b = self.unflat_weights(W + (alpha * d), nn.n_layers,
+                                               nn.topology)
             nn.W = new_W
+            nn.b = new_b
 
             new_error = self.forward_propagation(nn, x, y)
 
             if new_error - error <= sigma_1 * alpha * g_d:
                 self.back_propagation(nn, x, y)
-
                 new_g = self.flat_weights(nn.delta_W, nn.delta_b)
 
                 if np.absolute(new_g.T.dot(d)) <= sigma_2 * np.absolute(g_d):
