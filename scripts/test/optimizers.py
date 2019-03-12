@@ -150,7 +150,7 @@ class CGD(Optimizer):
         self.error_per_epochs = []
 
     def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
-                 sigma_1=1e-4, sigma_2=.5, **kwargs):
+                 sigma_1=1e-4, sigma_2=.5, rho=0.0):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -182,10 +182,6 @@ class CGD(Optimizer):
             the hyperparameters for the line search respecting the strong
             Armijo-Wolfe condition
 
-        **kwargs: dict
-            a dictionary of parameters requested in order to compute different
-            beta's formulas
-
         Returns
         -------
         """
@@ -193,21 +189,47 @@ class CGD(Optimizer):
         k = 0
         g_prev = 0
 
+        # if beta_m == 'hs' or 'mhs':
+        #     d_prev = 0
+        #     if beta_m == 'mhs':
+        #         w_prev = 0
+
         while self.error >= error_goal or k != max_epochs:
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
 
-            error = super(SGD, self).forward_propagation(nn, X, y)
+            self.error = super(SGD, self).forward_propagation(nn, X, y)
             super(SGD, self).back_propagation(nn, X, y)
-            self.error_per_epochs.append(error)
+            self.error_per_epochs.append(self.error)
 
             g = self.flat_weights(self.delta_W, self.delta_b)
-            beta = self.get_beta(g, g_prev, beta_m, **kwargs)
+
+            flatten_weights = self.flat_weights(nn.W, nn.b)
+
+            if k == 0:
+                self.error_prev = self.error
+                g_prev = g
+                if beta_m == 'hs' or 'mhs':
+                    d_prev = -g
+                    if beta_m == 'mhs':
+                        w_prev = flatten_weights
+
+            if beta_m == 'fr' or beta_m == 'pr':
+                beta = self.get_beta(g, g_prev, beta_m)
+            elif beta_m == 'hs':
+                beta = self.get_beta(g, g_prev, beta_m, d_prev=d_prev)
+            else:
+                beta = self.get_beta(g, g_prev, beta_m, d_prev=d_prev,
+                                     error=self.error,
+                                     error_prev=self.error_prev,
+                                     w=flatten_weights, w_prev=w_prev,
+                                     rho=rho)
+
             d = self.get_direction(k, g, beta)
 
-            eta = self.awls(self.flat_weights(nn.W, nn.b), g, d, sigma_1,
-                            sigma_2, nn, error)
+            eta = self.awls(flatten_weights, g, d, sigma_1, sigma_2, nn,
+                            self.error)
 
             new_W = self.flat_weights(nn.W_copy, nn.b_copy) + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layer, nn.topology)
@@ -215,6 +237,12 @@ class CGD(Optimizer):
             nn.b_copy = [b.copy() for b in nn.b]
 
             k += 1
+            g_prev = g
+
+            if beta_m == 'hs' or 'mhs':
+                d_prev = d
+                if beta_m == 'mhs':
+                    w_prev = new_W
 
     def flat_weights(self, W, b):
         """
@@ -342,7 +370,7 @@ class CGD(Optimizer):
 
         method: str
             the formula used to compute the beta, either 'hs' or
-            'pr' or 'fr'
+            'pr' or 'fr' or 'mhs'
 
         plus: bool
             whether or not to use the modified HS formula
@@ -381,7 +409,7 @@ class CGD(Optimizer):
         The beta computed with the specified formula.
         """
 
-        assert method in ['hs', 'pr', 'fr']
+        assert method in ['hs', 'pr', 'fr', 'mhs']
 
         beta = 0.0
 
@@ -454,9 +482,9 @@ class CGD(Optimizer):
             nn.W = new_W
             nn.b = new_b
 
-            new_error = self.forward_propagation(nn, x, y)
+            self.error_prev = self.forward_propagation(nn, x, y)
 
-            if new_error - error <= sigma_1 * alpha * g_d:
+            if self.error_prev - error <= sigma_1 * alpha * g_d:
                 self.back_propagation(nn, x, y)
                 new_g = self.flat_weights(nn.delta_W, nn.delta_b)
 
