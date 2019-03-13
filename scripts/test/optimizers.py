@@ -194,19 +194,19 @@ class CGD(Optimizer):
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
 
-            self.error = self.forward_propagation(nn, X, y)
+            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
             self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
 
             g = self.flat_weights(self.delta_W, self.delta_b)
 
-            flatten_weights = self.flat_weights(nn.W, nn.b)
+            flatted_weights = self.flat_weights(nn.W, nn.b)
             flatted_copies = self.flat_weights(nn.W_copy, nn.b_copy)
 
             if k == 0:
                 self.error_prev = self.error
                 g_prev = 0
-                if beta_m == 'hs' or 'mhs':
+                if beta_m == 'hs' or beta_m == 'mhs':
                     d_prev = -g
                     if beta_m == 'mhs':
                         w_prev = 0
@@ -220,12 +220,12 @@ class CGD(Optimizer):
                 beta = self.get_beta(g, g_prev, beta_m, plus=plus,
                                      d_prev=d_prev, error=self.error,
                                      error_prev=self.error_prev,
-                                     w=flatten_weights, w_prev=w_prev,
+                                     w=flatted_weights, w_prev=w_prev,
                                      rho=rho)
 
             d = self.get_direction(k, g, beta)
 
-            eta = self.awls(flatten_weights, g, d, sigma_1, sigma_2, nn, X, y,
+            eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X, y,
                             self.error, strong)
 
             new_W = flatted_copies + (eta * d)
@@ -236,6 +236,7 @@ class CGD(Optimizer):
 
             k += 1
             g_prev = g
+            self.error_prev = self.error
 
             if beta_m == 'hs' or 'mhs':
                 d_prev = d
@@ -433,7 +434,7 @@ class CGD(Optimizer):
 
         return max(beta, 0) if plus else beta
 
-    def awls(self, W, g, d, sigma_1, sigma_2, nn, x, y, error, strong):
+    def awls(self, W, g, d, sigma_1, sigma_2, nn, X, y, error, strong):
         """
         This function implements the searching for an optimal learning rate
         respecting the strong Armijo-Wolfe conditions.
@@ -455,7 +456,7 @@ class CGD(Optimizer):
         nn: nn.NeuralNetwork
             the neural network
 
-        x: np.ndarray
+        X: np.ndarray
             the design set
 
         y: np.ndarray
@@ -482,10 +483,10 @@ class CGD(Optimizer):
             nn.W = new_W
             nn.b = new_b
 
-            self.error_prev = self.forward_propagation(nn, x, y)
+            self.error_prev = self.forward_propagation(nn, X, y) / X.shape[0]
 
             if self.error_prev - error <= sigma_1 * alpha * g_d:
-                self.back_propagation(nn, x, y)
+                self.back_propagation(nn, X, y)
                 new_g = self.flat_weights(self.delta_W, self.delta_b)
 
                 if strong:
