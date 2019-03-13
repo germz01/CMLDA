@@ -105,12 +105,11 @@ class SGD(Optimizer):
                         nn.W[layer] += self.momentum['alpha'] * \
                                        self.velocity_W[layer]
 
-                error = super(SGD, self).forward_propagation(nn, x_batch,
-                                                             y_batch)
+                error = self.forward_propagation(nn, x_batch, y_batch)
                 self.error_per_batch.append(error)
                 error_per_batch.append(error)
 
-                super(SGD, self).back_propagation(nn, x_batch, y_batch)
+                self.back_propagation(nn, x_batch, y_batch)
 
                 # WEIGHTS' UPDATE #############################################
 
@@ -199,8 +198,8 @@ class CGD(Optimizer):
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
 
-            self.error = super(SGD, self).forward_propagation(nn, X, y)
-            super(SGD, self).back_propagation(nn, X, y)
+            self.error = self.forward_propagation(nn, X, y)
+            self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
 
             g = self.flat_weights(self.delta_W, self.delta_b)
@@ -209,7 +208,7 @@ class CGD(Optimizer):
 
             if k == 0:
                 self.error_prev = self.error
-                g_prev = g
+                g_prev = 0
                 if beta_m == 'hs' or 'mhs':
                     d_prev = -g
                     if beta_m == 'mhs':
@@ -228,11 +227,11 @@ class CGD(Optimizer):
 
             d = self.get_direction(k, g, beta)
 
-            eta = self.awls(flatten_weights, g, d, sigma_1, sigma_2, nn,
+            eta = self.awls(flatten_weights, g, d, sigma_1, sigma_2, nn, X, y,
                             self.error)
 
             new_W = self.flat_weights(nn.W_copy, nn.b_copy) + (eta * d)
-            nn.W, nn.b = self.unflat_weights(new_W, nn.n_layer, nn.topology)
+            nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
             nn.W_copy = [w.copy() for w in nn.W]
             nn.b_copy = [b.copy() for b in nn.b]
 
@@ -267,7 +266,7 @@ class CGD(Optimizer):
 
         return np.concatenate(to_return).reshape(-1, 1)
 
-    def unflat_weights(W, n_layer, topology):
+    def unflat_weights(self, W, n_layer, topology):
         """
         This functions return the column vector from the optimizer reshaped
         as the original list of weights' matrices.
@@ -292,7 +291,7 @@ class CGD(Optimizer):
         # sommiamo topology[1] perche consideriamo il BIAS
         ws = 0
 
-        for layer in range(1, n_layer):
+        for layer in range(1, n_layer + 1):
             to_app_W, to_app_b = [], []
 
             for i in range(topology[layer]):
@@ -486,7 +485,7 @@ class CGD(Optimizer):
 
             if self.error_prev - error <= sigma_1 * alpha * g_d:
                 self.back_propagation(nn, x, y)
-                new_g = self.flat_weights(nn.delta_W, nn.delta_b)
+                new_g = self.flat_weights(self.delta_W, self.delta_b)
 
                 if np.absolute(new_g.T.dot(d)) <= sigma_2 * np.absolute(g_d):
                     return alpha
