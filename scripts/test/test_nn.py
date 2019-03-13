@@ -14,12 +14,13 @@ if __name__ == '__main__':
                          epochs=1000,
                          momentum={'type': 'standard', 'alpha': 0.7})
     else:
-        neural_net.train(X, y, 'CGD', max_epochs=10, error_goal=1e-4,
-                         beta_m='hs', plus=True)
+        neural_net.train(X, y, 'CGD', max_epochs=10000, error_goal=1e-2,
+                         beta_m='mhs', plus=True, strong=True)
 
     print '\n'
     print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])
     print 'FINAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[-1])
+    print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.error_per_epochs))
     print '\n'
 
     if raw_input('PLOT LEARNING CURVE?(Y/N) ') == 'Y':

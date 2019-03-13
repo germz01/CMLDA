@@ -149,7 +149,8 @@ class CGD(Optimizer):
         self.error_per_epochs = []
 
     def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
-                 plus=False, sigma_1=1e-4, sigma_2=.5, rho=0.0):
+                 plus=False, strong=False, sigma_1=1e-4, sigma_2=.5,
+                 rho=0.0):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -188,11 +189,6 @@ class CGD(Optimizer):
         k = 0
         g_prev = 0
 
-        # if beta_m == 'hs' or 'mhs':
-        #     d_prev = 0
-        #     if beta_m == 'mhs':
-        #         w_prev = 0
-
         while self.error >= error_goal and k != max_epochs:
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
@@ -205,6 +201,7 @@ class CGD(Optimizer):
             g = self.flat_weights(self.delta_W, self.delta_b)
 
             flatten_weights = self.flat_weights(nn.W, nn.b)
+            flatted_copies = self.flat_weights(nn.W_copy, nn.b_copy)
 
             if k == 0:
                 self.error_prev = self.error
@@ -212,7 +209,7 @@ class CGD(Optimizer):
                 if beta_m == 'hs' or 'mhs':
                     d_prev = -g
                     if beta_m == 'mhs':
-                        w_prev = flatten_weights
+                        w_prev = 0
 
             if beta_m == 'fr' or beta_m == 'pr':
                 beta = self.get_beta(g, g_prev, beta_m, plus=plus)
@@ -229,10 +226,11 @@ class CGD(Optimizer):
             d = self.get_direction(k, g, beta)
 
             eta = self.awls(flatten_weights, g, d, sigma_1, sigma_2, nn, X, y,
-                            self.error)
+                            self.error, strong)
 
-            new_W = self.flat_weights(nn.W_copy, nn.b_copy) + (eta * d)
+            new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
+
             nn.W_copy = [w.copy() for w in nn.W]
             nn.b_copy = [b.copy() for b in nn.b]
 
@@ -242,7 +240,7 @@ class CGD(Optimizer):
             if beta_m == 'hs' or 'mhs':
                 d_prev = d
                 if beta_m == 'mhs':
-                    w_prev = new_W
+                    w_prev = flatted_copies
 
     def flat_weights(self, W, b):
         """
@@ -435,7 +433,7 @@ class CGD(Optimizer):
 
         return max(beta, 0) if plus else beta
 
-    def awls(self, W, g, d, sigma_1, sigma_2, nn, x, y, error):
+    def awls(self, W, g, d, sigma_1, sigma_2, nn, x, y, error, strong):
         """
         This function implements the searching for an optimal learning rate
         respecting the strong Armijo-Wolfe conditions.
@@ -473,7 +471,7 @@ class CGD(Optimizer):
         """
 
         # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
-        alphas = np.linspace(0.0, 1.0, 50, endpoint=False)[1:]
+        alphas = np.linspace(0.0, 1., 50, endpoint=False)[1:]
         g_d = g.T.dot(d)
 
         for alpha in alphas:
@@ -490,5 +488,10 @@ class CGD(Optimizer):
                 self.back_propagation(nn, x, y)
                 new_g = self.flat_weights(self.delta_W, self.delta_b)
 
-                if np.absolute(new_g.T.dot(d)) <= sigma_2 * np.absolute(g_d):
-                    return alpha
+                if strong:
+                    if np.absolute(new_g.T.dot(d)) <= \
+                       sigma_2 * np.absolute(g_d):
+                        return alpha
+                else:
+                    if new_g.T.dot(d) <= sigma_2 * g_d:
+                        return alpha
