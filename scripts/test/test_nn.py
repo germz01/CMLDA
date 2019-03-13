@@ -10,12 +10,12 @@ if __name__ == '__main__':
                                   activation='sigmoid')
 
     if raw_input('TRAINING WITH SGD OR CGD?(SGD/CGD) ') == 'SGD':
-        neural_net.train(X, y, 'SGD', batch_size=X.shape[0], eta=0.3,
+        neural_net.train(X, y, 'SGD', batch_size=X.shape[0], eta=0.1,
                          epochs=1000,
-                         momentum={'type': 'nesterov', 'alpha': 0.5})
+                         momentum={'type': 'standard', 'alpha': 0.7})
     else:
         neural_net.train(X, y, 'CGD', max_epochs=10, error_goal=1e-4,
-                         beta_m='hs')
+                         beta_m='hs', plus=True)
 
     print '\n'
     print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])

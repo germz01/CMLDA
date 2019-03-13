@@ -149,7 +149,7 @@ class CGD(Optimizer):
         self.error_per_epochs = []
 
     def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
-                 sigma_1=1e-4, sigma_2=.5, rho=0.0):
+                 plus=False, sigma_1=1e-4, sigma_2=.5, rho=0.0):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -193,7 +193,7 @@ class CGD(Optimizer):
         #     if beta_m == 'mhs':
         #         w_prev = 0
 
-        while self.error >= error_goal or k != max_epochs:
+        while self.error >= error_goal and k != max_epochs:
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
@@ -215,12 +215,13 @@ class CGD(Optimizer):
                         w_prev = flatten_weights
 
             if beta_m == 'fr' or beta_m == 'pr':
-                beta = self.get_beta(g, g_prev, beta_m)
+                beta = self.get_beta(g, g_prev, beta_m, plus=plus)
             elif beta_m == 'hs':
-                beta = self.get_beta(g, g_prev, beta_m, d_prev=d_prev)
+                beta = self.get_beta(g, g_prev, beta_m, plus=plus,
+                                     d_prev=d_prev)
             else:
-                beta = self.get_beta(g, g_prev, beta_m, d_prev=d_prev,
-                                     error=self.error,
+                beta = self.get_beta(g, g_prev, beta_m, plus=plus,
+                                     d_prev=d_prev, error=self.error,
                                      error_prev=self.error_prev,
                                      w=flatten_weights, w_prev=w_prev,
                                      rho=rho)
@@ -472,12 +473,14 @@ class CGD(Optimizer):
         """
 
         # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
-        alphas = [0.25, 0.50, 0.75]
+        alphas = np.linspace(0.0, 1.0, 50, endpoint=False)[1:]
         g_d = g.T.dot(d)
 
         for alpha in alphas:
-            new_W, new_b = self.unflat_weights(W + (alpha * d), nn.n_layers,
-                                               nn.topology)
+            W_search = W.copy()
+
+            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+                                               nn.n_layers, nn.topology)
             nn.W = new_W
             nn.b = new_b
 
