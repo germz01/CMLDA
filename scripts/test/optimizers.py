@@ -223,10 +223,13 @@ class CGD(Optimizer):
                                      w=flatted_weights, w_prev=w_prev,
                                      rho=rho)
 
-            d = self.get_direction(k, g, beta)
+            d = self.get_direction(k, g, beta)#Question: manca d_prev?
 
             eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X, y,
                             self.error, strong)
+
+            # eta = self.line_search(flatted_weights, g, d, sigma_1, sigma_2,
+            #                       nn, X, y, self.error, strong)
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
@@ -346,7 +349,7 @@ class CGD(Optimizer):
 
         if k == 0:
             return -g
-
+        # Question: manca il parametro method in optimizer
         if method == 'standard':
             return (-g + (beta * d_prev))
 
@@ -434,6 +437,93 @@ class CGD(Optimizer):
 
         return max(beta, 0) if plus else beta
 
+    def interpolate_alpha(self, low, high):
+        # TODO
+        alphas = np.linspace(low, high, 23)
+        return alphas[np.random.randint(1, len(alphas)-1)]
+
+    def line_search(self, W, g, d, sigma_1, sigma_2, nn, X, y, error_0, strong):
+        alpha_0, alpha_prev = 0.0, 0.0
+        alpha_max = 1.0
+        alpha = self.interpolate_alpha(alpha_0, alpha_max)
+        k = 1
+        error_prev = 0
+        g_d = g.T.dot(d)
+
+        while k < 70000:
+            W_search = W.copy()
+            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+                                               nn.n_layers, nn.topology)
+            nn.W = new_W
+            nn.b = new_b
+
+            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
+
+            if (self.error > error_0 + sigma_1 * alpha * g_d) or \
+                    ((self.error >= error_prev) and (k > 1)):
+
+                return self.zoom(W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
+                                 strong, g_d, alpha_prev, alpha,
+                                 error_prev)
+
+            self.back_propagation(nn, X, y)
+            new_g = self.flat_weights(self.delta_W, self.delta_b)
+            n_g_d = new_g.T.dot(d)
+
+            if strong:
+                if np.absolute(n_g_d) <= \
+                       sigma_2 * np.absolute(g_d):
+                    print alpha
+                    return alpha
+            else:
+                if n_g_d <= sigma_2 * g_d:
+                    return alpha
+
+            if n_g_d >= 0:
+                return self.zoom(W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
+                                 strong, g_d, alpha, alpha_prev, self.error)
+
+            error_prev = self.error
+            alpha_prev = alpha
+            alpha = self.interpolate_alpha(alpha, alpha_max)
+            k += 1
+
+    def zoom(self, W, g, d, sigma_1, sigma_2, nn, X, y,
+             error_0, strong, g_d, low, high, error_low):
+        k = 0
+        while k < 10000:
+            alpha = self.interpolate_alpha(low, high)
+            W_search = W.copy()
+            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+                                               nn.n_layers, nn.topology)
+            nn.W = new_W
+            nn.b = new_b
+
+            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
+
+            if (self.error > error_0 + sigma_1 * alpha * g_d) or \
+                    (self.error >= error_low):
+                high = alpha
+            else:
+                self.back_propagation(nn, X, y)
+                new_g = self.flat_weights(self.delta_W, self.delta_b)
+                n_g_d = new_g.T.dot(d)
+
+                if strong:
+                    if np.absolute(n_g_d) <= \
+                       sigma_2 * np.absolute(g_d):
+                        return alpha
+                    if n_g_d * (high - low) >= 0:
+                        high = low
+                else:
+                    if n_g_d <= sigma_2 * g_d:
+                        return alpha
+                    if n_g_d * (high - low) >= 0:
+                        high = low
+                low = alpha
+                error_low = self.error
+            k += 1
+
     def awls(self, W, g, d, sigma_1, sigma_2, nn, X, y, error, strong):
         """
         This function implements the searching for an optimal learning rate
@@ -471,10 +561,9 @@ class CGD(Optimizer):
         The optimal learning rate.
         """
 
-        # TODO: AGGIUNGERE NP.LINSPACE CON VALORI MIGLIORI
         alphas = np.linspace(0.0, 1., 50, endpoint=False)[1:]
         g_d = g.T.dot(d)
-
+        # Question: error_prev in realtà è current error
         for alpha in alphas:
             W_search = W.copy()
 
