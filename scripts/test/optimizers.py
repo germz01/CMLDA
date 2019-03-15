@@ -149,8 +149,8 @@ class CGD(Optimizer):
         self.error_per_epochs = []
 
     def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
-                 plus=False, strong=False, sigma_1=1e-4, sigma_2=.5,
-                 rho=0.0):
+                 d_m='standard', plus=False, strong=False, sigma_1=1e-4,
+                 sigma_2=.5, rho=0.0):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -177,6 +177,11 @@ class CGD(Optimizer):
 
         beta_m: str
             the method for computing the beta constant
+
+        d_m: str
+            the method for computing the direction; either 'standard' or
+            'modified'
+            (Default value = 'standard')
 
         sigma_1, sigma_2: float
             the hyperparameters for the line search respecting the strong
@@ -223,13 +228,13 @@ class CGD(Optimizer):
                                      w=flatted_weights, w_prev=w_prev,
                                      rho=rho)
 
-            d = self.get_direction(k, g, beta)#Question: manca d_prev?
+            d = self.get_direction(k, g, beta, d_prev=d_prev, method=d_m)
 
-            eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X, y,
-                            self.error, strong)
+            # eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X,
+            #                 y, self.error, strong)
 
-            # eta = self.line_search(flatted_weights, g, d, sigma_1, sigma_2,
-            #                       nn, X, y, self.error, strong)
+            eta = self.line_search(flatted_weights, g, d, sigma_1, sigma_2,
+                                   nn, X, y, self.error, strong)
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
@@ -339,7 +344,7 @@ class CGD(Optimizer):
             the choosen method for the direction's calculus as
             suggested in 'A new conjugate gradient algorithm for
             training neural networks based on a modified secant
-            equation', either 'standard' or 'plus'
+            equation', either 'standard' or 'modified'
             (Default value = 'standard')
 
         Returns
@@ -349,7 +354,6 @@ class CGD(Optimizer):
 
         if k == 0:
             return -g
-        # Question: manca il parametro method in optimizer
         if method == 'standard':
             return (-g + (beta * d_prev))
 
@@ -437,20 +441,21 @@ class CGD(Optimizer):
 
         return max(beta, 0) if plus else beta
 
-    def interpolate_alpha(self, low, high):
-        # TODO
-        alphas = np.linspace(low, high, 23)
-        return alphas[np.random.randint(1, len(alphas)-1)]
+    def line_search(self, W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
+                    strong):
+        """
+        """
 
-    def line_search(self, W, g, d, sigma_1, sigma_2, nn, X, y, error_0, strong):
-        alpha_0, alpha_prev = 0.0, 0.0
-        alpha_max = 1.0
-        alpha = self.interpolate_alpha(alpha_0, alpha_max)
+        alpha, alpha_max, alpha_prev = 0.0, 1.0, 0.0
         k = 1
         error_prev = 0
+
         g_d = g.T.dot(d)
 
-        while k < 70000:
+        while True:
+            alphas = np.round(np.linspace(alpha, alpha_max, 23), decimals=3)
+            alpha = alphas[np.random.randint(1, len(alphas) - 1)]
+
             W_search = W.copy()
             new_W, new_b = self.unflat_weights(W_search + (alpha * d),
                                                nn.n_layers, nn.topology)
@@ -462,9 +467,8 @@ class CGD(Optimizer):
             if (self.error > error_0 + sigma_1 * alpha * g_d) or \
                     ((self.error >= error_prev) and (k > 1)):
 
-                return self.zoom(W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
-                                 strong, g_d, alpha_prev, alpha,
-                                 error_prev)
+                return self.zoom(W, d, sigma_1, sigma_2, nn, X, y, error_0,
+                                 strong, g_d, alpha_prev, alpha, error_prev)
 
             self.back_propagation(nn, X, y)
             new_g = self.flat_weights(self.delta_W, self.delta_b)
@@ -479,20 +483,25 @@ class CGD(Optimizer):
                 if n_g_d <= sigma_2 * g_d:
                     return alpha
 
-            if n_g_d >= 0:
-                return self.zoom(W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
+            if np.all(n_g_d >= 0):
+                return self.zoom(W, d, sigma_1, sigma_2, nn, X, y, error_0,
                                  strong, g_d, alpha, alpha_prev, self.error)
 
             error_prev = self.error
             alpha_prev = alpha
-            alpha = self.interpolate_alpha(alpha, alpha_max)
+
             k += 1
 
-    def zoom(self, W, g, d, sigma_1, sigma_2, nn, X, y,
-             error_0, strong, g_d, low, high, error_low):
-        k = 0
-        while k < 10000:
-            alpha = self.interpolate_alpha(low, high)
+    def zoom(self, W, d, sigma_1, sigma_2, nn, X, y, error_0, strong, g_d, low,
+             high, error_low):
+        """
+        """
+
+        while True:
+            alpha = self.interpolate_alpha(low, high, W, d, nn, X, y)
+            if alpha is None:
+                 alpha = self.interpolate_alpha(low, high, W, d, nn, X, y)
+
             W_search = W.copy()
             new_W, new_b = self.unflat_weights(W_search + (alpha * d),
                                                nn.n_layers, nn.topology)
@@ -520,9 +529,68 @@ class CGD(Optimizer):
                         return alpha
                     if n_g_d * (high - low) >= 0:
                         high = low
+
                 low = alpha
                 error_low = self.error
-            k += 1
+
+    def interpolate_alpha(self, low, high, W, d, nn, X, y, l_min=.2):
+        """
+        This functions provides the interpolation functionality for obtaining
+        a new step for the line search.
+
+        Parameters
+        ----------
+        low: float
+            the inferior extreme for the line search
+
+        high: float
+            the superior extreme for the line search
+
+        low_f: float
+            the desidered final inferior extreme for the line search
+            (Default value = 0.0)
+
+        high_f: float
+            the desidered final superior extreme for the line search
+            (Default value = 0.25)
+
+        Returns
+        -------
+        A float representing the new step for the line search.
+        """
+
+        n, k = 0, 0
+
+        while True:
+            while (.5)**n > l_min / (high - low):
+                n += 1
+
+            alpha_k = 0.0
+
+            while k != n:
+                alpha_k = 0.5 * (low + high)
+
+                W_search = W.copy()
+                new_W, new_b = self.unflat_weights(W_search + (alpha_k * d),
+                                                   nn.n_layers, nn.topology)
+                nn.W = new_W
+                nn.b = new_b
+
+                self.forward_propagation(nn, X, y)
+                self.back_propagation(nn, X, y)
+
+                g = self.flat_weights(self.delta_W, self.delta_b)
+
+                if np.all(g == 0):
+                    return alpha_k
+                elif np.all(g > 0):
+                    high = alpha_k
+                elif np.all(g < 0):
+                    low = alpha_k
+
+                k += 1
+
+            n = n + 1
 
     def awls(self, W, g, d, sigma_1, sigma_2, nn, X, y, error, strong):
         """
@@ -563,7 +631,6 @@ class CGD(Optimizer):
 
         alphas = np.linspace(0.0, 1., 50, endpoint=False)[1:]
         g_d = g.T.dot(d)
-        # Question: error_prev in realtà è current error
         for alpha in alphas:
             W_search = W.copy()
 
