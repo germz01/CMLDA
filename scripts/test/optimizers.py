@@ -476,7 +476,7 @@ class CGD(Optimizer):
 
             if strong:
                 if np.absolute(n_g_d) <= \
-                       sigma_2 * np.absolute(g_d):
+                       (-sigma_2) * g_d:
                     print alpha
                     return alpha
             else:
@@ -520,7 +520,7 @@ class CGD(Optimizer):
 
                 if strong:
                     if np.absolute(n_g_d) <= \
-                       sigma_2 * np.absolute(g_d):
+                       (-sigma_2) * g_d:
                         return alpha
                     if n_g_d * (high - low) >= 0:
                         high = low
