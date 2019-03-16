@@ -137,6 +137,19 @@ class SGD(Optimizer):
 class CGD(Optimizer):
 
     """
+    This class is a wrapper for an implementation of the Conjugate Gradient
+    Descent.
+
+    Attributes
+    ---------
+    error: float
+        the error (loss) for the current epoch of training
+
+    error_prev: float
+        the error (loss) for the previous epoch of training
+
+    error_per_epochs: list
+        a list containing the error for each epoch of training
     """
 
     def __init__(self, nn):
