@@ -154,6 +154,12 @@ class CGD(Optimizer):
 
     def __init__(self, nn):
         """
+        The class' constructor.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            the neural network that has to be optimized
         """
 
         super(CGD, self).__init__(nn)
@@ -246,8 +252,8 @@ class CGD(Optimizer):
             # eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X,
             #                 y, self.error, strong)
 
-            eta = self.line_search(flatted_weights, g, d, sigma_1, sigma_2,
-                                   nn, X, y, self.error, strong)
+            eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
+                                   self.error)
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
@@ -255,7 +261,6 @@ class CGD(Optimizer):
             nn.W_copy = [w.copy() for w in nn.W]
             nn.b_copy = [b.copy() for b in nn.b]
 
-            k += 1
             g_prev = g
             self.error_prev = self.error
 
@@ -263,6 +268,8 @@ class CGD(Optimizer):
                 d_prev = d
                 if beta_m == 'mhs':
                     w_prev = flatted_copies
+
+            k += 1
 
     def flat_weights(self, W, b):
         """
@@ -454,214 +461,113 @@ class CGD(Optimizer):
 
         return max(beta, 0) if plus else beta
 
-    def line_search(self, W, g, d, sigma_1, sigma_2, nn, X, y, error_0,
-                    strong):
-        """
-        """
+    def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
+                    sigma_2=0.9):
+        alpha_prev, alpha_max = 0., 1.
 
-        alpha, alpha_max, alpha_prev = 0.0, 1.0, 0.0
-        k = 1
-        error_prev = 0
+        alpha_current = np.random.random()
 
-        g_d = g.T.dot(d)
+        error_prev = 0.
+
+        i = 1
 
         while True:
-            alphas = np.round(np.linspace(alpha, alpha_max, 23), decimals=3)
-            alpha = alphas[np.random.randint(1, len(alphas) - 1)]
-
             W_search = W.copy()
-            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+            new_W, new_b = self.unflat_weights(W_search + (alpha_current * d),
                                                nn.n_layers, nn.topology)
             nn.W = new_W
             nn.b = new_b
+            error_current = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
-
-            if (self.error > error_0 + sigma_1 * alpha * g_d) or \
-                    ((self.error >= error_prev) and (k > 1)):
-
-                return self.zoom(W, d, sigma_1, sigma_2, nn, X, y, error_0,
-                                 strong, g_d, alpha_prev, alpha, error_prev)
+            if error_current > (error_0 + (sigma_1 * alpha_current * g_d)) or \
+               ((error_current >= error_prev) and (i > 1)):
+                return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
+                                 g_d, error_0, sigma_1, sigma_2)
 
             self.back_propagation(nn, X, y)
             new_g = self.flat_weights(self.delta_W, self.delta_b)
             n_g_d = new_g.T.dot(d)
 
-            if strong:
-                if np.absolute(n_g_d) <= \
-                       (-sigma_2) * g_d:
-                    print alpha
-                    return alpha
-            else:
-                if n_g_d <= sigma_2 * g_d:
-                    return alpha
+            if np.absolute(n_g_d) <= -sigma_2 * g_d:
+                return alpha_current
 
-            if np.all(n_g_d >= 0):
-                return self.zoom(W, d, sigma_1, sigma_2, nn, X, y, error_0,
-                                 strong, g_d, alpha, alpha_prev, self.error)
+            if n_g_d >= 0:
+                return self.zoom(alpha_current, alpha_max, nn, X, y, W, d,
+                                 g_d, error_0, sigma_1, sigma_2)
 
-            error_prev = self.error
-            alpha_prev = alpha
+            alpha_current = alpha_current * 2 \
+                if alpha_current * 2 < alpha_max else 1.
 
-            k += 1
+            i += 1
 
-    def zoom(self, W, d, sigma_1, sigma_2, nn, X, y, error_0, strong, g_d, low,
-             high, error_low):
-        """
-        """
-
+    def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0, sigma_1,
+             sigma_2):
         while True:
-            alpha = self.interpolate_alpha(low, high, W, d, nn, X, y)
-            if alpha is None:
-                 alpha = self.interpolate_alpha(low, high, W, d, nn, X, y)
+            alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
 
             W_search = W.copy()
-            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+            new_W, new_b = self.unflat_weights(W_search + (alpha_j * d),
                                                nn.n_layers, nn.topology)
             nn.W = new_W
             nn.b = new_b
+            error_j = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
+            W_search = W.copy()
+            new_W, new_b = self.unflat_weights(W_search + (alpha_lo * d),
+                                               nn.n_layers, nn.topology)
+            nn.W = new_W
+            nn.b = new_b
+            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            if (self.error > error_0 + sigma_1 * alpha * g_d) or \
-                    (self.error >= error_low):
-                high = alpha
+            if error_j > error_0 + (sigma_1 * alpha_j * g_d) or \
+               error_j >= error_lo:
+                alpha_hi = alpha_j
             else:
+                W_search = W.copy()
+                new_W, new_b = self.unflat_weights(W_search + (alpha_j * d),
+                                                   nn.n_layers, nn.topology)
+                nn.W = new_W
+                nn.b = new_b
+                self.forward_propagation(nn, X, y)
                 self.back_propagation(nn, X, y)
                 new_g = self.flat_weights(self.delta_W, self.delta_b)
                 n_g_d = new_g.T.dot(d)
 
-                if strong:
-                    if np.absolute(n_g_d) <= \
-                       (-sigma_2) * g_d:
-                        return alpha
-                    if n_g_d * (high - low) >= 0:
-                        high = low
-                else:
-                    if n_g_d <= sigma_2 * g_d:
-                        return alpha
-                    if n_g_d * (high - low) >= 0:
-                        high = low
+                if np.absolute(n_g_d) <= -sigma_2 * g_d:
+                    return alpha_j
 
-                low = alpha
-                error_low = self.error
+                if n_g_d * (alpha_hi - alpha_lo) >= 0:
+                    alpha_hi = alpha_lo
 
-    def interpolate_alpha(self, low, high, W, d, nn, X, y, l_min=.2):
-        """
-        This functions provides the interpolation functionality for obtaining
-        a new step for the line search.
+                alpha_lo = alpha_j
 
-        Parameters
-        ----------
-        low: float
-            the inferior extreme for the line search
+    def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
+                      tolerance=0.5):
+        current_iter = 1
 
-        high: float
-            the superior extreme for the line search
+        while current_iter <= max_iter:
+            alpha_mid = (alpha_hi - alpha_lo) / 2
 
-        low_f: float
-            the desidered final inferior extreme for the line search
-            (Default value = 0.0)
-
-        high_f: float
-            the desidered final superior extreme for the line search
-            (Default value = 0.25)
-
-        Returns
-        -------
-        A float representing the new step for the line search.
-        """
-
-        n, k = 0, 0
-
-        while True:
-            while (.5)**n > l_min / (high - low):
-                n += 1
-
-            alpha_k = 0.0
-
-            while k != n:
-                alpha_k = 0.5 * (low + high)
-
-                W_search = W.copy()
-                new_W, new_b = self.unflat_weights(W_search + (alpha_k * d),
-                                                   nn.n_layers, nn.topology)
-                nn.W = new_W
-                nn.b = new_b
-
-                self.forward_propagation(nn, X, y)
-                self.back_propagation(nn, X, y)
-
-                g = self.flat_weights(self.delta_W, self.delta_b)
-
-                if np.all(g == 0):
-                    return alpha_k
-                elif np.all(g > 0):
-                    high = alpha_k
-                elif np.all(g < 0):
-                    low = alpha_k
-
-                k += 1
-
-            n = n + 1
-
-    def awls(self, W, g, d, sigma_1, sigma_2, nn, X, y, error, strong):
-        """
-        This function implements the searching for an optimal learning rate
-        respecting the strong Armijo-Wolfe conditions.
-
-        Parameters
-        ----------
-        W: numpy.ndarray
-            a column vector representing the network's weigths
-
-        g: numpy.ndarray
-            a column vector representing the gradients for the network
-
-        d: numpy.ndarray
-            a column vector representing the current descent direction
-
-        sigma_1, sigma_2: float
-            hyperparameters involved in the Armijo-Wolfe condition
-
-        nn: nn.NeuralNetwork
-            the neural network
-
-        X: np.ndarray
-            the design set
-
-        y: np.ndarray
-            a column vector representing the target values for the design set
-
-        error: float
-            the error for the current epoch computed with the unmodified
-            weights
-
-        Returns
-        -------
-        The optimal learning rate.
-        """
-
-        alphas = np.linspace(0.0, 1., 50, endpoint=False)[1:]
-        g_d = g.T.dot(d)
-        for alpha in alphas:
             W_search = W.copy()
-
-            new_W, new_b = self.unflat_weights(W_search + (alpha * d),
+            new_W, new_b = self.unflat_weights(W_search + (alpha_mid * d),
                                                nn.n_layers, nn.topology)
             nn.W = new_W
             nn.b = new_b
+            error_mid = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            self.error_prev = self.forward_propagation(nn, X, y) / X.shape[0]
+            if error_mid == 0 or (alpha_hi - alpha_lo) / 2 < tolerance:
+                return alpha_mid
 
-            if self.error_prev - error <= sigma_1 * alpha * g_d:
-                self.back_propagation(nn, X, y)
-                new_g = self.flat_weights(self.delta_W, self.delta_b)
+            current_iter += 1
 
-                if strong:
-                    if np.absolute(new_g.T.dot(d)) <= \
-                       sigma_2 * np.absolute(g_d):
-                        return alpha
-                else:
-                    if new_g.T.dot(d) <= sigma_2 * g_d:
-                        return alpha
+            W_search = W.copy()
+            new_W, new_b = self.unflat_weights(W_search + (alpha_lo * d),
+                                               nn.n_layers, nn.topology)
+            nn.W = new_W
+            nn.b = new_b
+            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
+
+            if np.sign(error_mid) == np.sign(error_lo):
+                alpha_lo = alpha_mid
+            else:
+                alpha_hi = alpha_mid
