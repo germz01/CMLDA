@@ -461,7 +461,8 @@ class CGD(Optimizer):
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
                     sigma_2=0.9, stopping_criteria=1e-14):
-        alpha_prev, alpha_max, alpha_current = 0., 1., np.random.random()
+        alpha_prev, alpha_max = 0., 1.
+        alpha_current = np.random.uniform(alpha_prev, alpha_max)
         error_prev = 0.
         i = 1
 
@@ -480,12 +481,11 @@ class CGD(Optimizer):
 
             if np.absolute(n_g_d) <= -sigma_2 * g_d:
                 return alpha_current
-
-            if n_g_d >= 0:
+            elif n_g_d >= 0:
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
-
-            if error_prev - error_current < stopping_criteria:
+            elif error_prev - error_current > 0 and \
+                    error_prev - error_current < stopping_criteria:
                 return alpha_current
 
             alpha_prev = alpha_current
@@ -520,8 +520,7 @@ class CGD(Optimizer):
 
                 if np.absolute(n_g_d) <= -sigma_2 * g_d:
                     return alpha_j
-
-                if n_g_d * (alpha_hi - alpha_lo) >= 0:
+                elif n_g_d * (alpha_hi - alpha_lo) >= 0:
                     alpha_hi = alpha_lo
 
                 alpha_lo = alpha_j
