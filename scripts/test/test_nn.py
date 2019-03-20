@@ -20,7 +20,8 @@ if __name__ == '__main__':
     print '\n'
     print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])
     print 'FINAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[-1])
-    print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.error_per_epochs))
+    print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
+                                             error_per_epochs))
     print '\n'
 
     if raw_input('PLOT LEARNING CURVE?(Y/N) ') in ['Y', 'y']:
