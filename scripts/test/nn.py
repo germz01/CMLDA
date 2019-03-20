@@ -82,6 +82,32 @@ class NeuralNetwork(object):
 
         return b
 
+    def restore_weights(self):
+        """
+        """
+
+        self.W = [w.copy() for w in self.W_copy]
+        self.b = [b.copy() for b in self.b_copy]
+
+    def update_weights(self, W, b):
+        assert len(W) == len(self.W) and len(b) == len(self.b)
+
+        self.W = W
+        self.b = b
+
+    def update_copies(self, W=None, bias=None):
+        """
+        """
+
+        if W is None and bias is None:
+            self.W_copy = [w.copy() for w in self.W]
+            self.b_copy = [b.copy() for b in self.b]
+        else:
+            assert len(W) == len(self.W_copy) and len(bias) == len(self.b_copy)
+
+            self.W_copy = [w.copy() for w in W]
+            self.b_copy = [b.copy() for b in bias]
+
     def train(self, X, y, optimizer, epochs=1000, X_va=None, y_va=None,
               **kwargs):
         assert optimizer in ['SGD', 'CGD']
