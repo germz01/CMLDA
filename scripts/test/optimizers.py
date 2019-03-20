@@ -460,14 +460,13 @@ class CGD(Optimizer):
         return max(beta, 0) if plus else beta
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
-                    sigma_2=0.9):
+                    sigma_2=0.9, stopping_criteria=1e-14):
         alpha_prev, alpha_max, alpha_current = 0., 1., np.random.random()
         error_prev = 0.
         i = 1
 
         while True:
-            W_search = W.copy()
-            nn.W, nn.b = self.unflat_weights(W_search + (alpha_current * d),
+            nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
             error_current = self.forward_propagation(nn, X, y) / X.shape[0]
 
@@ -486,6 +485,9 @@ class CGD(Optimizer):
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
 
+            if error_prev - error_current < stopping_criteria:
+                return alpha_current
+
             alpha_prev = alpha_current
             error_prev = error_current
 
@@ -498,13 +500,11 @@ class CGD(Optimizer):
         while True:
             alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
 
-            W_search = W.copy()
-            nn.W, nn.b = self.unflat_weights(W_search + (alpha_j * d),
+            nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                              nn.n_layers, nn.topology)
             error_j = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            W_search = W.copy()
-            nn.W, nn.b = self.unflat_weights(W_search + (alpha_lo * d),
+            nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
                                              nn.n_layers, nn.topology)
             error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
@@ -512,15 +512,11 @@ class CGD(Optimizer):
                error_j >= error_lo:
                 alpha_hi = alpha_j
             else:
-                W_search = W.copy()
-                new_W, new_b = self.unflat_weights(W_search + (alpha_j * d),
-                                                   nn.n_layers, nn.topology)
-                nn.W = new_W
-                nn.b = new_b
+                nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
+                                                 nn.n_layers, nn.topology)
                 self.forward_propagation(nn, X, y)
                 self.back_propagation(nn, X, y)
-                new_g = self.flat_weights(self.delta_W, self.delta_b)
-                n_g_d = new_g.T.dot(d)
+                n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
                 if np.absolute(n_g_d) <= -sigma_2 * g_d:
                     return alpha_j
@@ -537,11 +533,8 @@ class CGD(Optimizer):
         while current_iter <= max_iter:
             alpha_mid = (alpha_hi - alpha_lo) / 2
 
-            W_search = W.copy()
-            new_W, new_b = self.unflat_weights(W_search + (alpha_mid * d),
-                                               nn.n_layers, nn.topology)
-            nn.W = new_W
-            nn.b = new_b
+            nn.W, nn.bb = self.unflat_weights(W + (alpha_mid * d),
+                                              nn.n_layers, nn.topology)
             error_mid = self.forward_propagation(nn, X, y) / X.shape[0]
 
             if error_mid == 0 or (alpha_hi - alpha_lo) / 2 < tolerance:
@@ -549,11 +542,8 @@ class CGD(Optimizer):
 
             current_iter += 1
 
-            W_search = W.copy()
-            new_W, new_b = self.unflat_weights(W_search + (alpha_lo * d),
-                                               nn.n_layers, nn.topology)
-            nn.W = new_W
-            nn.b = new_b
+            nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
+                                             nn.n_layers, nn.topology)
             error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
             if np.sign(error_mid) == np.sign(error_lo):
