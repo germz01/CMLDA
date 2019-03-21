@@ -2,6 +2,7 @@ from __future__ import division
 
 import losses as lss
 import numpy as np
+import pdb
 import regularizers as reg
 
 
@@ -463,6 +464,8 @@ class CGD(Optimizer):
         error_prev = 0.
         i = 1
 
+        alphas = list()
+
         while True:
             nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
@@ -470,15 +473,7 @@ class CGD(Optimizer):
 
             if (error_current > (error_0 + (sigma_1 * alpha_current * g_d))) \
                or ((error_current >= error_prev) and (i > 1)):
-                print '1 - Iteration {}, condition {}, error_c {}, error_p {} '.\
-                    format(i, ((error_current >= error_prev) and (i > 1)),
-                           error_current, error_prev)
-                return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
-                                 g_d, error_0, sigma_1, sigma_2)
-            elif (error_current >= error_prev) and (i > 1):
-                print '2 - Iteration {}, condition {}, error_c {}, error_p {} '.\
-                    format(i, ((error_current >= error_prev) and (i > 1)),
-                           error_current, error_prev)
+                print '1 - Iteration {}, alpha_c {}, error_c {}, error_p {}, alphas {} '.format(i, alpha_current, error_current, error_prev, alphas)
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
 
@@ -486,29 +481,40 @@ class CGD(Optimizer):
             n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
             if np.absolute(n_g_d) <= -sigma_2 * g_d:
-                print '3 - Iteration {}, Alpha: {}'.format(i, alpha_current)
+                print '2 - Iteration {}, Alpha: {}'.format(i, alpha_current)
                 return alpha_current
             elif n_g_d >= 0:
-                print '4 - Iteration {}, Zoom: {}'.format(i, alpha_current)
+                print '3 - Iteration {}, Zoom: {}'.format(i, alpha_current)
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < stopping_criteria:
-                print '5 -  Iteration {}, Stop: {}'.format(i, alpha_current)
+                print '4 -  Iteration {}, Stop: {}'.format(i, alpha_current)
                 return alpha_current
 
             alpha_prev = alpha_current
             error_prev = error_current
 
-            alpha_current = np.random.uniform(alpha_prev,
-                                              alpha_max - alpha_prev)
+            alphas.append(alpha_current)
+            alpha_current = self.interpolation(alpha_prev, alpha_max, W, nn,
+                                               X, y, d)  # TODO: o uniform random?
 
             i += 1
 
     def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0, sigma_1,
              sigma_2):
         while True:
+            #pdb.set_trace()
+            tolerance = 1e-4
+            if alpha_lo > alpha_hi:  # TODO: termination
+                temp = alpha_lo
+                alpha_lo = alpha_hi
+                alpha_hi = temp
+
             alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
+
+            # print 'Zoom: Alpha_lo: {}, Alpha_hi: {}, Alpha_current: {}'.\
+              #  format(alpha_lo, alpha_hi, alpha_j)
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                              nn.n_layers, nn.topology)
@@ -524,7 +530,7 @@ class CGD(Optimizer):
             else:
                 nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                                  nn.n_layers, nn.topology)
-                self.forward_propagation(nn, X, y) / X.shape[0]
+                self.forward_propagation(nn, X, y)
                 self.back_propagation(nn, X, y)
                 n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
@@ -532,11 +538,10 @@ class CGD(Optimizer):
                     return alpha_j
                 elif n_g_d * (alpha_hi - alpha_lo) >= 0:
                     alpha_hi = alpha_lo
+                elif (error_j - error_0) < tolerance:  # TODO: termination
+                    return alpha_j
 
                 alpha_lo = alpha_j
-
-            print 'Zoom: Alpha_lo: {}, Alpha_hi: {}, Alpha_current: {}'.\
-                format(alpha_lo, alpha_hi, alpha_j)
 
     def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
                       tolerance=0.5):
