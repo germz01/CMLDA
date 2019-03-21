@@ -249,9 +249,6 @@ class CGD(Optimizer):
 
             d = self.get_direction(k, g, beta, d_prev=d_prev, method=d_m)
 
-            # eta = self.awls(flatted_weights, g, d, sigma_1, sigma_2, nn, X,
-            #                 y, self.error, strong)
-
             eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
                                    self.error)
 
@@ -462,18 +459,26 @@ class CGD(Optimizer):
     def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
                     sigma_2=0.9, stopping_criteria=1e-14):
         alpha_prev, alpha_max = 0., 1.
+        alpha_current = np.random.uniform(alpha_prev, alpha_max)
         error_prev = 0.
         i = 1
 
         while True:
-            alpha_current = np.random.uniform(alpha_prev, alpha_max)
-
             nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
             error_current = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            if error_current > (error_0 + (sigma_1 * alpha_current * g_d)) or \
-               ((error_current >= error_prev) and (i > 1)):
+            if (error_current > (error_0 + (sigma_1 * alpha_current * g_d))) \
+               or ((error_current >= error_prev) and (i > 1)):
+                print '1 - Iteration {}, condition {}, error_c {}, error_p {} '.\
+                    format(i, ((error_current >= error_prev) and (i > 1)),
+                           error_current, error_prev)
+                return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
+                                 g_d, error_0, sigma_1, sigma_2)
+            elif (error_current >= error_prev) and (i > 1):
+                print '2 - Iteration {}, condition {}, error_c {}, error_p {} '.\
+                    format(i, ((error_current >= error_prev) and (i > 1)),
+                           error_current, error_prev)
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
 
@@ -481,16 +486,22 @@ class CGD(Optimizer):
             n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
             if np.absolute(n_g_d) <= -sigma_2 * g_d:
+                print '3 - Iteration {}, Alpha: {}'.format(i, alpha_current)
                 return alpha_current
             elif n_g_d >= 0:
+                print '4 - Iteration {}, Zoom: {}'.format(i, alpha_current)
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0, sigma_1, sigma_2)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < stopping_criteria:
+                print '5 -  Iteration {}, Stop: {}'.format(i, alpha_current)
                 return alpha_current
 
             alpha_prev = alpha_current
             error_prev = error_current
+
+            alpha_current = np.random.uniform(alpha_prev,
+                                              alpha_max - alpha_prev)
 
             i += 1
 
@@ -499,18 +510,21 @@ class CGD(Optimizer):
         while True:
             alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
 
-            nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
-                                             nn.n_layers, nn.topology)
-            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
-
             nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                              nn.n_layers, nn.topology)
             error_j = self.forward_propagation(nn, X, y) / X.shape[0]
+
+            nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
+                                             nn.n_layers, nn.topology)
+            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
             if error_j > error_0 + (sigma_1 * alpha_j * g_d) or \
                error_j >= error_lo:
                 alpha_hi = alpha_j
             else:
+                nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
+                                                 nn.n_layers, nn.topology)
+                self.forward_propagation(nn, X, y) / X.shape[0]
                 self.back_propagation(nn, X, y)
                 n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
@@ -520,6 +534,9 @@ class CGD(Optimizer):
                     alpha_hi = alpha_lo
 
                 alpha_lo = alpha_j
+
+            print 'Zoom: Alpha_lo: {}, Alpha_hi: {}, Alpha_current: {}'.\
+                format(alpha_lo, alpha_hi, alpha_j)
 
     def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
                       tolerance=0.5):
@@ -536,12 +553,28 @@ class CGD(Optimizer):
                 return alpha_mid
 
             current_iter += 1
-            # TODO: alle iterazioni successive lo abbiamo già?
+            # TODO: alle iterazioni successive lo abbiamo gia?
             nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
                                              nn.n_layers, nn.topology)
             error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            if np.sign(error_mid) == np.sign(error_lo):
-                alpha_lo = alpha_mid
-            else:
+            if error_mid > error_lo:
                 alpha_hi = alpha_mid
+            else:
+                alpha_lo = alpha_mid
+
+    # def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
+    #                   tolerance=0.5):
+    #     while True:
+    #         alpha_mid = (alpha_hi - alpha_lo) / 2
+
+    #         nn.W, nn.bb = self.unflat_weights(W + (alpha_mid * d),
+    #                                           nn.n_layers, nn.topology)
+    #         error_mid = self.forward_propagation(nn, X, y) / X.shape[0]
+
+    #         if error_mid == 0:
+    #             return alpha_mid
+    #         elif error_mid > 0:
+    #             alpha_hi = alpha_mid
+    #         else:
+    #             alpha_lo = alpha_mid
