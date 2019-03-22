@@ -235,11 +235,7 @@ class CGD(Optimizer):
 
             if k == 0:
                 self.error_prev = self.error
-                g_prev = 0
-                if beta_m == 'hs' or beta_m == 'mhs':
-                    d_prev = -g
-                    if beta_m == 'mhs':
-                        w_prev = 0
+                g_prev, d_prev, w_prev = 0, -g, 0
 
             # TODO refactoring chiamata del calcolo per beta
             if beta_m == 'fr' or beta_m == 'pr':
@@ -263,17 +259,12 @@ class CGD(Optimizer):
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
             nn.update_copies()
 
-            g_prev = g
+            g_prev, d_prev, w_prev = g, d, flatted_copies
             self.error_prev = self.error
-
-            if beta_m == 'hs' or 'mhs':
-                d_prev = d
-                if beta_m == 'mhs':
-                    w_prev = flatted_copies
 
             k += 1
 
-        return None
+        return 0
 
     def flat_weights(self, W, b):
         """
