@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import nn
 import numpy as np
 import pandas as pd
@@ -59,10 +60,11 @@ neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
 ###########################################################
 # PRELIMINARY TRAINING
 
-opt = raw_input("Choose an optimizer: (sgd/cgd)")
+opt = raw_input("CHOOSE AN OPTIMIZER: (SGD/CGD)")
 
-if opt == 'sgd':
-    pars = {'batch_size': X_training.shape[0],
+if opt == 'SGD':
+    pars = {'epochs': epochs,
+            'batch_size': X_training.shape[0],
             'eta': 0.5,
             'momentum': {'type': 'standard', 'alpha': 0.},
             'reg_lambda': 0.0,
@@ -76,5 +78,28 @@ else:
             'strong': True,
             'rho': 0.0}
 
-neural_net.train(neural_net, X_training, y_training, opt, epochs, X_validation,
-                 y_validation, pars)
+neural_net.train(X_training, y_training, opt, X_va=X_validation,
+                 y_va=y_validation, **pars)
+
+print '\n'
+print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])
+print 'FINAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[-1])
+print 'INITIAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
+                                            error_per_epochs_va[0])
+
+print 'FINAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
+                                          error_per_epochs_va[-1])
+print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
+                                         error_per_epochs))
+print '\n'
+
+plt.plot(range(len(neural_net.optimizer.error_per_epochs)),
+         neural_net.optimizer.error_per_epochs, label='TRAINING')
+plt.plot(range(len(neural_net.optimizer.error_per_epochs_va)),
+         neural_net.optimizer.error_per_epochs_va, label='VALIDATION')
+plt.grid()
+plt.xlabel('Epoch')
+plt.ylabel('MSE')
+plt.title('MSE per Epoch')
+plt.legend()
+plt.show()
