@@ -73,6 +73,7 @@ class SGD(Optimizer):
                  reg_method='l2'):
         super(SGD, self).__init__(nn)
         self.error_per_epochs = []
+        self.error_per_epochs_va = []
         self.error_per_batch = []
         self.batch_size = batch_size
         self.eta = eta
@@ -85,7 +86,7 @@ class SGD(Optimizer):
         self.velocity_W = [0 for i in range(nn.n_layers)]
         self.velocity_b = [0 for i in range(nn.n_layers)]
 
-    def optimize(self, nn, X, y, epochs):
+    def optimize(self, nn, X, y, X_va, y_va, epochs):
         for e in range(epochs):
             error_per_batch = []
 
@@ -134,6 +135,13 @@ class SGD(Optimizer):
 
             self.error_per_epochs.append(np.sum(error_per_batch)/X.shape[0])
 
+            # IN LOCO VALIDATION ##############################################
+
+            if X_va is not None:
+                y_pred_va = self.forward_propagation(nn, X_va, y_va) / \
+                    X_va.shape[0]
+                self.error_per_epochs_va.append(y_pred_va)
+
 
 class CGD(Optimizer):
 
@@ -167,8 +175,9 @@ class CGD(Optimizer):
         self.error = np.Inf
         self.error_prev = np.Inf
         self.error_per_epochs = []
+        self.error_per_epochs_va = []
 
-    def optimize(self, nn, X, y, max_epochs, error_goal, beta_m,
+    def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal, beta_m,
                  d_m='standard', plus=False, strong=False, sigma_1=1e-4,
                  sigma_2=.5, rho=0.0):
         """
@@ -219,6 +228,8 @@ class CGD(Optimizer):
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
 
+            # BACK-PROPAGATION ALGORITHM ######################################
+
             self.error = self.forward_propagation(nn, X, y) / X.shape[0]
             self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
@@ -255,12 +266,21 @@ class CGD(Optimizer):
             eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
                                    self.error)
 
+            # WEIGHTS' UPDATE #################################################
+
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
             nn.update_copies()
 
             g_prev, d_prev, w_prev = g, d, flatted_copies
             self.error_prev = self.error
+
+            # IN LOCO VALIDATION ##############################################
+
+            if X_va is not None:
+                y_pred_va = self.forward_propagation(nn, X_va, y_va) / \
+                    X_va.shape[0]
+                self.error_per_epochs_va.append(y_pred_va)
 
             k += 1
 

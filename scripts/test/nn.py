@@ -114,7 +114,7 @@ class NeuralNetwork(object):
 
         if optimizer == 'SGD':
             self.optimizer = opt.SGD(self, **kwargs)
-            self.optimizer.optimize(self, X, y, epochs)
+            self.optimizer.optimize(self, X, y, X_va, y_va, epochs)
         else:
             self.optimizer = opt.CGD(self)
-            self.optimizer.optimize(self, X, y, **kwargs)
+            self.optimizer.optimize(self, X, y, X_va, y_va, **kwargs)
