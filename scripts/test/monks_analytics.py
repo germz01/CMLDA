@@ -5,8 +5,11 @@ import pandas as pd
 ###########################################################
 # EXPERIMENTAL SETUP
 
-dataset, nfolds, ntrials = 3, 5, 1
+dataset, nfolds, ntrials = 1, 5, 1
 split_percentage = 0.8
+epochs = 1000
+
+pars = {}
 
 ###########################################################
 # LOADING DATASET
@@ -50,5 +53,28 @@ y_validation, X_validation = np.hsplit(validation_set, [1])
 ###########################################################
 # NETWORK INITIALIZATION
 
-neural_net = nn.NeuralNetwork(X_design, y_design, hidden_sizes=[10],
+neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
                               activation='sigmoid')
+
+###########################################################
+# PRELIMINARY TRAINING
+
+opt = raw_input("Choose an optimizer: (sgd/cgd)")
+
+if opt == 'sgd':
+    pars = {'batch_size': X_training.shape[0],
+            'eta': 0.5,
+            'momentum': {'type': 'standard', 'alpha': 0.},
+            'reg_lambda': 0.0,
+            'reg_method': 'l2'}
+else:
+    pars = {'max_epochs': epochs,
+            'error_goal': 1e-4,
+            'beta_m': 'mhs',
+            'd_m': 'standard',
+            'plus': True,
+            'strong': True,
+            'rho': 0.0}
+
+neural_net.train(neural_net, X_training, y_training, opt, epochs, X_validation,
+                 y_validation, pars)
