@@ -1,8 +1,8 @@
 from __future__ import division
 
 import losses as lss
+import metrics
 import numpy as np
-import pdb
 import regularizers as reg
 
 
@@ -34,6 +34,11 @@ class Optimizer(object):
         self.delta_b = [0 for i in range(nn.n_layers)]
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
+
+        self.error_per_epochs = []
+        self.error_per_epochs_va = []
+        self.accuracy_per_epochs = []
+        self.accuracy_per_epochs_va = []
 
     def forward_propagation(self, nn, x, y):
         for i in range(nn.n_layers):
@@ -72,8 +77,6 @@ class SGD(Optimizer):
                  momentum={'type': 'standard', 'alpha': 0.}, reg_lambda=0.0,
                  reg_method='l2'):
         super(SGD, self).__init__(nn)
-        self.error_per_epochs = []
-        self.error_per_epochs_va = []
         self.error_per_batch = []
         self.batch_size = batch_size
         self.eta = eta
@@ -87,8 +90,11 @@ class SGD(Optimizer):
         self.velocity_b = [0 for i in range(nn.n_layers)]
 
     def optimize(self, nn, X, y, X_va, y_va, epochs):
+        bin_assess, bin_assess_va = None, None
+
         for e in range(epochs):
             error_per_batch = []
+            y_pred, y_pred_va = None, None
 
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
@@ -110,6 +116,7 @@ class SGD(Optimizer):
                 error = self.forward_propagation(nn, x_batch, y_batch)
                 self.error_per_batch.append(error)
                 error_per_batch.append(error)
+                y_pred = self.h[-1].reshape(-1, 1)
 
                 self.back_propagation(nn, x_batch, y_batch)
 
@@ -138,9 +145,30 @@ class SGD(Optimizer):
             # IN LOCO VALIDATION ##############################################
 
             if X_va is not None:
-                y_pred_va = self.forward_propagation(nn, X_va, y_va) / \
+                error_va = self.forward_propagation(nn, X_va, y_va) / \
                     X_va.shape[0]
-                self.error_per_epochs_va.append(y_pred_va)
+                self.error_per_epochs_va.append(error_va)
+                y_pred_va = self.h[-1].reshape(-1, 1)
+
+            # ACCURACY ESTIMATION #############################################
+
+            if nn.task == 'classifier':
+                y_pred_bin = np.apply_along_axis(lambda x: 0 if x < .5 else 1,
+                                                 1, y_pred).reshape(-1, 1)
+
+                y_pred_bin_va = np.apply_along_axis(
+                    lambda x: 0 if x < .5 else 1, 1, y_pred_va).reshape(-1, 1)
+
+                bin_assess = metrics.BinaryClassifierAssessment(
+                    y, y_pred_bin, printing=False)
+                bin_assess_va = metrics.BinaryClassifierAssessment(
+                    y_va, y_pred_bin_va, printing=False)
+
+                self.accuracy_per_epochs.append(bin_assess.accuracy)
+                self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
+
+        print bin_assess
+        print bin_assess_va
 
 
 class CGD(Optimizer):
@@ -174,8 +202,6 @@ class CGD(Optimizer):
         super(CGD, self).__init__(nn)
         self.error = np.Inf
         self.error_prev = np.Inf
-        self.error_per_epochs = []
-        self.error_per_epochs_va = []
 
     def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal, beta_m,
                  d_m='standard', plus=False, strong=False, sigma_1=1e-4,
