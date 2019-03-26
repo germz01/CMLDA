@@ -167,9 +167,6 @@ class SGD(Optimizer):
                 self.accuracy_per_epochs.append(bin_assess.accuracy)
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
 
-        print bin_assess
-        print bin_assess_va
-
 
 class CGD(Optimizer):
 
@@ -249,6 +246,9 @@ class CGD(Optimizer):
         k = 0
         g_prev = 0
 
+        y_pred, y_pred_va = None, None
+        bin_assess, bin_assess_va = None, None
+
         while k != max_epochs:
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
@@ -259,6 +259,8 @@ class CGD(Optimizer):
             self.error = self.forward_propagation(nn, X, y) / X.shape[0]
             self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
+
+            y_pred = self.h[-1].reshape(-1, 1)
 
             g = self.flat_weights(self.delta_W, self.delta_b)
 
@@ -304,9 +306,27 @@ class CGD(Optimizer):
             # IN LOCO VALIDATION ##############################################
 
             if X_va is not None:
-                y_pred_va = self.forward_propagation(nn, X_va, y_va) / \
+                error_va = self.forward_propagation(nn, X_va, y_va) / \
                     X_va.shape[0]
-                self.error_per_epochs_va.append(y_pred_va)
+                self.error_per_epochs_va.append(error_va)
+                y_pred_va = self.h[-1].reshape(-1, 1)
+
+            # ACCURACY ESTIMATION #############################################
+
+            if nn.task == 'classifier':
+                y_pred_bin = np.apply_along_axis(lambda x: 0 if x < .5 else 1,
+                                                 1, y_pred).reshape(-1, 1)
+
+                y_pred_bin_va = np.apply_along_axis(
+                    lambda x: 0 if x < .5 else 1, 1, y_pred_va).reshape(-1, 1)
+
+                bin_assess = metrics.BinaryClassifierAssessment(
+                    y, y_pred_bin, printing=False)
+                bin_assess_va = metrics.BinaryClassifierAssessment(
+                    y_va, y_pred_bin_va, printing=False)
+
+                self.accuracy_per_epochs.append(bin_assess.accuracy)
+                self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
 
             k += 1
 
