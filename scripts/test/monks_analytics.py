@@ -1,7 +1,7 @@
-import matplotlib.pyplot as plt
 import nn
 import numpy as np
 import pandas as pd
+import utils as u
 
 ###########################################################
 # EXPERIMENTAL SETUP
@@ -95,24 +95,8 @@ if testing:
                                              error_per_epochs))
     print '\n'
 
-    # plt.plot(range(len(neural_net.optimizer.error_per_epochs)),
-    #          neural_net.optimizer.error_per_epochs, label='TRAINING')
-    # plt.plot(range(len(neural_net.optimizer.error_per_epochs_va)),
-    #          neural_net.optimizer.error_per_epochs_va, label='VALIDATION')
-    # plt.grid()
-    # plt.xlabel('Epoch')
-    # plt.ylabel('MSE')
-    # plt.title('MSE per Epoch')
-    # plt.legend()
-    # plt.show()
-
-    plt.plot(range(len(neural_net.optimizer.accuracy_per_epochs)),
-             neural_net.optimizer.accuracy_per_epochs, label='TRAINING')
-    plt.plot(range(len(neural_net.optimizer.accuracy_per_epochs_va)),
-             neural_net.optimizer.accuracy_per_epochs_va, label='VALIDATION')
-    plt.grid()
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.title('Accuracy per Epoch')
-    plt.legend()
-    plt.show()
+    u.plot_learning_curve_with_info([neural_net.optimizer.accuracy_per_epochs,
+                                     neural_net.optimizer.accuracy_per_epochs_va],
+                                    'VALIDATION', 'ACCURACY',
+                                     neural_net.optimizer.params,
+                                    '/Users/Sabrina/Desktop/')

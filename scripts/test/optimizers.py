@@ -89,6 +89,19 @@ class SGD(Optimizer):
         self.velocity_W = [0 for i in range(nn.n_layers)]
         self.velocity_b = [0 for i in range(nn.n_layers)]
 
+        self.params = self.get_params(nn)
+
+    def get_params(self, nn):
+        self.params = dict()
+        self.params['alpha'] = self.momentum['alpha']
+        self.params['eta'] = self.eta
+        self.params['reg_lambda'] = self.reg_lambda
+        self.params['reg_method'] = self.reg_method
+        self.params['activation'] = nn.activation
+        self.params['topology'] = nn.topology
+
+        return self.params
+
     def optimize(self, nn, X, y, X_va, y_va, epochs):
         bin_assess, bin_assess_va = None, None
 
@@ -199,6 +212,18 @@ class CGD(Optimizer):
         super(CGD, self).__init__(nn)
         self.error = np.Inf
         self.error_prev = np.Inf
+
+    def get_params(self, nn):
+        self.params = dict()
+        self.params['beta'] = nn.beta_m
+        self.params['rho'] = nn.rho
+        self.params['sigma_1'] = nn.sigma_1
+        self.params['sigma_2'] = nn.sigma_2
+        self.params['direction'] = nn.d_m
+        self.params['activation'] = nn.activation
+        self.params['topology'] = nn.topology
+
+        return self.params
 
     def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal, beta_m,
                  d_m='standard', plus=False, strong=False, sigma_1=1e-4,

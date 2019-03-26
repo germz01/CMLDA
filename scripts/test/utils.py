@@ -94,6 +94,55 @@ def plot_learning_curve(nn, fname='../images/learning_curve.pdf'):
     plt.close()
 
 
+def plot_learning_curve_with_info(data, test_type, metric, params, fname):
+    assert test_type in ['VALIDATION', 'TEST']
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+
+    plt.subplot(121)
+    plt.plot(range(len(data[0])), data[0], label='TRAIN')
+    plt.plot(range(len(data[1])), data[1], linestyle='--', label=test_type)
+    plt.grid()
+    plt.title('{} PER EPOCHS'.format(metric))
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend()
+
+    plt.subplot(122)
+    plt.title('INFOS')
+
+    plt.text(x=0.22, y=0.65, s=build_info_string(data, test_type, metric,
+             params), ha='left', va='center')
+    plt.axis('off')
+
+    plt.savefig(fname + metric.lower() + '_' + test_type.lower() +
+                '.pdf', bbox_inches='tight')
+
+
+def build_info_string(data, test_type, metric, params):
+    assert test_type in ['VALIDATION', 'TEST']
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+
+    special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
+                    'reg_lambda': r'$\lambda$', 'beta': r'$\beta$',
+                    'rho': r'$\rho$', 'reg_method': 'Reg Method'}
+
+    to_ret = 'FINAL VALUES:\n'
+    to_ret += '{} TR = {}\n{} = {}\n'.\
+        format(metric, round(data[0][-1], 4), metric, round(data[1][-1], 4))
+    to_ret += '\nHYPERPARAMETERS:\n'
+
+    for param in params:
+        if param != 'topology' and param != 'activation':
+            to_ret += special_char[param] + ' = {}'.format(params[param]) + \
+                '\n'
+
+    to_ret += '\nTOPOLOGY:\n'
+    to_ret += str(params['topology']).replace('[', '').replace(']', '').\
+        replace(', ', ' -> ')
+
+    return to_ret
+
+
 def plot_learning_curve_info(
         error_per_epochs, error_per_epochs_va,
         hyperparams,
