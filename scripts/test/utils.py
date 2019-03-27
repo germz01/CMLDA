@@ -1,5 +1,6 @@
 from __future__ import division
 
+import activations
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,60 +44,9 @@ def compose_topology(X, hidden_sizes, y, task):
 # PLOTTING RELATED FUNCTIONS
 
 
-def plot_learning_curve(nn, fname='../images/learning_curve.pdf'):
-    """
-    This functions plots the learning curves for a model given in input.
-
-    Parameters
-    ----------
-    nn: nn.NeuralNetwork
-        the neural network
-
-    fname: str
-        where to save the learning curve's plot
-        (Default value = '../images/learning_curve.pdf')
-
-    Returns
-    -------
-    """
-
-    par_str = r"""$\eta= {}, \alpha= {}, \lambda= {}$,'batch= {}, h-sizes={}""".format(
-        np.round(nn.params['eta'], 2),
-        np.round(nn.params['alpha'], 2),
-        np.round(nn.params['reg_lambda'], 3),
-        nn.params['batch_size'],
-        nn.params['hidden_sizes']
-    )
-
-    plt.figure(figsize=(15, 5))
-    plt.plot(range(len(nn.error_per_epochs)),
-             nn.error_per_epochs, linestyle='--',
-             label='training')
-    if nn.error_per_epochs_va is not None:
-        plt.plot(range(len(nn.error_per_epochs_va)),
-                 nn.error_per_epochs_va, linestyle='-',
-                 label='validation')
-
-    if nn.stop_GL is not None:
-        plt.axvline(nn.stop_GL, linestyle=':', label='GL early stop')
-
-    if nn.stop_PQ is not None:
-        plt.axvline(nn.stop_PQ, linestyle='-.', label='PQ early stop')
-
-    plt.ylabel('MSE error by epoch')
-    plt.xlabel('Epochs')
-    plt.grid()
-    plt.suptitle('Learning curve')
-    plt.legend()
-    plt.title(par_str, fontsize=10)
-    plt.savefig(fname)
-    plt.tight_layout()
-    plt.close()
-
-
 def plot_learning_curve_with_info(data, test_type, metric, params, fname):
-    assert test_type in ['VALIDATION', 'TEST']
-    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY']
 
     plt.subplot(121)
     plt.plot(range(len(data[0])), data[0], label='TRAIN')
@@ -109,9 +59,8 @@ def plot_learning_curve_with_info(data, test_type, metric, params, fname):
 
     plt.subplot(122)
     plt.title('INFOS')
-
-    plt.text(x=0.22, y=0.65, s=build_info_string(data, test_type, metric,
-             params), ha='left', va='center')
+    plt.text(.25, .50, build_info_string(data, test_type, metric,
+             params), ha='left', va='center', fontsize=10)
     plt.axis('off')
 
     plt.savefig(fname + metric.lower() + '_' + test_type.lower() +
@@ -125,6 +74,7 @@ def build_info_string(data, test_type, metric, params):
     special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
                     'reg_lambda': r'$\lambda$', 'beta': r'$\beta$',
                     'rho': r'$\rho$', 'reg_method': 'Reg Method'}
+    act_list = []
 
     to_ret = 'FINAL VALUES:\n'
     to_ret += '{} TR = {}\n{} = {}\n'.\
@@ -139,6 +89,16 @@ def build_info_string(data, test_type, metric, params):
     to_ret += '\nTOPOLOGY:\n'
     to_ret += str(params['topology']).replace('[', '').replace(']', '').\
         replace(', ', ' -> ')
+
+    to_ret += '\n\nACTIVATIONS:\n'
+
+    for act in params['activation']:
+        if act is activations.sigmoid:
+            act_list.append('sigmoid')
+        elif act is activations.relu:
+            act_list.append('relu')
+
+    to_ret += ' -> '.join(act_list)
 
     return to_ret
 

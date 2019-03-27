@@ -62,7 +62,7 @@ neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
 # PRELIMINARY TRAINING
 
 if testing:
-    opt = raw_input("CHOOSE AN OPTIMIZER: (SGD/CGD)")
+    opt = raw_input("OPTIMIZER[SGD/CGD]: ")
 
     if opt == 'SGD':
         pars = {'epochs': epochs,
@@ -95,8 +95,7 @@ if testing:
                                              error_per_epochs))
     print '\n'
 
-    u.plot_learning_curve_with_info([neural_net.optimizer.accuracy_per_epochs,
-                                     neural_net.optimizer.accuracy_per_epochs_va],
-                                    'VALIDATION', 'ACCURACY',
-                                     neural_net.optimizer.params,
-                                    '/Users/Sabrina/Desktop/')
+    u.plot_learning_curve_with_info(
+        [neural_net.optimizer.accuracy_per_epochs,
+         neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
+        'ACCURACY', neural_net.optimizer.params, '/Users/Gianmarco/Desktop/')
