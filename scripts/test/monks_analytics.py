@@ -96,6 +96,7 @@ if testing:
     print '\n'
 
     u.plot_learning_curve_with_info(
+        neural_net.optimizer,
         [neural_net.optimizer.accuracy_per_epochs,
          neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
         'ACCURACY', neural_net.optimizer.params, '/Users/Gianmarco/Desktop/')

@@ -4,6 +4,7 @@ import activations
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+import optimizers
 
 # CONSTANTS
 
@@ -44,7 +45,8 @@ def compose_topology(X, hidden_sizes, y, task):
 # PLOTTING RELATED FUNCTIONS
 
 
-def plot_learning_curve_with_info(data, test_type, metric, params, fname):
+def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
+                                  fname):
     assert test_type in ['VALIDATION', 'TEST'] and \
         metric in ['MSE', 'MEE', 'ACCURACY']
 
@@ -59,7 +61,7 @@ def plot_learning_curve_with_info(data, test_type, metric, params, fname):
 
     plt.subplot(122)
     plt.title('INFOS')
-    plt.text(.25, .50, build_info_string(data, test_type, metric,
+    plt.text(.25, .50, build_info_string(optimizer, data, test_type, metric,
              params), ha='left', va='center', fontsize=10)
     plt.axis('off')
 
@@ -67,7 +69,7 @@ def plot_learning_curve_with_info(data, test_type, metric, params, fname):
                 '.pdf', bbox_inches='tight')
 
 
-def build_info_string(data, test_type, metric, params):
+def build_info_string(optimizer, data, test_type, metric, params):
     assert test_type in ['VALIDATION', 'TEST']
     assert metric in ['MSE', 'MEE', 'ACCURACY']
 
@@ -76,9 +78,15 @@ def build_info_string(data, test_type, metric, params):
                     'rho': r'$\rho$', 'reg_method': 'Reg Method'}
     act_list = []
 
-    to_ret = 'FINAL VALUES:\n'
-    to_ret += '{} TR = {}\n{} = {}\n'.\
-        format(metric, round(data[0][-1], 4), metric, round(data[1][-1], 4))
+    to_ret = 'OPTIMIZER:\n'
+    to_ret += 'Stochastic gradient descent\n' \
+        if type(optimizer) is optimizers.SGD else \
+        'Conjugate gradient descent\n'
+
+    to_ret += '\nFINAL VALUES:\n'
+    to_ret += '{} TRAINING = {}\n{} = {}\n'.\
+        format(metric, round(data[0][-1], 4), metric + ' ' + test_type,
+               round(data[1][-1], 4))
     to_ret += '\nHYPERPARAMETERS:\n'
 
     for param in params:
@@ -91,6 +99,7 @@ def build_info_string(data, test_type, metric, params):
         replace(', ', ' -> ')
 
     to_ret += '\n\nACTIVATIONS:\n'
+    act_list.append('input')
 
     for act in params['activation']:
         if act is activations.sigmoid:
