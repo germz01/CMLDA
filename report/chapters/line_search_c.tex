@@ -1,39 +1,7 @@
-\documentclass[12pt]{article}
+\chapter{Line Search} % (fold)
+\label{cha:line_search}
 
-%% Language and font encodings
-\usepackage[italian]{babel}
-\usepackage[utf8x]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[caption=false]{subfig}
-
-%% Sets page size and margins
-\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
-%% Useful packages
-\usepackage{amsmath}
-\usepackage{indentfirst}
-\usepackage{graphicx}
-\usepackage[colorinlistoftodos]{todonotes}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage{setspace}
-\usepackage{listings}
-\usepackage{color}
-\usepackage{subfig}
-\usepackage{mathrsfs}
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
-\usepackage{verbatim}
-\usepackage[short]{optidef}
-\algnewcommand\algorithmicinput{\textbf{Input:}}
-\algnewcommand\algorithmicoutput{\textbf{Output:}}
-\algnewcommand\Input{\item[\algorithmicinput]}%
-\algnewcommand\Output{\item[\algorithmicoutput]}%
-\newcommand{\sectionbreak}{\clearpage}
-
-\date{}
-
-
-\begin{document}
-
+% chapter line_search (end)
 \section{Line Search}
 
 In order to find the right step size which minimize the loss function, a line search has to be implemented.
@@ -165,7 +133,7 @@ The \texttt{line\_search} function try to find and return a good $\alpha$; if it
 	\State  $ \text{Evaluate }\mathcal{E}(\alpha_{mid});$
  	\If  { $[\mathcal{E}(\alpha_{mid}) == 0]  \text{  or  }  [(\alpha_{hi}-\alpha_{lo})/2 < threshold] $ }
 			\Return $\alpha_{mid}; $
-		\EndIf	
+	\EndIf	
 	\State   $\text{Evaluate } \mathcal{E}(\_{mid}alpha_{lo}); $
 	\If  { $sign(\mathcal{E}(\alpha_{mid})) == sign(\mathcal{E}(\alpha_{lo}))$ }
 		\State $\alpha_{lo} \gets \alpha_{mid}; $
@@ -179,5 +147,3 @@ The \texttt{line\_search} function try to find and return a good $\alpha$; if it
 \end{algorithm}
 
 
-
-\end{document}

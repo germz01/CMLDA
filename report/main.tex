@@ -1,0 +1,45 @@
+\documentclass[11pt]{report}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[caption=false]{subfig}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{subfig}
+\usepackage{mathrsfs}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{verbatim}
+\usepackage[short]{optidef}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+\newcommand{\sectionbreak}{\clearpage}
+
+\date{}
+
+
+\begin{document}
+	\begin{titlepage}
+		\include{chapters/title/title}
+	\end{titlepage}
+
+	\tableofcontents
+
+	\input{chapters/1/1}
+	\input{chapters/2/2}
+	\input{chapters/3/3}
+\end{document}
