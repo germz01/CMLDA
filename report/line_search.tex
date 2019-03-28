@@ -1,0 +1,183 @@
+\documentclass[12pt]{article}
+
+%% Language and font encodings
+\usepackage[italian]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[caption=false]{subfig}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{subfig}
+\usepackage{mathrsfs}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{verbatim}
+\usepackage[short]{optidef}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+\newcommand{\sectionbreak}{\clearpage}
+
+\date{}
+
+
+\begin{document}
+
+\section{Line Search}
+
+In order to find the right step size which minimize the loss function, a line search has to be implemented.
+
+The step size alpha is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction. 
+
+So, fixed the values of the weights \textbf{W} and the descent direction \textbf{d}, the main goal is to find the right value for $\alpha$ that is able to minimize the loss function:
+
+ \begin{mini} 
+   {\alpha}{\mathcal{ E}(\textbf{W} + \alpha\textbf{d}).}{}{}
+    \end{mini}
+
+Of course, we have to deal with a tradeoff: we want a good reduction, but we can't spend too much time computing the exact value for the optimum solution. So, the smarter way to get it is to use an inexact line search, that try some candidate step size and accepts the first one satisfying some conditions.  
+
+This search is performed in two phases: 
+\begin{itemize}
+\item a \textit{bracketing phase}, that finds an initial interval containing a minimizer;
+\item an \textit{interpolation phase} that, given the interval, finds the right step length in it.
+\end{itemize}
+
+We decided to use one of the most popular line search condition: the \textit{Armijo-Wolfe} condition.
+
+The search for the better $\alpha$ is led by two condition:
+\begin{itemize}
+\item the \textit{Armijo} one: 
+\begin{equation}
+\mathcal{E}(W_k+\alpha _kd_k)\leq \mathcal{E}(W_k)+\sigma_1\alpha\nabla \mathcal{E}_k^Td_k
+\end{equation}
+
+which ensure that $\alpha$ gives a sufficient decrease of the objective function, being this reduction proportional to the step length $\alpha$ and the directional derivative $\nabla \mathcal{E}_k^Td_k$.
+
+The constant $\sigma_1$ has been set $\sigma_1=10^{-4}$, since it is suggested in literature to be quite small.
+
+\item the \textit{Strong Wolfe} condition:
+\begin{equation}
+|\nabla \mathcal{E}(W_k+\alpha _kd_k)^Td_k|\leq \mathcal{E}(W_k)+\sigma_2|\nabla \mathcal{E}_k^Td_k|
+\end{equation}
+which garantees to choose steps whose size is not too small.
+
+It is also known as curvature condition and ensures that, moving of a step $\alpha$ along the given direction, the slope of our function if greater than $\sigma_2$ times the original gradient (if the slope is only slightly negative, the function cannot decrease rapidly along that direction, so it's better to stop the search).
+
+In this case, the constant $\sigma_2$ is equal to 0.1, since a smaller value gives a more accurate line search.
+Futhermore, having choosen the strong condition, which doesn't allow the derivative to be too positive, we are sure that the $\alpha$ found lies close to a stationary point of the function.
+\end{itemize}
+
+The algorithm satisfing the Strong Wolfe conditions is implemented through three functions, as described in the pseudocodes \ref{linesearch}, \ref{zoom}, \ref{bisection}:  \texttt{line\_search}, \texttt{zoom} and \texttt{interpolate\_alpha}.
+
+Since two consecutive values may be similar in finite-precision arithmetic, we set a threshold in both the \texttt{line\_search} and  \texttt{interpolate\_alpha} functions, which garantees that the algorithm stops if two values of $\alpha$ are too close or if the maximum number of iterations has been reached.
+
+The \texttt{line\_search} function try to find and return a good $\alpha$; if it fails, it returns an interval in which continue the searching, invoking the \texttt{zoom} function, which decreases the size of the interval, until it finds and returns a good step length.
+
+\texttt{Zoom} invokes another function, \texttt{interpolate\_alpha}, which is nothing more than the implementation of a bisection interpolation in order to find a trial $\alpha$ inside the given interval. 
+
+
+
+\begin{algorithm}
+\caption{Line Search}\label{linesearch}
+\begin{algorithmic}[1]
+% \Input {\alpha_1>0, \alpha_{max}}\\
+% \Output {\alpha_*}\\
+\Procedure{line\_search}{}\\
+\State $\alpha_0 \gets \textit{0};$
+\State $i \gets \textit{1};$
+\While {$i \leq max\_iter$} 
+ 		\State  $ \text{Evaluate}\mathcal{E}(\alpha_i);$
+		\If  { $[\mathcal{E}(\alpha_i) > \mathcal{E}(0) + \sigma_1\alpha_i\nabla\mathcal{E}_0^Td_0] \text{  or  } [\mathcal{E}(\alpha_i)\leq \mathcal{E}(\alpha_{i-1}) \text{  and  } i>1]  $ }
+			\State $\alpha_* \gets \textbf{zoom}(\alpha_{i-1},\alpha_{i});$
+			\Return $\alpha_*; $
+		\EndIf
+		\State   $\text{Evaluate } \nabla\mathcal{E}_{i} $
+		\If  { $|\nabla\mathcal{E}_{i}| \leq -\sigma_2\nabla\mathcal{E}_0^Td_0 $}
+			\State $\alpha_* \gets \alpha_i; $
+			\Return $\alpha_*; $
+		\EndIf
+		\If  { $\nabla\mathcal{E}_{i} \geq 0$ }
+			\State $\alpha_* \gets \textbf{zoom}(\alpha_{i},\alpha_{i-1}); $
+			\Return $\alpha_*; $
+		\EndIf
+		\If  { $(|\mathcal{E}_{i} - \mathcal{E}_{i-1}| \leq threshold$ }
+			\State $\alpha_* \gets\alpha_{i}$
+			\Return $\alpha_*;$
+		\EndIf
+		\State $\text{Choose  } \alpha_{i+1}  \in (\alpha_i, \alpha_{max});$
+		\State $i \gets i+1; $
+\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{algorithm}
+\caption{Zoom}\label{zoom}
+\begin{algorithmic}[1]
+\Procedure{zoom}{}
+\Repeat 
+	\State  $ \alpha_j \gets \textit{interpolate\_alpha}(\alpha_{lo}, \alpha_{hi}); $
+	\State $ \text{Evaluate }\mathcal{E}(\alpha_j);$
+	\If {$[\mathcal{E}(\alpha_j) > \mathcal{E}(0) + \sigma_1\alpha_j\nabla\mathcal{E}_0^Td_0] \text{  or  } [\mathcal{E}(\alpha_j)\leq \mathcal{E}(\alpha_{lo}) $ }
+		\State $\alpha_{hi} \gets \alpha_{j};$
+	\Else 
+		\State $\text{Evaluate } \nabla\mathcal{E}_j^Td_j; $
+		\If { $|\nabla\mathcal{E}_j^Td_j| \leq -\sigma_2\nabla\mathcal{E}_0^Td_0$}
+			\State $\alpha_* \gets \alpha_j; $
+			\Return $\alpha_*; $
+		\EndIf
+		\If { $\nabla\mathcal{E}_j^Td_j (\alpha_{hi}-\alpha_{lo}) \geq 0 $ }
+			\State $\alpha_{hi} \gets \alpha_{lo}; $
+		\EndIf
+		\If  { $(|\mathcal{E}_{j} - \mathcal{E}_{0}| \leq threshold$ }
+			\State $\alpha_* \gets\alpha_{j}$
+			\Return $\alpha_*;$
+		\EndIf
+	\EndIf
+	\State $\alpha_{lo} \gets \alpha_{j}; $
+\EndRepeat 
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+\caption{Interpolate}\label{bisection}
+\begin{algorithmic}[1]
+\Procedure{interpolate\_alpha}{}
+\State $i \gets \textit{1};$
+\While {$i \leq max\_iter$} 
+	\State $\alpha_{mid} \gets (\alpha_{hi}-\alpha_{lo})/2$
+	\State  $ \text{Evaluate }\mathcal{E}(\alpha_{mid});$
+ 	\If  { $[\mathcal{E}(\alpha_{mid}) == 0]  \text{  or  }  [(\alpha_{hi}-\alpha_{lo})/2 < threshold] $ }
+			\Return $\alpha_{mid}; $
+		\EndIf	
+	\State   $\text{Evaluate } \mathcal{E}(\_{mid}alpha_{lo}); $
+	\If  { $sign(\mathcal{E}(\alpha_{mid})) == sign(\mathcal{E}(\alpha_{lo}))$ }
+		\State $\alpha_{lo} \gets \alpha_{mid}; $
+	\Else
+		\State $\alpha_{hi} \gets \alpha_{mid}; $
+	\EndIf
+	\State $i \gets i+1; $
+\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\end{document}
