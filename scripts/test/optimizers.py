@@ -199,7 +199,8 @@ class CGD(Optimizer):
         a list containing the error for each epoch of training
     """
 
-    def __init__(self, nn):
+    def __init__(self, nn, beta_m, d_m='standard', sigma_1=1e-4, sigma_2=.5,
+                 rho=0., **kwargs):
         """
         The class' constructor.
 
@@ -212,22 +213,27 @@ class CGD(Optimizer):
         super(CGD, self).__init__(nn)
         self.error = np.Inf
         self.error_prev = np.Inf
+        self.beta_m = beta_m
+        self.d_m = d_m
+        self.sigma_1 = sigma_1
+        self.sigma_2 = sigma_2
+        self.rho = rho
+        self.params = self.get_params(nn)
 
     def get_params(self, nn):
         self.params = dict()
-        self.params['beta'] = nn.beta_m
-        self.params['rho'] = nn.rho
-        self.params['sigma_1'] = nn.sigma_1
-        self.params['sigma_2'] = nn.sigma_2
-        self.params['direction'] = nn.d_m
+        self.params['beta_m'] = self.beta_m
+        self.params['rho'] = self.rho
+        self.params['sigma_1'] = self.sigma_1
+        self.params['sigma_2'] = self.sigma_2
+        self.params['d_m'] = self.d_m
         self.params['activation'] = nn.activation
         self.params['topology'] = nn.topology
 
         return self.params
 
-    def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal, beta_m,
-                 d_m='standard', plus=False, strong=False, sigma_1=1e-4,
-                 sigma_2=.5, rho=0.0):
+    def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal,
+                 plus=False, strong=False, **kwargs):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -302,19 +308,19 @@ class CGD(Optimizer):
                 g_prev, d_prev, w_prev = 0, -g, 0
 
             # TODO refactoring chiamata del calcolo per beta
-            if beta_m == 'fr' or beta_m == 'pr':
-                beta = self.get_beta(g, g_prev, beta_m, plus=plus)
-            elif beta_m == 'hs':
-                beta = self.get_beta(g, g_prev, beta_m, plus=plus,
+            if self.beta_m == 'fr' or self.beta_m == 'pr':
+                beta = self.get_beta(g, g_prev, self.beta_m, plus=plus)
+            elif self.beta_m == 'hs':
+                beta = self.get_beta(g, g_prev, self.beta_m, plus=plus,
                                      d_prev=d_prev)
             else:
-                beta = self.get_beta(g, g_prev, beta_m, plus=plus,
+                beta = self.get_beta(g, g_prev, self.beta_m, plus=plus,
                                      d_prev=d_prev, error=self.error,
                                      error_prev=self.error_prev,
                                      w=flatted_weights, w_prev=w_prev,
-                                     rho=rho)
+                                     rho=self.rho)
 
-            d = self.get_direction(k, g, beta, d_prev=d_prev, method=d_m)
+            d = self.get_direction(k, g, beta, d_prev=d_prev, method=self.d_m)
 
             eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
                                    self.error)

@@ -50,7 +50,7 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
     assert test_type in ['VALIDATION', 'TEST'] and \
         metric in ['MSE', 'MEE', 'ACCURACY']
 
-    plt.subplot(121)
+    plt.subplot(211)
     plt.plot(range(len(data[0])), data[0], label='TRAIN')
     plt.plot(range(len(data[1])), data[1], linestyle='--', label=test_type)
     plt.grid()
@@ -59,12 +59,12 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
     plt.ylabel(metric)
     plt.legend()
 
-    plt.subplot(122)
-    plt.title('INFOS')
-    plt.text(.25, .50, build_info_string(optimizer, data, test_type, metric,
-             params), ha='left', va='center', fontsize=10)
+    plt.subplot(212)
+    plt.title('FINAL RESULTS AND PARAMETERS')
+    plt.text(.25, .25, build_info_string(optimizer, data, test_type, metric,
+             params), ha='left', va='center', fontsize=8)
     plt.axis('off')
-
+    plt.tight_layout()
     plt.savefig(fname + metric.lower() + '_' + test_type.lower() +
                 '.pdf', bbox_inches='tight')
 
@@ -74,8 +74,9 @@ def build_info_string(optimizer, data, test_type, metric, params):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
 
     special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
-                    'reg_lambda': r'$\lambda$', 'beta': r'$\beta$',
-                    'rho': r'$\rho$', 'reg_method': 'Reg Method'}
+                    'reg_lambda': r'$\lambda$', 'beta_m': r'$\beta$',
+                    'rho': r'$\rho$', 'reg_method': 'Reg Method',
+                    'sigma_1': r'$\sigma_1$', 'sigma_2': r'$\sigma_2$'}
     act_list = []
 
     to_ret = 'OPTIMIZER:\n'
@@ -90,7 +91,8 @@ def build_info_string(optimizer, data, test_type, metric, params):
     to_ret += '\nHYPERPARAMETERS:\n'
 
     for param in params:
-        if param != 'topology' and param != 'activation':
+        if param != 'topology' and param != 'activation' \
+           and param != 'd_m':
             to_ret += special_char[param] + ' = {}'.format(params[param]) + \
                 '\n'
 

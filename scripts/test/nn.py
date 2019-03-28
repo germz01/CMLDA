@@ -116,5 +116,5 @@ class NeuralNetwork(object):
             self.optimizer = opt.SGD(self, **kwargs)
             self.optimizer.optimize(self, X, y, X_va, y_va, epochs)
         else:
-            self.optimizer = opt.CGD(self)
+            self.optimizer = opt.CGD(self, **kwargs)
             self.optimizer.optimize(self, X, y, X_va, y_va, **kwargs)
