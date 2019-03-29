@@ -319,7 +319,6 @@ class CGD(Optimizer):
                                      error_prev=self.error_prev,
                                      w=flatted_weights, w_prev=w_prev,
                                      rho=self.rho)
-
             d = self.get_direction(k, g, beta, d_prev=d_prev, method=self.d_m)
 
             eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
@@ -601,11 +600,13 @@ class CGD(Optimizer):
         return alpha_current
 
     def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0, sigma_1,
-             sigma_2, tolerance=1e-4):
+             sigma_2, max_iter=10, tolerance=1e-4):
         """
         """
+        i = 0
+        alpha_j = 0.0
 
-        while True:
+        while i < max_iter:
             if alpha_lo > alpha_hi:  # TODO: termination
                 temp = alpha_lo
                 alpha_lo = alpha_hi
@@ -639,6 +640,8 @@ class CGD(Optimizer):
                     return alpha_j
 
                 alpha_lo = alpha_j
+            i += 1
+        return alpha_j
 
     def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
                       tolerance=0.5):

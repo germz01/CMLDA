@@ -114,33 +114,35 @@ def build_info_string(optimizer, data, test_type, metric, params):
     return to_ret
 
 
-def plot_betas_learning_curves(betas, data, title, metric,
+def plot_betas_learning_curves(monk, betas, data, title, metric,
                                fname='../../report/img/'):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
 
-    #plt.subplot(211)
+    plt.subplot(211)
 
     for i in range(len(data[0])):
-        plt.plot(range(len(data[0][i])), data[0][i], label=betas[i],
+        plt.plot(range(len(data[0][i])), data[0][i], label=betas[0][i],
                  alpha=.5)
     plt.grid()
     plt.title(title)
     plt.xlabel('EPOCHS')
     plt.ylabel(metric)
-    plt.legend()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-    # plt.subplot(212)
-    # plt.grid()
-    # plt.title(title + ' PLUS')
-    # plt.xlabel('EPOCHS')
-    # plt.ylabel(metric)
-    # plt.legend()
+    plt.subplot(212)
 
-    # for i in range(len(data[1])):
-    #     plt.plot(range(len(data[1][i])), data[1][i], label=betas[i])
+    for i in range(len(data[1])):
+        plt.plot(range(len(data[1][i])), data[1][i], label=betas[1][i])
+
+    plt.grid()
+    plt.title(title + ' PLUS')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
     plt.tight_layout()
-    plt.savefig(fname + metric.lower() + '_betas.pdf', bbox_inches='tight')
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_betas.pdf',
+                bbox_inches='tight')
     plt.close()
 
 

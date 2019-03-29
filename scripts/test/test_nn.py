@@ -15,7 +15,8 @@ if __name__ == '__main__':
                          momentum={'type': 'standard', 'alpha': 0.7})
     else:
         neural_net.train(X, y, 'CGD', max_epochs=1000, error_goal=1e-4,
-                         beta_m='hs', plus=True, strong=True)
+                         beta_m='pr', plus=True, strong=True, rho=0.0,
+                         d_m='standard')
 
     print '\n'
     print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])
