@@ -46,7 +46,7 @@ def compose_topology(X, hidden_sizes, y, task):
 
 
 def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
-                                  fname):
+                                  fname='../../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
         metric in ['MSE', 'MEE', 'ACCURACY']
 
@@ -70,8 +70,8 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
 
 
 def build_info_string(optimizer, data, test_type, metric, params):
-    assert test_type in ['VALIDATION', 'TEST']
-    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY']
 
     special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
                     'reg_lambda': r'$\lambda$', 'beta_m': r'$\beta$',
@@ -112,6 +112,36 @@ def build_info_string(optimizer, data, test_type, metric, params):
     to_ret += ' -> '.join(act_list)
 
     return to_ret
+
+
+def plot_betas_learning_curves(betas, data, title, metric,
+                               fname='../../report/img/'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+
+    #plt.subplot(211)
+
+    for i in range(len(data[0])):
+        plt.plot(range(len(data[0][i])), data[0][i], label=betas[i],
+                 alpha=.5)
+    plt.grid()
+    plt.title(title)
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend()
+
+    # plt.subplot(212)
+    # plt.grid()
+    # plt.title(title + ' PLUS')
+    # plt.xlabel('EPOCHS')
+    # plt.ylabel(metric)
+    # plt.legend()
+
+    # for i in range(len(data[1])):
+    #     plt.plot(range(len(data[1][i])), data[1][i], label=betas[i])
+
+    plt.tight_layout()
+    plt.savefig(fname + metric.lower() + '_betas.pdf', bbox_inches='tight')
+    plt.close()
 
 
 def plot_learning_curve_info(

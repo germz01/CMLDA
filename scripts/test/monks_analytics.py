@@ -9,9 +9,6 @@ import utils as u
 dataset, nfolds, ntrials = 1, 5, 1
 split_percentage = 0.8
 epochs = 1000
-testing = True
-
-pars = {}
 
 ###########################################################
 # LOADING DATASET
@@ -57,9 +54,16 @@ y_validation, X_validation = np.hsplit(validation_set, [1])
 
 neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
                               activation='sigmoid')
+initial_W, initial_b = neural_net.W, neural_net.b
 
 ###########################################################
 # PRELIMINARY TRAINING
+
+testing, testing_betas = True, True
+pars = {}
+betas = ['hs', 'pr', 'fr', 'mhs']
+errors, errors_plus = [], []
+acc, acc_plus = [], []
 
 if testing:
     opt = raw_input("OPTIMIZER[SGD/CGD]: ")
@@ -74,29 +78,62 @@ if testing:
     else:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
-                'beta_m': 'mhs',
                 'd_m': 'standard',
-                'plus': True,
                 'strong': True,
                 'rho': 0.0}
+        if testing_betas:
 
-    neural_net.train(X_training, y_training, opt, X_va=X_validation,
-                     y_va=y_validation, **pars)
+            for beta in betas:
+                print 'TESTING BETA {}'.format(beta)
 
-    print '\n'
-    print 'INITIAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[0])
-    print 'FINAL ERROR: {}'.format(neural_net.optimizer.error_per_epochs[-1])
-    print 'INITIAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
-                                                error_per_epochs_va[0])
+                pars['beta_m'] = beta
 
-    print 'FINAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
-                                              error_per_epochs_va[-1])
-    print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
-                                             error_per_epochs))
-    print '\n'
+                for plus in [True]:
+                    pars['plus'] = plus
 
-    u.plot_learning_curve_with_info(
-        neural_net.optimizer,
-        [neural_net.optimizer.accuracy_per_epochs,
-         neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
-        'ACCURACY', neural_net.optimizer.params, '/Users/Sabrina/Desktop/')
+                    neural_net.train(X_training, y_training, opt,
+                                     X_va=X_validation, y_va=y_validation,
+                                     **pars)
+                    neural_net.update_weights(initial_W, initial_b)
+                    neural_net.update_copies()
+
+                    if plus:
+                        errors_plus.\
+                            append(neural_net.optimizer.error_per_epochs)
+                        acc_plus.\
+                            append(neural_net.optimizer.accuracy_per_epochs_va)
+                    else:
+                        errors.append(neural_net.optimizer.error_per_epochs)
+                        acc.\
+                            append(neural_net.optimizer.accuracy_per_epochs_va)
+
+        else:
+            pars['beta_m'] = 'mhs'
+            neural_net.train(X_training, y_training, opt, X_va=X_validation,
+                             y_va=y_validation, **pars)
+
+    if testing_betas:
+        u.plot_betas_learning_curves(betas, [errors_plus],
+                                     'ERRORS', 'MSE')
+        u.plot_betas_learning_curves(betas, [acc_plus],
+                                     'ACCURACY', 'ACCURACY')
+    else:
+        print '\n'
+        print 'INITIAL ERROR: {}'.\
+            format(neural_net.optimizer.error_per_epochs[0])
+        print 'FINAL ERROR: {}'.\
+            format(neural_net.optimizer.error_per_epochs[-1])
+        print 'INITIAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
+                                                    error_per_epochs_va[0])
+
+        print 'FINAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
+                                                  error_per_epochs_va[-1])
+        print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
+                                                 error_per_epochs))
+        print '\n'
+
+        u.plot_learning_curve_with_info(
+            neural_net.optimizer,
+            [neural_net.optimizer.accuracy_per_epochs,
+             neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
+            'ACCURACY', neural_net.optimizer.params, '/Users/Sabrina/Desktop/')
