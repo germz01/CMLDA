@@ -66,7 +66,7 @@ initial_W, initial_b = neural_net.W, neural_net.b
 testing, testing_betas = True, True
 pars = {}
 #betas_n, betas = ['hs', 'fr', 'pr'], ['hs', 'fr', 'mhs', 'pr']
-betas_n, betas = ['pr'], ['pr']
+betas_n, betas = ['fr'], ['fr']
 
 errors, errors_plus = [], []
 acc, acc_plus = [], []
@@ -98,7 +98,7 @@ if testing:
                 else:
                     pars['d_m'] = 'standard'
 
-                for plus in [ True]:
+                for plus in [True]:
                     if plus is False and beta == 'mhs':
                         pass
                     else:

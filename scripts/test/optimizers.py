@@ -553,7 +553,7 @@ class CGD(Optimizer):
             + (beta * d_prev)
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
-                    sigma_2=0.9, threshold=1e-14):
+                    sigma_2=0.1, threshold=1e-14):
         """
         """
 
