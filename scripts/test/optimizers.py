@@ -685,6 +685,8 @@ class CGD(Optimizer):
         if error_a0 <= error_0 + (self.sigma_1 * alpha_0 * g_d):
             return alpha_0
 
+        # QUADRATIC INTERPOLATION #############################################
+
         alpha_1 = - (g_d * alpha_0**2) / \
             (2 * (error_a0 - error_0 - (g_d * alpha_0)))
 
@@ -694,6 +696,8 @@ class CGD(Optimizer):
 
         if error_a1 <= error_0 + (self.sigma_1 * alpha_1 * g_d):
             return alpha_1
+
+        # CUBIC INTERPOLATION #################################################
 
         while True:
             mul = 1 / (alpha_0**2 * alpha_1**2 * (alpha_1 - alpha_0))
@@ -715,3 +719,12 @@ class CGD(Optimizer):
             alpha_1 = alpha_2
             error_a0 = error_a1
             error_a1 = error_a2
+
+            # SAFEGUARD PROCEDURE #############################################
+
+            if alpha_1 < (alpha_0 / 2):
+                alpha_1 = alpha_0 / 2
+
+                nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
+                                                 nn.n_layers, nn.topology)
+                error_a1 = self.forward_propagation(nn, X, y) / X.shape[0]
