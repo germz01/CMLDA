@@ -63,9 +63,9 @@ initial_W, initial_b = neural_net.W, neural_net.b
 ###########################################################
 # PRELIMINARY TRAINING
 
-testing, testing_betas = True, True
+testing, testing_betas = True, False
 pars = {}
-#betas_n, betas = ['hs', 'fr', 'pr'], ['hs', 'fr', 'mhs', 'pr']
+# betas_n, betas = ['hs', 'fr', 'pr'], ['hs', 'fr', 'mhs', 'pr']
 betas_n, betas = ['fr'], ['fr']
 
 errors, errors_plus = [], []
@@ -85,7 +85,7 @@ if testing:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
                 'strong': True,
-                'rho': 0.0}
+                'rho': 0.5}
         if testing_betas:
 
             for beta in betas:
@@ -124,7 +124,8 @@ if testing:
                                        accuracy_per_epochs_va)
 
         else:
-            pars['beta_m'] = 'mhs'
+            pars['plus'] = True
+            pars['beta_m'] = 'hs'
             neural_net.train(X_training, y_training, opt, X_va=X_validation,
                              y_va=y_validation, **pars)
 
@@ -154,4 +155,4 @@ if testing:
             neural_net.optimizer,
             [neural_net.optimizer.accuracy_per_epochs,
              neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
-            'ACCURACY', neural_net.optimizer.params, '/Users/Sabrina/Desktop/')
+            'ACCURACY', neural_net.optimizer.params, '/Users/Gianmarco/Desktop/')

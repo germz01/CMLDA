@@ -552,8 +552,7 @@ class CGD(Optimizer):
         return (-(1 + beta * ((g.T.dot(d_prev)) / np.linalg.norm(g))) * g) \
             + (beta * d_prev)
 
-    def line_search(self, nn, X, y, W, d, g_d, error_0, sigma_1=1e-4,
-                    sigma_2=0.1, threshold=1e-14):
+    def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
         """
         """
 
@@ -567,23 +566,24 @@ class CGD(Optimizer):
                                              nn.n_layers, nn.topology)
             error_current = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            if (error_current > (error_0 + (sigma_1 * alpha_current * g_d))) \
+            if (error_current >
+                (error_0 + (self.sigma_1 * alpha_current * g_d))) \
                or ((error_current >= error_prev) and (i > 1)):
                 # print '1 - Iteration {}, alpha_c {}, error_c {}, error_p {}'.\
                 #     format(i, alpha_current, error_current, error_prev)
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
-                                 g_d, error_0, sigma_1, sigma_2)
+                                 g_d, error_0)
 
             self.back_propagation(nn, X, y)
             n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
-            if np.absolute(n_g_d) <= -sigma_2 * g_d:
+            if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                 # print '2 - Iteration {}, Alpha: {}'.format(i, alpha_current)
                 return alpha_current
             elif n_g_d >= 0:
                 # print '3 - Iteration {}, Zoom: {}'.format(i, alpha_current)
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
-                                 g_d, error_0, sigma_1, sigma_2)
+                                 g_d, error_0)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < threshold:
                 # print '4 -  Iteration {}, Stop: {}'.format(i, alpha_current)
@@ -599,12 +599,12 @@ class CGD(Optimizer):
 
         return alpha_current
 
-    def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0, sigma_1,
-             sigma_2, max_iter=10, tolerance=1e-4):
+    def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0,
+             max_iter=10, tolerance=1e-4):
         """
         """
         i = 0
-        alpha_j = 0.0
+        alpha_j = np.random.uniform(alpha_lo, alpha_hi)
 
         while i < max_iter:
             if alpha_lo > alpha_hi:  # TODO: termination
@@ -612,7 +612,9 @@ class CGD(Optimizer):
                 alpha_lo = alpha_hi
                 alpha_hi = temp
 
-            alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
+            # alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
+            alpha_j = self.quadratic_cubic_interpolation(error_0, g_d, W, nn,
+                                                         X, y, d, alpha_j)
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                              nn.n_layers, nn.topology)
@@ -622,7 +624,7 @@ class CGD(Optimizer):
                                              nn.n_layers, nn.topology)
             error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
 
-            if error_j > error_0 + (sigma_1 * alpha_j * g_d) or \
+            if error_j > error_0 + (self.sigma_1 * alpha_j * g_d) or \
                error_j >= error_lo:
                 alpha_hi = alpha_j
             else:
@@ -632,7 +634,7 @@ class CGD(Optimizer):
                 self.back_propagation(nn, X, y)
                 n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
 
-                if np.absolute(n_g_d) <= -sigma_2 * g_d:
+                if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                     return alpha_j
                 elif n_g_d * (alpha_hi - alpha_lo) >= 0:
                     alpha_hi = alpha_lo
@@ -653,8 +655,8 @@ class CGD(Optimizer):
         while current_iter <= max_iter:
             alpha_mid = (alpha_hi - alpha_lo) / 2
 
-            nn.W, nn.bb = self.unflat_weights(W + (alpha_mid * d),
-                                              nn.n_layers, nn.topology)
+            nn.W, nn.b = self.unflat_weights(W + (alpha_mid * d),
+                                             nn.n_layers, nn.topology)
             error_mid = self.forward_propagation(nn, X, y) / X.shape[0]
 
             if error_mid == 0 or (alpha_hi - alpha_lo) / 2 < tolerance:
@@ -670,3 +672,46 @@ class CGD(Optimizer):
                 alpha_lo = alpha_mid
             else:
                 alpha_hi = alpha_mid
+
+    def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X,
+                                      y, d, alpha_0=.5):
+        """
+        """
+
+        nn.W, nn.b = self.unflat_weights(W + (alpha_0 * d),
+                                         nn.n_layers, nn.topology)
+        error_a0 = self.forward_propagation(nn, X, y) / X.shape[0]
+
+        if error_a0 <= error_0 + (self.sigma_1 * alpha_0 * g_d):
+            return alpha_0
+
+        alpha_1 = - (g_d * alpha_0**2) / \
+            (2 * (error_a0 - error_0 - (g_d * alpha_0)))
+
+        nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
+                                         nn.n_layers, nn.topology)
+        error_a1 = self.forward_propagation(nn, X, y) / X.shape[0]
+
+        if error_a1 <= error_0 + (self.sigma_1 * alpha_1 * g_d):
+            return alpha_1
+
+        while True:
+            mul = 1 / (alpha_0**2 * alpha_1**2 * (alpha_1 - alpha_0))
+            a = mul * (alpha_0**2 - alpha_1**2) * \
+                (error_a1 - error_0 - (g_d * alpha_1))
+            b = mul * (-alpha_0**3 + alpha_1**3) * \
+                (error_a0 - error_0 - (g_d * alpha_0))
+
+            alpha_2 = (-b + np.sqrt(b**2 - (3 * a * g_d))) / (3 * a)
+
+            nn.W, nn.b = self.unflat_weights(W + (alpha_2 * d),
+                                             nn.n_layers, nn.topology)
+            error_a2 = self.forward_propagation(nn, X, y) / X.shape[0]
+
+            if error_a2 <= error_0 + (self.sigma_1 * alpha_2 * g_d):
+                return alpha_2
+
+            alpha_0 = alpha_1
+            alpha_1 = alpha_2
+            error_a0 = error_a1
+            error_a1 = error_a2
