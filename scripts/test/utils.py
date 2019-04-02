@@ -117,7 +117,6 @@ def build_info_string(optimizer, data, test_type, metric, params):
 def plot_betas_learning_curves(monk, betas, data, title, metric,
                                fname='../../report/img/'):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
-
     plt.subplot(211)
 
     for i in range(len(data[0])):

@@ -324,7 +324,7 @@ class CGD(Optimizer):
 
             eta = self.line_search(nn, X, y, flatted_weights, d,
                                    np.asscalar(g.T.dot(d)), self.error)
-
+            print eta
             # WEIGHTS' UPDATE #################################################
 
             new_W = flatted_copies + (eta * d)
@@ -360,7 +360,6 @@ class CGD(Optimizer):
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
 
             k += 1
-
         return 0
 
     def flat_weights(self, W, b):
@@ -496,9 +495,10 @@ class CGD(Optimizer):
                 (np.asscalar((g - g_prev).T.dot(kwargs['d_prev'])))
         elif method == 'pr':
             beta = (np.asscalar(g.T.dot(g-g_prev))) / \
-                (np.linalg.norm(g_prev))**2
+                np.square((np.linalg.norm(g_prev)))
         elif method == 'fr':
-            beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
+            beta = np.square((np.linalg.norm(g))) / \
+                np.square((np.linalg.norm(g_prev)))
         else:
             assert 'error' in kwargs and 'error_prev' in kwargs and \
                 'rho' in kwargs and plus is True
@@ -553,9 +553,10 @@ class CGD(Optimizer):
         if method == 'standard':
             return (-g + (beta * d_prev))
 
-        return (-(1 + beta * (np.asscalar(g.T.dot(d_prev)) /
-                              np.linalg.norm(g))) * g) \
-            + (beta * d_prev)
+        # pdb.set_trace()
+
+        return (-(1 + beta * np.asscalar(g.T.dot(d_prev)) / np.linalg.norm(g))
+                * g) + (beta * d_prev)
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
         """
@@ -675,9 +676,10 @@ class CGD(Optimizer):
                 alpha_hi = alpha_mid
 
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X,
-                                      y, d, alpha_0):
+                                      y, d, alpha_0, tolerance=1e-2):
         """
         """
+        i = 0
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_0 * d),
                                          nn.n_layers, nn.topology)
@@ -688,7 +690,7 @@ class CGD(Optimizer):
 
         # QUADRATIC INTERPOLATION #############################################
 
-        alpha_1 = - (g_d * alpha_0**2) / \
+        alpha_1 = - (g_d * np.square(alpha_0)) / \
             (2 * (error_a0 - error_0 - (g_d * alpha_0)))
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
@@ -702,14 +704,23 @@ class CGD(Optimizer):
 
         # pdb.set_trace()
 
-        while True:
-            mul = 1 / (alpha_0**2 * alpha_1**2 * (alpha_1 - alpha_0))
-            a = mul * (alpha_0**2 - alpha_1**2) * \
+        alpha_2 = 0.
+
+        while i < 10:
+            mul = 1 / (np.square(alpha_0) * np.square(alpha_1) *
+                       (alpha_1 - alpha_0))
+            a = mul * (np.square(alpha_0) - np.square(alpha_1)) * \
                 (error_a1 - error_0 - (g_d * alpha_1))
-            b = mul * (-alpha_0**3 + alpha_1**3) * \
+            b = mul * (np.power(-alpha_0, 3) + np.power(alpha_1, 3)) * \
                 (error_a0 - error_0 - (g_d * alpha_0))
 
-            alpha_2 = (-b + np.sqrt(b**2 - (3 * a * g_d))) / (3 * a)
+            alpha_2 = (-b + np.sqrt(np.square(b) - (3 * a * g_d))) / (3 * a)
+
+            # SAFEGUARD PROCEDURE #############################################
+
+            if np.absolute(alpha_2 - alpha_1) < tolerance \
+               or alpha_2 < (alpha_1 / 2):
+                alpha_2 = alpha_1 / 2
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_2 * d),
                                              nn.n_layers, nn.topology)
@@ -723,11 +734,6 @@ class CGD(Optimizer):
             error_a0 = error_a1
             error_a1 = error_a2
 
-            # SAFEGUARD PROCEDURE #############################################
+            i += 1
 
-            if alpha_1 < (alpha_0 / 2):
-                alpha_1 = alpha_0 / 2
-
-                nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
-                                                 nn.n_layers, nn.topology)
-                error_a1 = self.forward_propagation(nn, X, y) / X.shape[0]
+        return alpha_2

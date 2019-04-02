@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 
 dataset, nfolds, ntrials = 1, 5, 1
 split_percentage = 0.8
-epochs = 1000
+epochs = 500
 
 ###########################################################
 # LOADING DATASET
@@ -65,7 +65,7 @@ initial_W, initial_b = neural_net.W, neural_net.b
 
 testing, testing_betas = True, True
 pars = {}
-betas = ['hs', 'mhs']
+betas = ['pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
