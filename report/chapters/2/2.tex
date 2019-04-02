@@ -15,6 +15,54 @@
 
 	\section{Nonlinear Conjugate Gradient} % (fold)
 	\label{sec:nonlinear_conjugate_gradient}
+	
+		An intresting optimization ables to lead to an improvement of the performances of the Neural Network, is the use of high-order information during the training phase.
+
+		We can, indeed, approximate the \textit{loss function} in a quadratic form, around a given point \textbf{w}(n), using the Taylor approximation:
+
+		 \begin{equation} 
+		 	\label{quadratic}
+		    \mathcal{E}(\textbf{w}(n) + \Delta\textbf{w}(n)) = \mathcal{E}(\textbf{w}(n))+\textbf{g}(n)\mathcal{E}^T\Delta\textbf{w}(n)+ \frac{1}{2}\Delta\textbf{w}^T\textbf{H}(n)\Delta\textbf{w}(n)
+		 \end{equation} 
+
+		where \textbf{H}(n) is the \textit{Hessian} matrix and \textbf{g} the gradient vector.
+
+		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be $\Delta\textbf{w}^*(n) = \textbf{H}^{-1}(n)\textbf{g}(n)$, carrying the weight of the expensive computation of the inverse of the Hessian.
+
+		Here it comes the \textit{Conjugate Gradient} method: it is an iterative second-order optimization method which allows to avoid the computation of the inverse of the Hessian, getting low memory requirements.
+
+		It derives from the steepest-descent algorithm, in which each new direction is ortoghonal with respect to the previous direction found.
+		The choice of orthogonality does not preserve the minimum along the previous directions found, but it involves the continous minimization of the \textit{loss function} at each step, that is also the cause of the common zig-zag pattern. 
+
+		\subsection{Search Direction}
+
+		The \textit{Conjugate Gradient} method searches for a direction $\textbf{d}_k$ that holds the sequent property:
+		\begin{equation} 
+		\textbf{d}_k^T\textbf{H}\textbf{d}_{tk-1} = 0 
+		\end{equation}, that means it is conjugate to the previous direction $\textbf{d}_{k-1}$. Furthermore, it doesn't need to know all the previous directions, but it only needs the last one, which is why it requires very little storage and computation.
+
+		By ensuring that the gradient along the prevous direction does not increase, it keeps the progress obtained so far in the minimization of the loss function.
+
+		So, in a \textit{k}-dimensional space, this method allows to get the minimum in \textit{k} iterations.
+
+		It's worth to underline that this method can be applyed also in case of nonlinear functions: in this case, it should be necessary to restart the process, since there is no assumption that the conjugate directions previously found are still at the minimum of the function. 
+
+		Each new direction it's a linear combination of the steepest descent -\textbf{g} and the previous direction $\textbf{d}_{k-1}$, and it is defined as:
+		\begin{equation}
+		  \textbf{d}_k=\begin{cases}
+		    -\textbf{g}_0, & \text{if $k=0$};\\
+		    -\textbf{g}_k + \beta_k\textbf{d}_{k-1}, & \text{otherwise,}
+		  \end{cases}
+		\end{equation}
+
+		where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. 
+
+		Another modified search direction, that has been proposed by Zang et al., ensures sufficient descent and has been tested in the project:
+		\begin{equation}
+		 \textbf{d}_{k} = -(1 + \beta_k\frac{\textbf{g}_k^T\textbf{d}_{k}}{\|\textbf{g}_k\|})\textbf{g}_k + \beta\textbf{d}_{k-1}.
+		\end{equation}
+
+
 
 		\subsection{Line Search} % (fold)
 		\label{sub:line_search}
