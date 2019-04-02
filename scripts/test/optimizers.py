@@ -3,6 +3,7 @@ from __future__ import division
 import losses as lss
 import metrics
 import numpy as np
+import pdb
 import regularizers as reg
 
 
@@ -199,7 +200,7 @@ class CGD(Optimizer):
         a list containing the error for each epoch of training
     """
 
-    def __init__(self, nn, beta_m, d_m='standard', sigma_1=1e-4, sigma_2=.5,
+    def __init__(self, nn, beta_m, d_m='standard', sigma_1=1e-4, sigma_2=.4,
                  rho=0., **kwargs):
         """
         The class' constructor.
@@ -321,8 +322,8 @@ class CGD(Optimizer):
                                      rho=self.rho)
             d = self.get_direction(k, g, beta, d_prev=d_prev, method=self.d_m)
 
-            eta = self.line_search(nn, X, y, flatted_weights, d, g.T.dot(d),
-                                   self.error)
+            eta = self.line_search(nn, X, y, flatted_weights, d,
+                                   np.asscalar(g.T.dot(d)), self.error)
 
             # WEIGHTS' UPDATE #################################################
 
@@ -491,10 +492,11 @@ class CGD(Optimizer):
 
         if method == 'hs':
             assert 'd_prev' in kwargs
-            beta = (g.T.dot(g - g_prev)) / \
-                ((g - g_prev).T.dot(kwargs['d_prev']))
+            beta = (np.asscalar(g.T.dot(g - g_prev))) / \
+                (np.asscalar((g - g_prev).T.dot(kwargs['d_prev'])))
         elif method == 'pr':
-            beta = (g.T.dot(g-g_prev)) / (np.linalg.norm(g_prev))**2
+            beta = (np.asscalar(g.T.dot(g-g_prev))) / \
+                (np.linalg.norm(g_prev))**2
         elif method == 'fr':
             beta = (np.linalg.norm(g))**2 / (np.linalg.norm(g_prev))**2
         else:
@@ -503,11 +505,13 @@ class CGD(Optimizer):
 
             s = kwargs['w'] - kwargs['w_prev']
             teta = (2 * (kwargs['error_prev'] - kwargs['error'])) + \
-                (g + g_prev).T.dot(s)
+                np.asscalar((g + g_prev).T.dot(s))
             y_tilde = (g - g_prev) + ((kwargs['rho'] *
-                                      ((max(teta, 0)) / s.T.dot(s)))
+                                      ((max(teta, 0)) /
+                                       np.asscalar(s.T.dot(s))))
                                       * s)
-            beta = (g.T.dot(y_tilde)) / (kwargs['d_prev'].T.dot(y_tilde))
+            beta = np.asscalar(g.T.dot(y_tilde)) / \
+                np.asscalar(kwargs['d_prev'].T.dot(y_tilde))
 
         return max(beta, 0) if plus else beta
 
@@ -549,7 +553,8 @@ class CGD(Optimizer):
         if method == 'standard':
             return (-g + (beta * d_prev))
 
-        return (-(1 + beta * ((g.T.dot(d_prev)) / np.linalg.norm(g))) * g) \
+        return (-(1 + beta * (np.asscalar(g.T.dot(d_prev)) /
+                              np.linalg.norm(g))) * g) \
             + (beta * d_prev)
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
@@ -569,24 +574,20 @@ class CGD(Optimizer):
             if (error_current >
                 (error_0 + (self.sigma_1 * alpha_current * g_d))) \
                or ((error_current >= error_prev) and (i > 1)):
-                # print '1 - Iteration {}, alpha_c {}, error_c {}, error_p {}'.\
-                #     format(i, alpha_current, error_current, error_prev)
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
                                  g_d, error_0)
 
             self.back_propagation(nn, X, y)
-            n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
+            n_g_d = np.asscalar(self.flat_weights(self.delta_W,
+                                                  self.delta_b).T.dot(d))
 
             if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
-                # print '2 - Iteration {}, Alpha: {}'.format(i, alpha_current)
                 return alpha_current
             elif n_g_d >= 0:
-                # print '3 - Iteration {}, Zoom: {}'.format(i, alpha_current)
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < threshold:
-                # print '4 -  Iteration {}, Stop: {}'.format(i, alpha_current)
                 return alpha_current
 
             alpha_prev = alpha_current
@@ -612,7 +613,6 @@ class CGD(Optimizer):
                 alpha_lo = alpha_hi
                 alpha_hi = temp
 
-            # alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
             alpha_j = self.quadratic_cubic_interpolation(error_0, g_d, W, nn,
                                                          X, y, d, alpha_j)
 
@@ -632,7 +632,8 @@ class CGD(Optimizer):
                                                  nn.n_layers, nn.topology)
                 self.forward_propagation(nn, X, y)
                 self.back_propagation(nn, X, y)
-                n_g_d = self.flat_weights(self.delta_W, self.delta_b).T.dot(d)
+                n_g_d = np.asscalar(self.flat_weights(self.delta_W,
+                                                      self.delta_b).T.dot(d))
 
                 if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                     return alpha_j
@@ -698,6 +699,8 @@ class CGD(Optimizer):
             return alpha_1
 
         # CUBIC INTERPOLATION #################################################
+
+        # pdb.set_trace()
 
         while True:
             mul = 1 / (alpha_0**2 * alpha_1**2 * (alpha_1 - alpha_0))
