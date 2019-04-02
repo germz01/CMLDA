@@ -121,8 +121,8 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
     plt.subplot(211)
 
     for i in range(len(data[0])):
-        plt.plot(range(len(data[0][i])), data[0][i], label=betas[i],
-                 alpha=.5)
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=betas[i],
+                     alpha=.65)
     plt.grid()
     plt.title(title + ' WITH STANDARD DIRECTION')
     plt.xlabel('EPOCHS')
@@ -132,11 +132,11 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
     plt.subplot(212)
 
     for i in range(len(data[1])):
-        plt.plot(range(len(data[1][i])), data[1][i], label=betas[i],
-                 alpha=.6)
+        plt.semilogy(range(len(data[1][i])), data[1][i], label=betas[i],
+                     alpha=.65)
 
     plt.grid()
-    plt.title(title + ' MODIFIED DIRECTION')
+    plt.title(title + ' WITH MODIFIED DIRECTION')
     plt.xlabel('EPOCHS')
     plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))

@@ -86,11 +86,12 @@ if testing:
                 'rho': 0.5}
         if testing_betas:
             for beta in betas:
-                print 'TESTING BETA {}'.format(beta)
-
                 pars['beta_m'] = beta
 
                 for d_m in ['standard', 'modified']:
+                    print 'TESTING BETA {} WITH DIRECTION {}'.\
+                        format(beta.upper(), d_m.upper())
+
                     pars['plus'] = True
                     pars['d_m'] = d_m
 
