@@ -63,13 +63,11 @@ initial_W, initial_b = neural_net.W, neural_net.b
 ###########################################################
 # PRELIMINARY TRAINING
 
-testing, testing_betas = True, False
+testing, testing_betas = True, True
 pars = {}
-# betas_n, betas = ['hs', 'fr', 'pr'], ['hs', 'fr', 'mhs', 'pr']
-betas_n, betas = ['fr'], ['fr']
-
-errors, errors_plus = [], []
-acc, acc_plus = [], []
+betas = ['hs', 'mhs']
+errors, errors_std = [], []
+acc, acc_std = [], []
 
 if testing:
     opt = raw_input("OPTIMIZER[SGD/CGD]: ")
@@ -87,41 +85,33 @@ if testing:
                 'strong': True,
                 'rho': 0.5}
         if testing_betas:
-
             for beta in betas:
                 print 'TESTING BETA {}'.format(beta)
 
                 pars['beta_m'] = beta
 
-                if beta == 'mhs':
-                    pars['d_m'] = 'modified'
-                else:
-                    pars['d_m'] = 'standard'
+                for d_m in ['standard', 'modified']:
+                    pars['plus'] = True
+                    pars['d_m'] = d_m
 
-                for plus in [True]:
-                    if plus is False and beta == 'mhs':
-                        pass
+                    neural_net.train(X_training, y_training, opt,
+                                     X_va=X_validation, y_va=y_validation,
+                                     **pars)
+                    neural_net.update_weights(initial_W, initial_b)
+                    neural_net.update_copies()
+
+                    if d_m == 'standard':
+                        errors_std.\
+                            append(neural_net.optimizer.error_per_epochs)
+                        acc_std.\
+                            append(neural_net.optimizer.
+                                   accuracy_per_epochs_va)
                     else:
-                        pars['plus'] = plus
-
-                        neural_net.train(X_training, y_training, opt,
-                                         X_va=X_validation, y_va=y_validation,
-                                         **pars)
-                        neural_net.update_weights(initial_W, initial_b)
-                        neural_net.update_copies()
-
-                        if plus:
-                            errors_plus.\
-                                append(neural_net.optimizer.error_per_epochs)
-                            acc_plus.\
-                                append(neural_net.optimizer.
-                                       accuracy_per_epochs_va)
-                        else:
-                            errors.\
-                                append(neural_net.optimizer.error_per_epochs)
-                            acc.\
-                                append(neural_net.optimizer.
-                                       accuracy_per_epochs_va)
+                        errors.\
+                            append(neural_net.optimizer.error_per_epochs)
+                        acc.\
+                            append(neural_net.optimizer.
+                                   accuracy_per_epochs_va)
 
         else:
             pars['plus'] = True
@@ -130,11 +120,9 @@ if testing:
                              y_va=y_validation, **pars)
 
     if testing_betas:
-        u.plot_betas_learning_curves(dataset, [betas_n, betas],
-                                     [errors, errors_plus],
+        u.plot_betas_learning_curves(dataset, betas, [errors, errors_std],
                                      'ERRORS', 'MSE')
-        u.plot_betas_learning_curves(dataset, [betas_n, betas],
-                                     [acc, acc_plus],
+        u.plot_betas_learning_curves(dataset, betas, [acc, acc_std],
                                      'ACCURACY', 'ACCURACY')
     else:
         print '\n'

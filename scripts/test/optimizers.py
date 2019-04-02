@@ -674,7 +674,7 @@ class CGD(Optimizer):
                 alpha_hi = alpha_mid
 
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X,
-                                      y, d, alpha_0=.5):
+                                      y, d, alpha_0):
         """
         """
 
