@@ -325,8 +325,8 @@ class CGD(Optimizer):
             eta = self.line_search(nn, X, y, flatted_weights, d,
                                    np.asscalar(g.T.dot(d)), self.error)
             # WEIGHTS' UPDATE #################################################
-            if k > 0:
-                print 'k: ' + str(k) + ', beta: ' + str(beta) + ', eta: ' + str(eta) + ', d: ' + str(d[0]) + ', g: ' + str(g[0]) + ', g_prev: ' + str(g_prev[0]) + ', flatten: ' + str(flatted_copies[0])
+            #if k > 0:
+               # print 'k: ' + str(k) + ', beta: ' + str(beta) + ', eta: ' + str(eta) + ', d: ' + str(d[0]) + ', g: ' + str(g[0]) + ', g_prev: ' + str(g_prev[0]) + ', flatten: ' + str(flatted_copies[0])
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
@@ -618,9 +618,9 @@ class CGD(Optimizer):
                 temp = alpha_lo
                 alpha_lo = alpha_hi
                 alpha_hi = temp
-            print 'alpha_j: ' + str(alpha_j)
+            #print 'alpha_j: ' + str(alpha_j)
             #pdb.set_trace()
-
+            #alpha_j = self.interpolation(alpha_lo, alpha_hi, W, nn, X, y, d)
             alpha_j = self.quadratic_cubic_interpolation2(error_0, g_d, W, nn,
                                                          X, y, d, alpha_j)
 
@@ -698,7 +698,7 @@ class CGD(Optimizer):
         # QUADRATIC INTERPOLATION #############################################
         alpha_1 = - (g_d * np.square(alpha_0)) / \
             (2 * (error_a0 - error_0 - (g_d * alpha_0)))
-        print 'alpha_1: ' +str(alpha_1)
+        #print 'alpha_1: ' +str(alpha_1)
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
                                          nn.n_layers, nn.topology)
@@ -722,8 +722,9 @@ class CGD(Optimizer):
                 (error_a0 - error_0 - (g_d * alpha_0))
 
             alpha_2 = (-b + np.sqrt(np.square(b) - (3 * a * g_d))) / (3 * a)
-            print 'a: ' + str(a) + ', b: ' + str(b) + ', tot: ' + str(np.square(b) - (3 * a * g_d))
-            print 'alpha_2: ' +str(alpha_2) + ', i: ' + str(i)
+            #print 'a: ' + str(a) + ', b: ' + str(b) + ', tot: ' + str(np.square(b) - (3 * a * g_d))
+
+            #print 'alpha_2: ' +str(alpha_2) + ', i: ' + str(i)
 
 
             # SAFEGUARD PROCEDURE #############################################
@@ -764,7 +765,7 @@ class CGD(Optimizer):
         # QUADRATIC INTERPOLATION #############################################
         alpha_1 = - ((g_d * np.square(alpha_0)) /
                      (2 * (error_a0 - error_0 - (g_d * alpha_0))))
-        print 'alpha_1: ' + str(alpha_1)
+        #print 'alpha_1: ' + str(alpha_1)
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
                                          nn.n_layers, nn.topology)
@@ -797,8 +798,8 @@ class CGD(Optimizer):
             alpha_2 = (-b + np.sqrt(np.absolute(np.square(b) -
                                     (3 * a * g_d)))) / (3 * a)
 
-            print 'alpha_2: ' + str(alpha_2) + ', i: ' + str(i)
-            print 'a: ' + str(a) + ', b: ' + str(b)
+            #print 'alpha_2: ' + str(alpha_2) + ', i: ' + str(i)
+            #print 'a: ' + str(a) + ', b: ' + str(b)
 
             # SAFEGUARD PROCEDURE #############################################
 
