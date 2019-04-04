@@ -65,7 +65,8 @@ initial_W, initial_b = neural_net.W, neural_net.b
 
 testing, testing_betas = True, True
 pars = {}
-betas = ['pr']
+betas = ['hs', 'mhs', 'fr', 'pr']
+#betas = ['fr', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
@@ -121,9 +122,9 @@ if testing:
                              y_va=y_validation, **pars)
 
     if testing_betas:
-        u.plot_betas_learning_curves(dataset, betas, [errors, errors_std],
+        u.plot_betas_learning_curves(dataset, betas, [errors_std, errors],
                                      'ERRORS', 'MSE')
-        u.plot_betas_learning_curves(dataset, betas, [acc, acc_std],
+        u.plot_betas_learning_curves(dataset, betas, [acc_std, acc],
                                      'ACCURACY', 'ACCURACY')
     else:
         print '\n'

@@ -18,58 +18,95 @@
 	
 		An intresting optimization ables to lead to an improvement of the performances of the Neural Network, is the use of high-order information during the training phase.
 
-		We can, indeed, approximate the \textit{loss function} in a quadratic form, around a given point \textbf{w}(n), using the Taylor approximation:
+		We can, indeed, approximate the \textit{loss function} in a quadratic form, around a given point \textbf{W}(n), using the Taylor approximation:
 
 		 \begin{equation} 
 		 	\label{quadratic}
-		    \mathcal{E}(\textbf{w}(n) + \Delta\textbf{w}(n)) = \mathcal{E}(\textbf{w}(n))+\textbf{g}(n)\mathcal{E}^T\Delta\textbf{w}(n)+ \frac{1}{2}\Delta\textbf{w}^T\textbf{H}(n)\Delta\textbf{w}(n)
+		    \mathcal{E}(\textbf{W} + \Delta\textbf{W}) = \mathcal{E}(\textbf{W})+\textbf{g}\mathcal{E}^T\Delta\textbf{W}+ \frac{1}{2}\Delta\textbf{W}^T\textbf{H}\Delta\textbf{W},
 		 \end{equation} 
 
 		where \textbf{H}(n) is the \textit{Hessian} matrix and \textbf{g} the gradient vector.
 
-		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be $\Delta\textbf{w}^*(n) = \textbf{H}^{-1}(n)\textbf{g}(n)$, carrying the weight of the expensive computation of the inverse of the Hessian.
+		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be 
+ 		\begin{equation} 
+		 	\label{weight_star}
+			\Delta\textbf{W}^* = \textbf{H}^{-1}\textbf{g},
+		\end{equation} 
+
+		 carrying the weight of the expensive computation of the inverse of the Hessian.
 
 		Here it comes the \textit{Conjugate Gradient} method: it is an iterative second-order optimization method which allows to avoid the computation of the inverse of the Hessian, getting low memory requirements.
 
+		In fact, through this method, the adjustment to the synaptic weights of the network is computed as:
+		 \begin{equation} 
+		 	\label{weight}
+		    \Delta\textbf{W} = \alpha\textbf{d},
+		 \end{equation} 
+		where $\alpha$ is the learning rate, while \textbf{d} is the new conjugate direction.
+
 		It derives from the steepest-descent algorithm, in which each new direction is ortoghonal with respect to the previous direction found.
-		The choice of orthogonality does not preserve the minimum along the previous directions found, but it involves the continous minimization of the \textit{loss function} at each step, that is also the cause of the common zig-zag pattern. 
+		In this case, the choice of orthogonality does not preserve the minimum along the previous directions found. Instead, it involves the continous minimization of the \textit{loss function} at each step, that is also the cause of the common zig-zag pattern. 
 
 		\subsection{Search Direction}
+		\label{sub:search_direction}
+			The \textit{Conjugate Gradient} method searches for a direction $\textbf{d}_k$ that holds the sequent property:
+			\begin{equation} 
+			\textbf{d}_k^T\textbf{H}\textbf{d}_{tk-1} = 0 
+			\end{equation}, that means it is conjugate to the previous direction $\textbf{d}_{k-1}$. Furthermore, it doesn't need to know all the previous directions, but it only needs the last one, which is why it requires very little storage and computation.
 
-		The \textit{Conjugate Gradient} method searches for a direction $\textbf{d}_k$ that holds the sequent property:
-		\begin{equation} 
-		\textbf{d}_k^T\textbf{H}\textbf{d}_{tk-1} = 0 
-		\end{equation}, that means it is conjugate to the previous direction $\textbf{d}_{k-1}$. Furthermore, it doesn't need to know all the previous directions, but it only needs the last one, which is why it requires very little storage and computation.
+			Even if, with a quadratic function, by ensuring that the gradient along the previous direction does not increase, it keeps the progress obtained so far in the minimization of the loss function, it's worth to underline that this method can be applyed also in case of nonlinear functions: in this case, it should be necessary to restart the process, since there is no assumption that the conjugate directions previously found are still at the minimum of the function. 
 
-		By ensuring that the gradient along the prevous direction does not increase, it keeps the progress obtained so far in the minimization of the loss function.
+			Each new direction it's a linear combination of the steepest descent -\textbf{g} and the previous direction $\textbf{d}_{k-1}$, and it is defined as:
+			\begin{equation}
+			  \textbf{d}_k=\begin{cases}
+			    -\textbf{g}_0, & \text{if $k=0$};\\
+			    -\textbf{g}_k + \beta_k\textbf{d}_{k-1}, & \text{otherwise,}
+			  \end{cases}
+			\end{equation}
 
-		So, in a \textit{k}-dimensional space, this method allows to get the minimum in \textit{k} iterations.
+			where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. 
 
-		It's worth to underline that this method can be applyed also in case of nonlinear functions: in this case, it should be necessary to restart the process, since there is no assumption that the conjugate directions previously found are still at the minimum of the function. 
+			Another modified search direction, that has been proposed by Zang et al., ensures sufficient descent and has been tested in the project:
+			\begin{equation}
+			 \textbf{d}_{k} = -(1 + \beta_k\frac{\textbf{g}_k^T\textbf{d}_{k}}{\|\textbf{g}_k\|})\textbf{g}_k + \beta_k\textbf{d}_{k-1}.
+			\end{equation}
 
-		Each new direction it's a linear combination of the steepest descent -\textbf{g} and the previous direction $\textbf{d}_{k-1}$, and it is defined as:
-		\begin{equation}
-		  \textbf{d}_k=\begin{cases}
-		    -\textbf{g}_0, & \text{if $k=0$};\\
-		    -\textbf{g}_k + \beta_k\textbf{d}_{k-1}, & \text{otherwise,}
-		  \end{cases}
-		\end{equation}
+		\subsection{Beta}
+		\label{sub:beta}
+			What really makes the difference in the computation of the conjugate gradient algorithm, is the choice of the method used to compute the $\beta$.
 
-		where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. 
+			Infact, there have been proposed various choices for computing it, each one giving different efficiency and properties.
 
-		Another modified search direction, that has been proposed by Zang et al., ensures sufficient descent and has been tested in the project:
-		\begin{equation}
-		 \textbf{d}_{k} = -(1 + \beta_k\frac{\textbf{g}_k^T\textbf{d}_{k}}{\|\textbf{g}_k\|})\textbf{g}_k + \beta\textbf{d}_{k-1}.
-		\end{equation}
+			The formulas tested in our implementation are three: the Hestenes-Stiefel (HS), the Fletcher-Reeves (FR) and the Polak-Ribierère (PR)
+			\begin{equation}
+			\label{betas}
+				 \beta^{HS}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{(\textbf{g}_k-\textbf{g}_{k-1}^T\textbf{d}_{k-1})}, \text{ }
+				 \beta^{PR}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{\|\textbf{g}_{k-1}\|^2}, \text{ }
+ 				 \beta^{FR}_k = \frac{\|\textbf{g}_{k}\|^2}{\|\textbf{g}_{k-1}\|^2}.
+			\end{equation}
+
+			One of the properties that must be garanteed, is the global convergence of the method: since, in our network, we are dealing with a nonquadratic loss function, all the methods have been modified in order to ensure the global convergence:
+			\begin{equation}
+			\label{beta_max}
+				 \beta^+ = max\{\beta, 0\}.
+			\end{equation}
+
+			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and starting again the search starting again from the steepest descent direction.
+
+			The HS and the PR methods have very similar performance, and they are some of the most efficient conjugate gradient methods. 
+			However, using those method with nonlinear functions, there's no garancy that the $\textbf{d}_k$ found is always a descent direction: that's why has been decided to use the modified versions \ref{beta_max}, which ensures that the descent property holds.
+
+			For what concernes the FR method, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions (described in the line search procedure of section \ref{sub:line_search}) are satisfied, and it seems to be less efficient and robust than the other methods.
+
+
 
 
 
 		\subsection{Line Search} % (fold)
 		\label{sub:line_search}
+			Once computed the new direction \textbf{d} involved in the new point \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the loss function.
 
-			In order to find the right step size which minimize the loss function, a line search has to be implemented.
-
-			The step size alpha is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction. 
+			The step size $\alpha$ is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction. 
 
 			So, fixed the values of the weights \textbf{W} and the descent direction \textbf{d}, the main goal is to find the right value for $\alpha$ that is able to minimize the loss function:
 
