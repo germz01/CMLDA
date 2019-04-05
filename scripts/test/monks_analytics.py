@@ -63,10 +63,9 @@ initial_W, initial_b = neural_net.W, neural_net.b
 ###########################################################
 # PRELIMINARY TRAINING
 
-testing, testing_betas = True, True
+testing, testing_betas = True, False
 pars = {}
 betas = ['hs', 'mhs', 'fr', 'pr']
-#betas = ['fr', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
@@ -76,10 +75,13 @@ if testing:
     if opt == 'SGD':
         pars = {'epochs': epochs,
                 'batch_size': X_training.shape[0],
-                'eta': 0.3,
+                'eta': 0.5,
                 'momentum': {'type': 'nesterov', 'alpha': 0.9},
                 'reg_lambda': 0.0,
                 'reg_method': 'l2'}
+
+        neural_net.train(X_training, y_training, opt, X_va=X_validation,
+                         y_va=y_validation, **pars)
     else:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
@@ -143,6 +145,11 @@ if testing:
 
         u.plot_learning_curve_with_info(
             neural_net.optimizer,
+            [neural_net.optimizer.error_per_epochs,
+             neural_net.optimizer.error_per_epochs_va], 'VALIDATION',
+            'MSE', neural_net.optimizer.params)
+        u.plot_learning_curve_with_info(
+            neural_net.optimizer,
             [neural_net.optimizer.accuracy_per_epochs,
              neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
-            'ACCURACY', neural_net.optimizer.params, '/Users/Gianmarco/Desktop/')
+            'ACCURACY', neural_net.optimizer.params)

@@ -51,8 +51,8 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
         metric in ['MSE', 'MEE', 'ACCURACY']
 
     plt.subplot(211)
-    plt.plot(range(len(data[0])), data[0], label='TRAIN')
-    plt.plot(range(len(data[1])), data[1], linestyle='--', label=test_type)
+    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN')
+    plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
     plt.grid()
     plt.title('{} PER EPOCHS'.format(metric))
     plt.xlabel('EPOCHS')
@@ -65,8 +65,14 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
              params), ha='left', va='center', fontsize=8)
     plt.axis('off')
     plt.tight_layout()
-    plt.savefig(fname + metric.lower() + '_' + test_type.lower() +
-                '.pdf', bbox_inches='tight')
+
+    saving_str = '../../report/img/SGD/' \
+        if type(optimizer) is optimizers.SGD else '../../report/img/CGD/'
+    saving_str += 'sgd_' if type(optimizer) is optimizers.SGD else 'cgd_'
+    saving_str += metric.lower() + '_' + test_type.lower() + '.pdf'
+
+    plt.savefig(saving_str, bbox_inches='tight')
+    plt.close()
 
 
 def build_info_string(optimizer, data, test_type, metric, params):
@@ -75,7 +81,8 @@ def build_info_string(optimizer, data, test_type, metric, params):
 
     special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
                     'reg_lambda': r'$\lambda$', 'beta_m': r'$\beta$',
-                    'rho': r'$\rho$', 'reg_method': 'Reg Method',
+                    'rho': r'$\rho$', 'reg_method': 'Regularization',
+                    'momentum_type': 'Momentum',
                     'sigma_1': r'$\sigma_1$', 'sigma_2': r'$\sigma_2$'}
     act_list = []
 
@@ -108,6 +115,8 @@ def build_info_string(optimizer, data, test_type, metric, params):
             act_list.append('sigmoid')
         elif act is activations.relu:
             act_list.append('relu')
+        elif act is activations.tanh:
+            act_list.append('tanh')
 
     to_ret += ' -> '.join(act_list)
 
