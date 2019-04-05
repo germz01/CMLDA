@@ -74,12 +74,10 @@ class SGD(Optimizer):
     ----------
     """
 
-    def __init__(self, nn, batch_size, eta=0.1,
-                 momentum={'type': 'standard', 'alpha': 0.}, reg_lambda=0.0,
-                 reg_method='l2'):
+    def __init__(self, nn, eta=0.1, momentum={'type': 'standard', 'alpha': 0.},
+                 reg_lambda=0.0, reg_method='l2'):
         super(SGD, self).__init__(nn)
         self.error_per_batch = []
-        self.batch_size = batch_size
         self.eta = eta
 
         assert momentum['type'] in ['standard', 'nesterov']
@@ -115,11 +113,11 @@ class SGD(Optimizer):
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
 
-            for b_start in np.arange(0, X.shape[0], self.batch_size):
+            for b_start in np.arange(0, X.shape[0], X.shape[0]):
                 # BACK-PROPAGATION ALGORITHM ##################################
 
-                x_batch = X[b_start:b_start + self.batch_size, :]
-                y_batch = y[b_start:b_start + self.batch_size, :]
+                x_batch = X[b_start:b_start + X.shape[0], :]
+                y_batch = y[b_start:b_start + X.shape[0], :]
 
                 # MOMENTUM CHECK ##############################################
 
