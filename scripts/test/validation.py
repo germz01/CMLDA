@@ -1,5 +1,6 @@
 from __future__ import division
 
+import ipdb
 import nn
 import matplotlib.pyplot as plt
 import numpy as np
@@ -85,7 +86,7 @@ class KFoldCrossValidation(object):
             np.random.shuffle(self.dataset)
 
         self.set_folds(nfolds)
-        self.validate(X, y, neural_net, nfolds)
+        self.validate(X, y, neural_net, nfolds, **kwargs)
 
     def set_folds(self, nfolds):
         """
@@ -110,7 +111,7 @@ class KFoldCrossValidation(object):
             low = high
             high += record_per_fold
 
-    def validate(self, X, y, neural_net, nfolds, plot_curves=False, **kwargs):
+    def validate(self, X, y, neural_net, nfolds, **kwargs):
         """
         This function implements the core of the k-fold cross validation
         algorithm. For each fold, the neural network is trained using the
@@ -152,69 +153,47 @@ class KFoldCrossValidation(object):
             X_train, y_train = np.hsplit(train_set, [X.shape[1]])
             X_va, y_va = np.hsplit(self.folds[i], [X.shape[1]])
 
-            neural_net.train(X_train, y_train, X_va, y_va)
+            neural_net.train(X_train, y_train, X_va=X_va, y_va=y_va, **kwargs)
 
             # assessment = self.model_assessment(X_va, y_va, model=neural_net)
-            assessment = {'mse': neural_net.error_per_epochs_va[-1]}
+            assessment = {'mse': neural_net.optimizer.error_per_epochs_va[-1]}
             self.results.append(assessment)
             # self.results.append(loss)
 
-            fold_results = {
-                'id_fold': i+1,
-                'mse_tr': neural_net.error_per_epochs[-1],
-                'mse_va': neural_net.error_per_epochs_va[-1],
-                'mee_tr': neural_net.mee_per_epochs[-1],
-                'mee_va': neural_net.mee_per_epochs_va[-1],
+            fold_results = {'id_fold': i + 1,
+                            'hyperparams': neural_net.optimizer.
+                            get_params(neural_net),
+                            'error_per_epochs':
+                            neural_net.optimizer.error_per_epochs,
+                            'error_per_epochs_va': neural_net.optimizer.
+                            error_per_epochs_va}
 
-                'error_per_epochs': neural_net.error_per_epochs,
-                'error_per_epochs_va': neural_net.error_per_epochs_va,
-                'mee_per_epochs': neural_net.mee_per_epochs,
-                'mee_per_epochs_va': neural_net.mee_per_epochs_va,
-
-                # 'accuracy_per_epochs': neural_net.accuracy_per_epochs,
-                # 'accuracy_per_epochs_va': neural_net.accuracy_per_epochs_va,
-                'hyperparams': neural_net.get_params()
-            }
             if neural_net.task == 'classifier':
-                y_pred = neural_net.predict(X_va)
+                neural_net.optimizer.forward_propagation(neural_net, X_va,
+                                                         y_va)
+                y_pred = neural_net.optimizer.h[-1].reshape(-1, 1)
                 y_pred = np.apply_along_axis(lambda x: 0 if x < .5 else 1, 1,
                                              y_pred).reshape(-1, 1)
 
                 # y_pred = np.round(y_pred)
                 bca = metrics.BinaryClassifierAssessment(y_pred, y_va,
                                                          printing=False)
+                fold_results['mse_tr'] = neural_net.optimizer.\
+                    error_per_epochs[-1]
+                fold_results['mse_va'] = neural_net.optimizer.\
+                    error_per_epochs_va[-1]
                 fold_results['accuracy'] = bca.accuracy
                 fold_results['f1_score'] = bca.f1_score
-
-            if neural_net.task == 'regression':
-                # add mean euclidean error
-                pass
+            else:
+                fold_results['mee_tr'] = neural_net.optimizer.\
+                    error_per_epochs[-1]
+                fold_results['mee_va'] = neural_net.optimizer.\
+                    error_per_epochs_va[-1]
 
             self.fold_results.append(fold_results)
-            neural_net.reset()
-
-            if plot_curves:
-                plt.plot(range(len(neural_net.error_per_epochs)),
-                         neural_net.error_per_epochs,
-                         label='FOLD {}, VALIDATION ERROR: {}'.
-                         format(i, round(assessment['mse'], 2)))
+            neural_net.restore_weights()
 
         self.aggregated_results = self.aggregate_assessments()
-
-        if plot_curves:
-            plt.title('LEARNING CURVES FOR A {}-FOLD CROSS VALIDATION.\nMEAN '
-                      'VALIDATION ERROR {}, VARIANCE {}.'.
-                      format(nfolds, round(
-                        self.aggregated_results['mse']['mean'], 2),
-                        round(self.aggregated_results['mse']['std'], 2)),
-                      fontsize=8)
-            plt.ylabel('ERROR PER EPOCH')
-            plt.xlabel('EPOCHS')
-            plt.grid()
-            plt.legend(fontsize=8)
-            plt.savefig('../images/{}_fold_cross_val_lcs.pdf'.
-                        format(nfolds), bbox_inches='tight')
-            plt.close()
 
         return self.aggregated_results
 
@@ -376,19 +355,28 @@ class ModelSelectionCV(object):
                                             if 'par_name' in kwargs else '')):
                 # instanciate neural network
                 i += 1
+
+                if hyperparams['optimizer'] == 'SGD':
+                    hyperparams['momentum'] = {'type': hyperparams['type'],
+                                               'alpha': hyperparams['alpha']
+                                               }
+                    hyperparams.pop('type')
+                    hyperparams.pop('alpha')
+
                 for trial in tqdm(range(ntrials), desc="TRIALS"):
                     # repeated inizialization of the net
-                    neural_net = nn.NeuralNetwork(X_design, y_design,
-                                                  hyperparams['hidden_sizes'],
-                                                  hyperparams['activation'],
-                                                  hyperparams['task'])
-                    cross_val = KFoldCrossValidation(
-                        X_design, y_design,
-                        neural_net, nfolds=nfolds,
-                        shuffle=False)
+                    neural_net = \
+                        nn.NeuralNetwork(X_design, y_design,
+                                         hidden_sizes=hyperparams['hidden_sizes'],
+                                         activation=hyperparams['activation'],
+                                         task=hyperparams['task'])
+                    cross_val = KFoldCrossValidation(X_design, y_design,
+                                                     neural_net, nfolds=nfolds,
+                                                     **hyperparams)
 
                     out = dict()
-                    out['hyperparams'] = neural_net.get_params()
+                    out['hyperparams'] = neural_net.optimizer.\
+                        get_params(neural_net)
                     out['errors'] = cross_val.aggregated_results
                     out['fold_results'] = cross_val.fold_results
                     out['id_grid'] = i

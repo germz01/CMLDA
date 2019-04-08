@@ -65,7 +65,7 @@ initial_W, initial_b = neural_net.W, neural_net.b
 ###############################################################################
 # PRELIMINARY TRAINING ########################################################
 
-testing, testing_betas = True, False
+testing, testing_betas = False, False
 pars = {}
 betas = ['hs', 'mhs', 'fr', 'pr']
 errors, errors_std = [], []
@@ -164,6 +164,11 @@ param_ranges = {}
 
 if opt == 'SGD':
     param_ranges['eta'] = (0.3, 7.)
+
+    type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
+    assert type_m in ['standard', 'nesterov']
+    param_ranges['type'] = type_m
+
     param_ranges['alpha'] = (0.5, 0.9)
     param_ranges['reg_method'] = 'l2'
     param_ranges['reg_lambda'] = 0.0
@@ -184,6 +189,7 @@ else:
     param_ranges['sigma_2'] = (0.1, 0.9)
     param_ranges['rho'] = (0., 1.)
 
+param_ranges['optimizer'] = opt
 param_ranges['hidden_sizes'] = [4, 8]
 param_ranges['activation'] = 'sigmoid'
 param_ranges['task'] = 'classifier'

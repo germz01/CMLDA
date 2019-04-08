@@ -75,7 +75,7 @@ class SGD(Optimizer):
     """
 
     def __init__(self, nn, eta=0.1, momentum={'type': 'standard', 'alpha': 0.},
-                 reg_lambda=0.0, reg_method='l2'):
+                 reg_lambda=0.0, reg_method='l2', **kwargs):
         super(SGD, self).__init__(nn)
         self.error_per_batch = []
         self.eta = eta
