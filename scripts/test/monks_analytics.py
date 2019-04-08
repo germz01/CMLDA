@@ -1,21 +1,23 @@
-import pdb
+import ipdb
 import nn
 import numpy as np
 import pandas as pd
 import utils as u
+import validation as val
 import warnings
 
 warnings.filterwarnings("ignore")
 
-###########################################################
-# EXPERIMENTAL SETUP
+###############################################################################
+# EXPERIMENTAL SETUP ##########################################################
 
 dataset, nfolds, ntrials = 1, 5, 1
+grid_size = 100
 split_percentage = 0.8
 epochs = 500
 
-###########################################################
-# LOADING DATASET
+###############################################################################
+# LOADING DATASET #############################################################
 
 fpath = '../../data/monks/'
 preliminary_path = '../images/monks_preliminary_trials/'
@@ -42,8 +44,8 @@ X_test = (X_test*2-1)
 design_set = np.hstack((y_design, X_design))
 test_set = np.hstack((y_test, X_test))
 
-###########################################################
-# DATASET PARTITIONING
+###############################################################################
+# DATASET PARTITIONING ########################################################
 
 np.random.shuffle(design_set)
 
@@ -53,15 +55,15 @@ validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
 y_training, X_training = np.hsplit(training_set, [1])
 y_validation, X_validation = np.hsplit(validation_set, [1])
 
-###########################################################
-# NETWORK INITIALIZATION
+###############################################################################
+# NETWORK INITIALIZATION ######################################################
 
 neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
                               activation='sigmoid')
 initial_W, initial_b = neural_net.W, neural_net.b
 
-###########################################################
-# PRELIMINARY TRAINING
+###############################################################################
+# PRELIMINARY TRAINING ########################################################
 
 testing, testing_betas = True, False
 pars = {}
@@ -69,9 +71,9 @@ betas = ['hs', 'mhs', 'fr', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
-if testing:
-    opt = raw_input("OPTIMIZER[SGD/CGD]: ")
+opt = raw_input("OPTIMIZER[SGD/CGD]: ")
 
+if testing:
     if opt == 'SGD':
         pars = {'epochs': epochs,
                 'batch_size': X_training.shape[0],
@@ -153,3 +155,42 @@ if testing:
             [neural_net.optimizer.accuracy_per_epochs,
              neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
             'ACCURACY', neural_net.optimizer.params)
+
+###############################################################################
+# VALIDATION ##################################################################
+
+experiment, dataset = 1, int(raw_input('CHOOSE A MONK DATASET[1/2/3]: '))
+param_ranges = {}
+
+if opt == 'SGD':
+    param_ranges['eta'] = (0.3, 7.)
+    param_ranges['alpha'] = (0.5, 0.9)
+    param_ranges['reg_method'] = 'l2'
+    param_ranges['reg_lambda'] = 0.0
+    param_ranges['epochs'] = epochs
+else:
+    beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
+    assert beta_m in ['hs', 'mhs', 'fr', 'pr']
+    param_ranges['beta_m'] = beta_m
+
+    d_m = raw_input('CHOOSE A DIRECTION METHOD[standard/modified]: ')
+    assert beta_m in ['standard', 'modified']
+    param_ranges['d_m'] = d_m
+
+    param_ranges['max_epochs'] = epochs
+    param_ranges['error_goal'] = 1e-4
+    param_ranges['strong'] = True
+    param_ranges['plus'] = True
+    param_ranges['sigma_2'] = (0.1, 0.9)
+    param_ranges['rho'] = (0., 1.)
+
+param_ranges['hidden_sizes'] = [4, 8]
+param_ranges['activation'] = 'sigmoid'
+param_ranges['task'] = 'classifier'
+
+grid = val.HyperGrid(param_ranges, grid_size, random=True)
+selection = val.ModelSelectionCV(grid,
+                                 fname=fpath +
+                                 'monks_{}_experiment_{}_results.json.gz'.
+                                 format(dataset, experiment))
+selection.search(X_design, y_design, nfolds=nfolds, ntrials=ntrials)
