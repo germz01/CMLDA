@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 # EXPERIMENTAL SETUP ##########################################################
 
 dataset, nfolds, ntrials = 1, 5, 1
-grid_size = 100
+grid_size = 5
 split_percentage = 0.8
 epochs = 500
 

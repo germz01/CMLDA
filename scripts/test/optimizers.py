@@ -40,6 +40,8 @@ class Optimizer(object):
         self.error_per_epochs_va = []
         self.accuracy_per_epochs = []
         self.accuracy_per_epochs_va = []
+        self.f1_score_per_epochs = []
+        self.f1_score_per_epochs_va = []
 
     def forward_propagation(self, nn, x, y):
         for i in range(nn.n_layers):
@@ -163,7 +165,7 @@ class SGD(Optimizer):
                 self.error_per_epochs_va.append(error_va)
                 y_pred_va = self.h[-1].reshape(-1, 1)
 
-            # ACCURACY ESTIMATION #############################################
+            # PERFORMANCE ESTIMATION ##########################################
 
             if nn.task == 'classifier':
                 y_pred_bin = np.apply_along_axis(lambda x: 0 if x < .5 else 1,
@@ -179,6 +181,8 @@ class SGD(Optimizer):
 
                 self.accuracy_per_epochs.append(bin_assess.accuracy)
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
+                self.f1_score_per_epochs.append(bin_assess.f1_score)
+                self.f1_score_per_epochs_va.append(bin_assess_va.f1_score)
 
 
 class CGD(Optimizer):

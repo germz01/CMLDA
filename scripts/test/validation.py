@@ -1,5 +1,6 @@
 from __future__ import division
 
+import activations as act
 import ipdb
 import nn
 import matplotlib.pyplot as plt
@@ -80,7 +81,9 @@ class KFoldCrossValidation(object):
         self.folds = list()
         self.results = list()
 
-        self.fold_results = []
+        self.fold_errors = [[], []]
+        self.accuracies = []
+        self.f1_scores = []
 
         if shuffle:
             np.random.shuffle(self.dataset)
@@ -155,47 +158,18 @@ class KFoldCrossValidation(object):
 
             neural_net.train(X_train, y_train, X_va=X_va, y_va=y_va, **kwargs)
 
-            # assessment = self.model_assessment(X_va, y_va, model=neural_net)
-            assessment = {'mse': neural_net.optimizer.error_per_epochs_va[-1]}
-            self.results.append(assessment)
-            # self.results.append(loss)
-
-            fold_results = {'id_fold': i + 1,
-                            'hyperparams': neural_net.optimizer.
-                            get_params(neural_net),
-                            'error_per_epochs':
-                            neural_net.optimizer.error_per_epochs,
-                            'error_per_epochs_va': neural_net.optimizer.
-                            error_per_epochs_va}
+            self.fold_errors[0].append(neural_net.optimizer.error_per_epochs[-1])
+            self.fold_errors[1].append(neural_net.optimizer.error_per_epochs_va[-1])
 
             if neural_net.task == 'classifier':
-                neural_net.optimizer.forward_propagation(neural_net, X_va,
-                                                         y_va)
-                y_pred = neural_net.optimizer.h[-1].reshape(-1, 1)
-                y_pred = np.apply_along_axis(lambda x: 0 if x < .5 else 1, 1,
-                                             y_pred).reshape(-1, 1)
-
-                # y_pred = np.round(y_pred)
-                bca = metrics.BinaryClassifierAssessment(y_pred, y_va,
-                                                         printing=False)
-                fold_results['mse_tr'] = neural_net.optimizer.\
-                    error_per_epochs[-1]
-                fold_results['mse_va'] = neural_net.optimizer.\
-                    error_per_epochs_va[-1]
-                fold_results['accuracy'] = bca.accuracy
-                fold_results['f1_score'] = bca.f1_score
+                self.accuracies.append(neural_net.optimizer.
+                                       accuracy_per_epochs_va[-1])
+                self.f1_scores.append(neural_net.optimizer.
+                                      f1_score_per_epochs_va[-1])
             else:
-                fold_results['mee_tr'] = neural_net.optimizer.\
-                    error_per_epochs[-1]
-                fold_results['mee_va'] = neural_net.optimizer.\
-                    error_per_epochs_va[-1]
+                pass
 
-            self.fold_results.append(fold_results)
-            neural_net.restore_weights()
-
-        self.aggregated_results = self.aggregate_assessments()
-
-        return self.aggregated_results
+            self.aggregate_results(neural_net.optimizer.get_params(neural_net))
 
     def model_assessment(self, X_va, y_va, model):
         """
@@ -224,7 +198,7 @@ class KFoldCrossValidation(object):
         # possibile aggiungere altre metriche al dizionario
         return assessment
 
-    def aggregate_assessments(self):
+    def aggregate_results(self, hyperparams):
         """
         Computes aggregation measures for each assessment metric.
 
@@ -239,19 +213,35 @@ class KFoldCrossValidation(object):
 
         """
 
-        metrics = self.results[0].keys()
+        self.fold_results = {"statistics":
+                             {"values":
+                              {"train": self.fold_errors[0],
+                               "validation": self.fold_errors[1]},
+                              "mean": np.mean(self.fold_errors[1]),
+                              "std": np.std(self.fold_errors[1]),
+                              "accuracy_score": np.mean(self.accuracies),
+                              "f1_score": np.mean(self.f1_scores)
+                              }
+                             }
 
-        out = {metric: {'values': []} for metric in metrics}
-        for res in self.results:
-            for metric in metrics:
-                out[metric]['values'].append(res[metric])
+        acts = []
 
-        for metric in metrics:
-            out[metric]['mean'] = np.mean(out[metric]['values'])
-            out[metric]['std'] = np.std(out[metric]['values'])
-            out[metric]['median'] = np.median(out[metric]['values'])
+        for f in hyperparams['activation']:
+            if f is act.sigmoid:
+                acts.append('sigmoid')
+            elif f is act.relu:
+                acts.append('relu')
+            elif f is act.tanh:
+                acts.append('tanh')
+            else:
+                acts.append('identity')
 
-        return out
+        acts = ' -> '.join(acts)
+        hyperparams['activation'] = acts
+        hyperparams['topology'] = [str(s) for s in hyperparams['topology']]
+        hyperparams['topology'] = ' -> '.join(hyperparams['topology'])
+
+        self.fold_results["hyperparameters"] = hyperparams
 
 
 class ModelSelectionCV(object):
@@ -338,7 +328,7 @@ class ModelSelectionCV(object):
 
         if save_results:
             with gzip.open(fname, 'w') as f:
-                f.write('{"out": [')
+                f.write('{"results": [')
 
         i = 0
 
@@ -374,21 +364,9 @@ class ModelSelectionCV(object):
                                                      neural_net, nfolds=nfolds,
                                                      **hyperparams)
 
-                    out = dict()
-                    out['hyperparams'] = neural_net.optimizer.\
-                        get_params(neural_net)
-                    out['errors'] = cross_val.aggregated_results
-                    out['fold_results'] = cross_val.fold_results
-                    out['id_grid'] = i
-                    out['id_trial'] = trial
-                    # fold results
-                    for res in out['fold_results']:
-                        res['id_grid'] = i
-                        res['id_trial'] = trial
-
                     if save_results:
                         with gzip.open(fname, 'a') as f:
-                            json.dump(out, f, indent=4)
+                            json.dump(cross_val.fold_results, f, indent=4)
                             if i != self.n_iter:
                                 f.write(',\n')
                             else:
