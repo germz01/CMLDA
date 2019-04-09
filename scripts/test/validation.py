@@ -420,10 +420,13 @@ class ModelSelectionCV(object):
         if fname is None:
             fname = self.fname
         data = self.load_results(fname=fname)
-        errors = [res['errors'][error][metric] for res in data['out']]
-        best_indexes = (np.argsort(errors))[:top]
+        errors = np.argsort([res['statistics']['mean']
+                             for res in data['results']])[-top:]
 
-        return list(np.array(data['out'])[best_indexes])
+        # errors = [res['errors'][error][metric] for res in data['out']]
+        # best_indexes = (np.argsort(errors))[:top]
+
+        # return list(np.array(data['out'])[best_indexes])
 
     def select_best_model(self, X_design, y_design, X_va=None, y_va=None,
                           fname=None):
