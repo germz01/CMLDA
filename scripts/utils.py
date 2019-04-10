@@ -46,7 +46,7 @@ def compose_topology(X, hidden_sizes, y, task):
 
 
 def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
-                                  fname='../../report/img/'):
+                                  fname='../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
         metric in ['MSE', 'MEE', 'ACCURACY']
 
@@ -124,7 +124,7 @@ def build_info_string(optimizer, data, test_type, metric, params):
 
 
 def plot_betas_learning_curves(monk, betas, data, title, metric,
-                               fname='../../report/img/'):
+                               fname='../report/img/'):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
     plt.subplot(211)
 

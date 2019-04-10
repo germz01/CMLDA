@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 ntrials = 10
 split_percentage = 0.8
 epochs = 500
-path_to_json = '../../data/final_setup/'
+path_to_json = '../data/final_setup/'
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',

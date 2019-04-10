@@ -1,7 +1,0 @@
-{
-    "eta": 0.5,
-    "momentum": {"type": "nesterov", "alpha": 0.9},
-    "reg_lambda": 0.0,
-    "reg_method": "l2",
-    "epochs": 500
-}

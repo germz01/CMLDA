@@ -1,15 +1,15 @@
 from __future__ import division
 
 import activations as act
-import ipdb
+import json
+import gzip
 import nn
 import numpy as np
+import metrics
 import pandas as pd
 import random as rnd
+import subprocess
 import utils as u
-import json
-import metrics
-import gzip
 
 from itertools import product
 from tqdm import tqdm
@@ -171,8 +171,6 @@ class KFoldCrossValidation(object):
                 pass
 
             neural_net.restore_weights()
-
-        # ipdb.set_trace()
 
         self.aggregate_results(neural_net.optimizer.params)
 
@@ -389,8 +387,10 @@ class ModelSelectionCV(object):
         """
         if fname is None:
             fname = self.fname
+
         with gzip.open(fname, 'r') as f:
             data = json.load(f)
+
         return data
 
     def select_best_hyperparams(self, error='mse', metric='mean', top=5,
@@ -428,6 +428,8 @@ class ModelSelectionCV(object):
         best_f1_scores = np.argsort(r['statistics']['f1_score']
                                     for r in best_mean_errors)[0]
         best_f1_scores = best_mean_errors[best_f1_scores]
+
+        subprocess.call(['rm', fname])
 
         return best_f1_scores
 

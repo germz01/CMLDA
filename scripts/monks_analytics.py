@@ -20,7 +20,7 @@ epochs = 500
 ###############################################################################
 # LOADING DATASET #############################################################
 
-fpath = '../../data/monks/'
+fpath = '../data/monks/'
 preliminary_path = '../images/monks_preliminary_trials/'
 
 names = ['monks-1_train',
@@ -206,7 +206,7 @@ selection = val.ModelSelectionCV(grid,
 selection.search(X_design, y_design, nfolds=nfolds)
 best_hyperparameters = selection.select_best_hyperparams()
 
-with open(fpath + 'results/monks_{}/best_hyperparameters_{}.json'.
+with open('../data/final_setup/monks_{}_best_hyperparameters_{}.json'.
           format(ds, opt.lower()),
           'w') as json_file:
     json.dump(best_hyperparameters, json_file, indent=4)
