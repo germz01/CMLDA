@@ -108,7 +108,7 @@ class BinaryClassifierAssessment():
         # self.fp_rate = float(fp) / P
 
         if self.precision == 0 or self.recall == 0:
-            self.f1_score = None
+            self.f1_score = 0.
         else:
             self.f1_score = 2. / (1/self.precision + 1/self.recall)
 
