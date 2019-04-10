@@ -183,7 +183,7 @@ else:
     param_ranges['beta_m'] = beta_m
 
     d_m = raw_input('CHOOSE A DIRECTION METHOD[standard/modified]: ')
-    assert beta_m in ['standard', 'modified']
+    assert d_m in ['standard', 'modified']
     param_ranges['d_m'] = d_m
 
     param_ranges['max_epochs'] = epochs
@@ -206,6 +206,7 @@ selection = val.ModelSelectionCV(grid,
 selection.search(X_design, y_design, nfolds=nfolds)
 best_hyperparameters = selection.select_best_hyperparams()
 
-with open(fpath + 'results/monks_{}/best_hyperparameters.json'.format(ds),
+with open(fpath + 'results/monks_{}/best_hyperparameters_{}.json'.
+          format(ds, opt.lower()),
           'w') as json_file:
     json.dump(best_hyperparameters, json_file, indent=4)

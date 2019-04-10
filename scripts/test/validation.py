@@ -170,7 +170,11 @@ class KFoldCrossValidation(object):
             else:
                 pass
 
-            self.aggregate_results(neural_net.optimizer.get_params(neural_net))
+            neural_net.restore_weights()
+
+        # ipdb.set_trace()
+
+        self.aggregate_results(neural_net.optimizer.params)
 
     def model_assessment(self, X_va, y_va, model):
         """
@@ -737,7 +741,8 @@ class HyperGrid():
         for par, interval in self.param_ranges.items():
             if (type(interval) is int) or \
                (type(interval) is float) or \
-               (type(interval) is str):
+               (type(interval) is str) or \
+               (type(interval) is bool):
                 types[par] = 'constant'
             elif type(interval) is list:
                 types[par] = list

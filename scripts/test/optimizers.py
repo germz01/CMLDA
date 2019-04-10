@@ -332,7 +332,7 @@ class CGD(Optimizer):
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
-            nn.update_copies()
+            # nn.update_copies()
 
             g_prev, d_prev, w_prev = g, d, flatted_copies
             self.error_prev = self.error
@@ -361,6 +361,8 @@ class CGD(Optimizer):
 
                 self.accuracy_per_epochs.append(bin_assess.accuracy)
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
+                self.f1_score_per_epochs.append(bin_assess.f1_score)
+                self.f1_score_per_epochs_va.append(bin_assess_va.f1_score)
 
             k += 1
         return 0
