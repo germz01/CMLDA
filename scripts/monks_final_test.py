@@ -1,4 +1,5 @@
 import json
+import ipdb
 import nn
 import numpy as np
 import pandas as pd
@@ -24,7 +25,7 @@ statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
 ###############################################################################
 # LOADING DATASET #############################################################
 
-fpath = '../../data/monks/'
+fpath = '../data/monks/'
 
 names = ['monks-1_train',
          'monks-1_test',
@@ -61,12 +62,6 @@ for ds in [1, 2, 3]:
 # OPTIMIZER AND PARAMETERS SELECTIONS #########################################
 
 params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
-if opt == 'SGD':
-    with open(path_to_json + 'sgd.json') as json_file:
-        params = json.load(json_file)
-else:
-    with open(path_to_json + 'cgd.json') as json_file:
-        params = json.load(json_file)
 
 ###############################################################################
 # TESTING #####################################################################
@@ -75,12 +70,42 @@ mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
 
 for ds in [0, 1, 2]:
+    if opt == 'SGD':
+        hps = path_to_json + \
+            'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
+
+        with open(hps) as json_file:
+            params = json.load(json_file)
+    else:
+        hps = path_to_json + \
+            'monks_{}_best_hyperparameters_cgd.json'.format(ds + 1)
+
+        with open(hps) as json_file:
+            params = json.load(json_file)
+
+    hidden_sizes = [int(i) for i in
+                    params['hyperparameters']['topology'].split(' -> ')]
+    hidden_sizes = hidden_sizes[1:-1]
+
+    if opt == 'SGD':
+        params['hyperparameters']['momentum'] = \
+            {'type': params['hyperparameters']['momentum_type'],
+             'alpha': params['hyperparameters']['alpha']}
+        params['hyperparameters'].pop('momentum_type')
+        params['hyperparameters'].pop('alpha')
+
+    params['hyperparameters'].pop('activation')
+    params['hyperparameters'].pop('topology')
+
     for trial in tqdm(range(ntrials),
                       desc='TESTING DATASET {}'.format(ds + 1)):
+
         neural_net = nn.NeuralNetwork(X_designs[ds], y_designs[ds],
-                                      hidden_sizes=[10], activation='sigmoid')
-        neural_net.train(X_designs[ds], y_designs[ds], opt, X_va=X_tests[ds],
-                         y_va=y_tests[ds], **params)
+                                      hidden_sizes=hidden_sizes,
+                                      activation='sigmoid', task='classifier')
+        neural_net.train(X_designs[ds], y_designs[ds], opt, epochs=epochs,
+                         X_va=X_tests[ds],
+                         y_va=y_tests[ds], **params['hyperparameters'])
 
         mse_tr.append(neural_net.optimizer.error_per_epochs[-1])
         mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
