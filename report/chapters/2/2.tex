@@ -25,7 +25,7 @@
 		    \mathcal{E}(\textbf{W} + \Delta\textbf{W}) = \mathcal{E}(\textbf{W})+\textbf{g}\mathcal{E}^T\Delta\textbf{W}+ \frac{1}{2}\Delta\textbf{W}^T\textbf{H}\Delta\textbf{W},
 		 \end{equation} 
 
-		where \textbf{H} is the \textit{Hessian} matrix and \textbf{g} the gradient vector.
+		where \textbf{H} is the \textit{Hessian} matrix and \textbf{g} the gradient vector, getting the benefit of choosing the search direction and the step size more carefully by using information from the second order approximation.
 
 		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be 
  		\begin{equation} 
@@ -35,7 +35,7 @@
 
 		carrying the weight of the computation of the inverse of the Hessian.
 
-		In order to avoid this expensive computation, we can use the \textit{Conjugate Gradient} methods, iterative second-order optimization methods, derived from the steepest-descent algorithm, that ensure low memory requirements.
+		In order to avoid this expensive computation, we can use the \textit{Conjugate Gradient} methods, which are a class of iterative second-order optimization methods, derived from the steepest-descent algorithm, that ensure low memory requirements.
 
 		In this way, the adjustment to the synaptic weights of the network is computed as:
 		 \begin{equation} 
@@ -60,6 +60,9 @@
 
 		where $\alpha_k$ is a learning rate and $\textbf{d}_k$ is a descent direction. These are the new synaptic weights computed with the adjustment of eq.\ref{weight}.
 
+		% Because the error function E(~,) is nonquadratic, the algorithm will not necessarily con- verge in N steps. If the algorithm has not converged after N steps, the algorithm is restarted, i.e., initializing fik+J to the current steepest descent direction ~k+~  A Scaled Conjugate Gradient Algorithm for Fast Supervised Learning p4
+
+
 		\subsection{Search Direction}
 		\label{sub:search_direction}
 			The direction $\textbf{d}_k$ holds the sequent property:
@@ -83,7 +86,7 @@
 
 			where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. When applied to minimize a strictly convex quadratic function, it ensure that the directions $\textbf{d}_{k}$ and $\textbf{d}_{k-1}$ are conjugate with respective to the Hessian of the objective function, that is the property \ref{sub:search_direction} holds. 
 
-			Of course, the first search direction when $k = 0$ is defined as the steepest descent direction at the initial point $\textbf{W}_0$ while, for $k > 1$, a minimization along each of the search direction is performed.
+			Of course, the first search direction when $k = 0$ is defined as the steepest descent direction at the initial weight $\textbf{W}_0$ while, for $k > 1$, a minimization along each of the search direction is performed.
 
 			Since it may be that the direction found is not a descent direction of the objective function, another modified search direction, proposed by Zang et al.\ref{zhang}, has been tested in the project. It ensures sufficient descent indipendent of the line search used or the convexity of the objective function and is defined as follows:
 
@@ -110,13 +113,7 @@
 				 \beta^+ = max\{\beta, 0\}.
 			\end{equation}
 
-			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction.
-
-			The HS and the PR methods in eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of eq. \ref{beta_max} has been adopted. 
-
-			For what concernes the FR method, it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length \alpha. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods.%p121 nonlinear conjugate gradient method cpt5
-			Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
-
+			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction. Furthermore, because of the nonquadratic nature of the error function, the algorithm will not necessarily converge in N steps, as it usually does when applied to quadratic functions. The use of $\beta$ in eq. \ref{beta_max} is similar to adopt the strategy of restarting the algorithm after N steps, initializing $d_k$ to the current steepest descent direction.% A Scaled Conjugate Gradient Algorithm for Fast Supervised Learning p4
 
 			\begin{equation}
 			\label{betas}
@@ -125,11 +122,28 @@
  				 \beta^{HS}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{(\textbf{g}_k-\textbf{g}_{k-1}^T\textbf{d}_{k-1})}.
 			\end{equation}
 
+			The HS and the PR methods in eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of eq. \ref{beta_max} has been adopted. 
+			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
+
+			For what concernes the FR method (also described in eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods.%p121 nonlinear conjugate gradient method cpt5
+			Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
+
+			The last method tested is the $MHS^+$ (eq. \ref{mhs}, a modified version of the Hestenes-Stiefel one.  %a new conjugate gradient algorithm for training neural network
+			It garantees sufficient descent with inexact line search and is based on a modified secant equation which approximates the second order information of the loss function with high order accuracy. Moreover, it is globally convergent.
+			
+			It is defined as follows:
+
+			\begin{equation}
+			\label{mhs}
+ 				 \beta^{MHS}_k = \frac{\textbf{g}_k^T \~y_{k-1}^*}{\textbf{d}_{k-1}^T\~y_{k-1}^*},
+			\end{equation}
+
+
 
 
 		\subsection{Line Search} % (fold)
 		\label{sub:line_search}
-			Once computed the new direction \textbf{d} involved in the new point \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the loss function.
+			Once computed the new direction \textbf{d} involved in the new weights \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the loss function.
 
 			The step size $\alpha$ is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction. 
 
