@@ -1,4 +1,5 @@
 import ipdb
+import json
 import nn
 import numpy as np
 import pandas as pd
@@ -11,8 +12,8 @@ warnings.filterwarnings("ignore")
 ###############################################################################
 # EXPERIMENTAL SETUP ##########################################################
 
-dataset, nfolds, ntrials = 1, 5, 1
-grid_size = 5
+ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
+grid_size = 20
 split_percentage = 0.8
 epochs = 500
 
@@ -32,8 +33,8 @@ names = ['monks-1_train',
 datasets = {name: pd.read_csv(fpath+name+'_bin.csv').values
             for name in names}
 
-design_set = datasets['monks-{}_train'.format(dataset)]
-test_set = datasets['monks-{}_test'.format(dataset)]
+design_set = datasets['monks-{}_train'.format(ds)]
+test_set = datasets['monks-{}_test'.format(ds)]
 
 y_design, X_design = np.hsplit(design_set, [1])
 y_test, X_test = np.hsplit(test_set, [1])
@@ -58,14 +59,17 @@ y_validation, X_validation = np.hsplit(validation_set, [1])
 ###############################################################################
 # NETWORK INITIALIZATION ######################################################
 
-neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
-                              activation='sigmoid')
-initial_W, initial_b = neural_net.W, neural_net.b
+testing, testing_betas = False, False
+neural_net, initial_W, initial_b = None, None, None
+
+if testing or testing_betas:
+    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
+                                  activation='sigmoid')
+    initial_W, initial_b = neural_net.W, neural_net.b
 
 ###############################################################################
 # PRELIMINARY TRAINING ########################################################
-
-testing, testing_betas = False, False
+#
 pars = {}
 betas = ['hs', 'mhs', 'fr', 'pr']
 errors, errors_std = [], []
@@ -126,9 +130,9 @@ if testing:
                              y_va=y_validation, **pars)
 
     if testing_betas:
-        u.plot_betas_learning_curves(dataset, betas, [errors_std, errors],
+        u.plot_betas_learning_curves(ds, betas, [errors_std, errors],
                                      'ERRORS', 'MSE')
-        u.plot_betas_learning_curves(dataset, betas, [acc_std, acc],
+        u.plot_betas_learning_curves(ds, betas, [acc_std, acc],
                                      'ACCURACY', 'ACCURACY')
     else:
         print '\n'
@@ -159,7 +163,7 @@ if testing:
 ###############################################################################
 # VALIDATION ##################################################################
 
-experiment, dataset = 1, int(raw_input('CHOOSE A MONK DATASET[1/2/3]: '))
+experiment = 1
 param_ranges = {}
 
 if opt == 'SGD':
@@ -198,5 +202,10 @@ grid = val.HyperGrid(param_ranges, grid_size, random=True)
 selection = val.ModelSelectionCV(grid,
                                  fname=fpath +
                                  'monks_{}_experiment_{}_results.json.gz'.
-                                 format(dataset, experiment))
-selection.search(X_design, y_design, nfolds=nfolds, ntrials=ntrials)
+                                 format(ds, experiment))
+selection.search(X_design, y_design, nfolds=nfolds)
+best_hyperparameters = selection.select_best_hyperparams()
+
+with open(fpath + 'results/monks_{}/best_hyperparameters.json'.format(ds),
+          'w') as json_file:
+    json.dump(best_hyperparameters, json_file, indent=4)

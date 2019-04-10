@@ -3,7 +3,6 @@ from __future__ import division
 import activations as act
 import ipdb
 import nn
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random as rnd
@@ -158,8 +157,10 @@ class KFoldCrossValidation(object):
 
             neural_net.train(X_train, y_train, X_va=X_va, y_va=y_va, **kwargs)
 
-            self.fold_errors[0].append(neural_net.optimizer.error_per_epochs[-1])
-            self.fold_errors[1].append(neural_net.optimizer.error_per_epochs_va[-1])
+            self.fold_errors[0].\
+                append(neural_net.optimizer.error_per_epochs[-1])
+            self.fold_errors[1].\
+                append(neural_net.optimizer.error_per_epochs_va[-1])
 
             if neural_net.task == 'classifier':
                 self.accuracies.append(neural_net.optimizer.
@@ -332,45 +333,40 @@ class ModelSelectionCV(object):
 
         i = 0
 
-        for rep in tqdm(range(self.repetitions),
-                        desc="CROSS VALIDATION'S REPETITION PROGRESS"):
-            dataset = np.hstack((X_design, y_design))
-            np.random.shuffle(dataset)
-            X_design, y_design = np.hsplit(dataset,
-                                           [X_design.shape[1]])
+        dataset = np.hstack((X_design, y_design))
+        np.random.shuffle(dataset)
+        X_design, y_design = np.hsplit(dataset, [X_design.shape[1]])
 
-            for hyperparams in tqdm(self.grid,
-                                    desc='GRID SEARCH {}'
-                                    .format(kwargs['par_name']
-                                            if 'par_name' in kwargs else '')):
-                # instanciate neural network
-                i += 1
+        for hyperparams in tqdm(self.grid,
+                                desc='GRID SEARCH {}'
+                                .format(kwargs['par_name']
+                                        if 'par_name' in kwargs else '')):
+            # instanciate neural network
+            i += 1
 
-                if hyperparams['optimizer'] == 'SGD':
-                    hyperparams['momentum'] = {'type': hyperparams['type'],
-                                               'alpha': hyperparams['alpha']
-                                               }
-                    hyperparams.pop('type')
-                    hyperparams.pop('alpha')
+            if hyperparams['optimizer'] == 'SGD':
+                hyperparams['momentum'] = {'type': hyperparams['type'],
+                                           'alpha': hyperparams['alpha']
+                                           }
+                hyperparams.pop('type')
+                hyperparams.pop('alpha')
 
-                for trial in tqdm(range(ntrials), desc="TRIALS"):
-                    # repeated inizialization of the net
-                    neural_net = \
-                        nn.NeuralNetwork(X_design, y_design,
-                                         hidden_sizes=hyperparams['hidden_sizes'],
-                                         activation=hyperparams['activation'],
-                                         task=hyperparams['task'])
-                    cross_val = KFoldCrossValidation(X_design, y_design,
-                                                     neural_net, nfolds=nfolds,
-                                                     **hyperparams)
+            neural_net = nn.\
+                NeuralNetwork(X_design, y_design,
+                              hidden_sizes=hyperparams['hidden_sizes'],
+                              activation=hyperparams['activation'],
+                              task=hyperparams['task'])
+            cross_val = KFoldCrossValidation(X_design, y_design,
+                                             neural_net, nfolds=nfolds,
+                                             **hyperparams)
 
-                    if save_results:
-                        with gzip.open(fname, 'a') as f:
-                            json.dump(cross_val.fold_results, f, indent=4)
-                            if i != self.n_iter:
-                                f.write(',\n')
-                            else:
-                                f.write('\n ]}')
+            if save_results:
+                with gzip.open(fname, 'a') as f:
+                    json.dump(cross_val.fold_results, f, indent=4)
+                    if i != self.n_iter:
+                        f.write(',\n')
+                    else:
+                        f.write('\n ]}')
 
     def load_results(self, fname=None):
         """
@@ -393,7 +389,7 @@ class ModelSelectionCV(object):
             data = json.load(f)
         return data
 
-    def select_best_hyperparams(self, error='mse', metric='mean', top=1,
+    def select_best_hyperparams(self, error='mse', metric='mean', top=5,
                                 fname=None):
         """
         Selection of the best hyperparameters
@@ -420,13 +416,16 @@ class ModelSelectionCV(object):
         if fname is None:
             fname = self.fname
         data = self.load_results(fname=fname)
-        errors = np.argsort([res['statistics']['mean']
-                             for res in data['results']])[-top:]
 
-        # errors = [res['errors'][error][metric] for res in data['out']]
-        # best_indexes = (np.argsort(errors))[:top]
+        best_mean_errors = np.argsort([res['statistics']['mean']
+                                       for res in data['results']])[:top]
+        best_mean_errors = [data['results'][i] for i in best_mean_errors]
 
-        # return list(np.array(data['out'])[best_indexes])
+        best_f1_scores = np.argsort(r['statistics']['f1_score']
+                                    for r in best_mean_errors)[0]
+        best_f1_scores = best_mean_errors[best_f1_scores]
+
+        return best_f1_scores
 
     def select_best_model(self, X_design, y_design, X_va=None, y_va=None,
                           fname=None):
