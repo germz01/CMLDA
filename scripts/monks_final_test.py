@@ -59,29 +59,26 @@ for ds in [1, 2, 3]:
     y_tests.append(y_test)
 
 ###############################################################################
-# OPTIMIZER AND PARAMETERS SELECTIONS #########################################
+# OPTIMIZER SELECTIONS ########################################################
 
 params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 
 ###############################################################################
-# TESTING #####################################################################
+# PARAMETERS SELECTION AND TESTING ############################################
 
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
 
-for ds in [0, 1, 2]:
+for ds in [0]:
     if opt == 'SGD':
         hps = path_to_json + \
             'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
-
-        with open(hps) as json_file:
-            params = json.load(json_file)
     else:
         hps = path_to_json + \
             'monks_{}_best_hyperparameters_cgd.json'.format(ds + 1)
 
-        with open(hps) as json_file:
-            params = json.load(json_file)
+    with open(hps) as json_file:
+        params = json.load(json_file)
 
     hidden_sizes = [int(i) for i in
                     params['hyperparameters']['topology'].split(' -> ')]
@@ -111,6 +108,8 @@ for ds in [0, 1, 2]:
         mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
+
+        neural_net.restore_weights()
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),

@@ -59,7 +59,14 @@ y_validation, X_validation = np.hsplit(validation_set, [1])
 ###############################################################################
 # NETWORK INITIALIZATION ######################################################
 
-testing, testing_betas = False, False
+testing, testing_betas, validation = False, False, False
+
+if raw_input('TESTING OR VALIDATION[testing/validation]? ') == 'validation':
+    validation = True
+else:
+    testing, testing_betas = True, True \
+        if raw_input('TESTING BETAS[Y/N]? ') == 'Y' else False
+
 neural_net, initial_W, initial_b = None, None, None
 
 if testing or testing_betas:
@@ -125,7 +132,7 @@ if testing:
 
         else:
             pars['plus'] = True
-            pars['beta_m'] = 'hs'
+            pars['beta_m'] = 'mhs'
             neural_net.train(X_training, y_training, opt, X_va=X_validation,
                              y_va=y_validation, **pars)
 
@@ -163,50 +170,51 @@ if testing:
 ###############################################################################
 # VALIDATION ##################################################################
 
-experiment = 1
-param_ranges = {}
+if validation:
+    experiment = 1
+    param_ranges = {}
 
-if opt == 'SGD':
-    param_ranges['eta'] = (0.3, 7.)
+    if opt == 'SGD':
+        param_ranges['eta'] = (0.3, 7.)
 
-    type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
-    assert type_m in ['standard', 'nesterov']
-    param_ranges['type'] = type_m
+        type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
+        assert type_m in ['standard', 'nesterov']
+        param_ranges['type'] = type_m
 
-    param_ranges['alpha'] = (0.5, 0.9)
-    param_ranges['reg_method'] = 'l2'
-    param_ranges['reg_lambda'] = 0.0
-    param_ranges['epochs'] = epochs
-else:
-    beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
-    assert beta_m in ['hs', 'mhs', 'fr', 'pr']
-    param_ranges['beta_m'] = beta_m
+        param_ranges['alpha'] = (0.5, 0.9)
+        param_ranges['reg_method'] = 'l2'
+        param_ranges['reg_lambda'] = 0.0
+        param_ranges['epochs'] = epochs
+    else:
+        beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
+        assert beta_m in ['hs', 'mhs', 'fr', 'pr']
+        param_ranges['beta_m'] = beta_m
 
-    d_m = raw_input('CHOOSE A DIRECTION METHOD[standard/modified]: ')
-    assert d_m in ['standard', 'modified']
-    param_ranges['d_m'] = d_m
+        d_m = raw_input('CHOOSE A DIRECTION METHOD[standard/modified]: ')
+        assert d_m in ['standard', 'modified']
+        param_ranges['d_m'] = d_m
 
-    param_ranges['max_epochs'] = epochs
-    param_ranges['error_goal'] = 1e-4
-    param_ranges['strong'] = True
-    param_ranges['plus'] = True
-    param_ranges['sigma_2'] = (0.1, 0.9)
-    param_ranges['rho'] = (0., 1.)
+        param_ranges['max_epochs'] = epochs
+        param_ranges['error_goal'] = 1e-4
+        param_ranges['strong'] = True
+        param_ranges['plus'] = True
+        param_ranges['sigma_2'] = (0.1, 0.4)
+        param_ranges['rho'] = (0., 1.)
 
-param_ranges['optimizer'] = opt
-param_ranges['hidden_sizes'] = [4, 8]
-param_ranges['activation'] = 'sigmoid'
-param_ranges['task'] = 'classifier'
+    param_ranges['optimizer'] = opt
+    param_ranges['hidden_sizes'] = [4, 8]
+    param_ranges['activation'] = 'sigmoid'
+    param_ranges['task'] = 'classifier'
 
-grid = val.HyperGrid(param_ranges, grid_size, random=True)
-selection = val.ModelSelectionCV(grid,
-                                 fname=fpath +
-                                 'monks_{}_experiment_{}_results.json.gz'.
-                                 format(ds, experiment))
-selection.search(X_design, y_design, nfolds=nfolds)
-best_hyperparameters = selection.select_best_hyperparams()
+    grid = val.HyperGrid(param_ranges, grid_size, random=True)
+    selection = val.ModelSelectionCV(grid,
+                                     fname=fpath +
+                                     'monks_{}_experiment_{}_results.json.gz'.
+                                     format(ds, experiment))
+    selection.search(X_design, y_design, nfolds=nfolds)
+    best_hyperparameters = selection.select_best_hyperparams()
 
-with open('../data/final_setup/monks_{}_best_hyperparameters_{}.json'.
-          format(ds, opt.lower()),
-          'w') as json_file:
-    json.dump(best_hyperparameters, json_file, indent=4)
+    with open('../data/final_setup/monks_{}_best_hyperparameters_{}.json'.
+              format(ds, opt.lower()),
+              'w') as json_file:
+        json.dump(best_hyperparameters, json_file, indent=4)

@@ -1,6 +1,7 @@
 from __future__ import division
 
 import activations as act
+import ipdb
 import json
 import gzip
 import nn
@@ -146,6 +147,8 @@ class KFoldCrossValidation(object):
         Returns
         -------
         """
+        W_initial, b_initial = neural_net.W, neural_net.b
+
         for i in tqdm(np.arange(nfolds),
                       desc='{}-FOLD CROSS VALIDATION PROGRESS'.format(nfolds)):
 
@@ -170,7 +173,10 @@ class KFoldCrossValidation(object):
             else:
                 pass
 
-            neural_net.restore_weights()
+            if kwargs['optimizer'] == 'SGD':
+                neural_net.restore_weights()
+            else:
+                neural_net.W, neural_net.b = W_initial, b_initial
 
         self.aggregate_results(neural_net.optimizer.params)
 

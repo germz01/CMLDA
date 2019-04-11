@@ -66,8 +66,8 @@ def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
     plt.axis('off')
     plt.tight_layout()
 
-    saving_str = '../../report/img/SGD/' \
-        if type(optimizer) is optimizers.SGD else '../../report/img/CGD/'
+    saving_str = '../report/img/SGD/' \
+        if type(optimizer) is optimizers.SGD else '../report/img/CGD/'
     saving_str += 'sgd_' if type(optimizer) is optimizers.SGD else 'cgd_'
     saving_str += metric.lower() + '_' + test_type.lower() + '.pdf'
 
@@ -83,7 +83,8 @@ def build_info_string(optimizer, data, test_type, metric, params):
                     'reg_lambda': r'$\lambda$', 'beta_m': r'$\beta$',
                     'rho': r'$\rho$', 'reg_method': 'Regularization',
                     'momentum_type': 'Momentum',
-                    'sigma_1': r'$\sigma_1$', 'sigma_2': r'$\sigma_2$'}
+                    'sigma_1': r'$\sigma_1$', 'sigma_2': r'$\sigma_2$',
+                    'max_epochs': 'Max epoch', 'error_goal': 'Error goal'}
     act_list = []
 
     to_ret = 'OPTIMIZER:\n'

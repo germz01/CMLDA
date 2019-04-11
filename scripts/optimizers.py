@@ -3,7 +3,6 @@ from __future__ import division
 import losses as lss
 import metrics
 import numpy as np
-import pdb
 import regularizers as reg
 
 
@@ -203,8 +202,8 @@ class CGD(Optimizer):
         a list containing the error for each epoch of training
     """
 
-    def __init__(self, nn, beta_m, d_m='standard', sigma_1=1e-4, sigma_2=.4,
-                 rho=0., **kwargs):
+    def __init__(self, nn, beta_m, max_epochs, error_goal, d_m='standard',
+                 sigma_1=1e-4, sigma_2=.4, rho=0., **kwargs):
         """
         The class' constructor.
 
@@ -222,6 +221,8 @@ class CGD(Optimizer):
         self.sigma_1 = sigma_1
         self.sigma_2 = sigma_2
         self.rho = rho
+        self.max_epochs = max_epochs
+        self.error_goal = error_goal
         self.params = self.get_params(nn)
 
     def get_params(self, nn):
@@ -233,11 +234,13 @@ class CGD(Optimizer):
         self.params['d_m'] = self.d_m
         self.params['activation'] = nn.activation
         self.params['topology'] = nn.topology
+        self.params['max_epochs'] = self.max_epochs
+        self.params['error_goal'] = self.error_goal
 
         return self.params
 
     def optimize(self, nn, X, y, X_va, y_va, max_epochs, error_goal,
-                 plus=False, strong=False, **kwargs):
+                 plus=True, strong=False, **kwargs):
         """
         This function implements the optimization procedure following the
         Conjugate Gradient Descent, as described in the paper 'A new conjugate
@@ -332,7 +335,7 @@ class CGD(Optimizer):
 
             new_W = flatted_copies + (eta * d)
             nn.W, nn.b = self.unflat_weights(new_W, nn.n_layers, nn.topology)
-            # nn.update_copies()
+            nn.update_copies()
 
             g_prev, d_prev, w_prev = g, d, flatted_copies
             self.error_prev = self.error
