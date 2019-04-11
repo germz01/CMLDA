@@ -118,6 +118,8 @@ def build_info_string(optimizer, data, test_type, metric, params):
             act_list.append('relu')
         elif act is activations.tanh:
             act_list.append('tanh')
+        else:
+            act_list.append('identity')
 
     to_ret += ' -> '.join(act_list)
 

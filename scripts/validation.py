@@ -170,8 +170,6 @@ class KFoldCrossValidation(object):
                                        accuracy_per_epochs_va[-1])
                 self.f1_scores.append(neural_net.optimizer.
                                       f1_score_per_epochs_va[-1])
-            else:
-                pass
 
             if kwargs['optimizer'] == 'SGD':
                 neural_net.restore_weights()
@@ -179,33 +177,6 @@ class KFoldCrossValidation(object):
                 neural_net.W, neural_net.b = W_initial, b_initial
 
         self.aggregate_results(neural_net.optimizer.params)
-
-    def model_assessment(self, X_va, y_va, model):
-        """
-        Computes assessment measures for each fold evaluation.
-
-        Parameters
-        ----------
-        X_va: numpy.ndarray
-            the validation design matrix
-
-        y_va: numpy.ndarray
-            the validation target column vector
-
-        model: nn.NeuralNetwork
-            the model to use for the validation phase
-
-        Returns
-        -------
-        assessment : dict
-            dictionary with structure { metric: estimated value}.
-        """
-
-        assessment = dict()
-        y_pred = model.predict(X_va)
-        assessment['mse'] = metrics.mse(y_va, y_pred)
-        # possibile aggiungere altre metriche al dizionario
-        return assessment
 
     def aggregate_results(self, hyperparams):
         """
@@ -221,17 +192,18 @@ class KFoldCrossValidation(object):
             out = {metric: {'mean': 0, 'std': 0, 'median': 0, 'values': []}}
 
         """
-
         self.fold_results = {"statistics":
                              {"values":
                               {"train": self.fold_errors[0],
                                "validation": self.fold_errors[1]},
                               "mean": np.mean(self.fold_errors[1]),
-                              "std": np.std(self.fold_errors[1]),
-                              "accuracy_score": np.mean(self.accuracies),
-                              "f1_score": np.mean(self.f1_scores)
+                              "std": np.std(self.fold_errors[1])
                               }
                              }
+
+        if act.identity not in hyperparams['activation']:
+            self.fold_results["accuracy_score"] = np.mean(self.accuracies)
+            self.fold_results["f1_score"] = np.mean(self.f1_scores)
 
         acts = []
 
@@ -399,8 +371,7 @@ class ModelSelectionCV(object):
 
         return data
 
-    def select_best_hyperparams(self, error='mse', metric='mean', top=5,
-                                fname=None):
+    def select_best_hyperparams(self, error='mse', top=5, fname=None):
         """
         Selection of the best hyperparameters
 
@@ -431,224 +402,14 @@ class ModelSelectionCV(object):
                                        for res in data['results']])[:top]
         best_mean_errors = [data['results'][i] for i in best_mean_errors]
 
-        best_f1_scores = np.argsort(r['statistics']['f1_score']
-                                    for r in best_mean_errors)[0]
-        best_f1_scores = best_mean_errors[best_f1_scores]
+        if error != 'mee':
+            best_f1_scores = np.argsort(r['statistics']['f1_score']
+                                        for r in best_mean_errors)[0]
+            best_f1_scores = best_mean_errors[best_f1_scores]
 
         subprocess.call(['rm', fname])
 
-        return best_f1_scores
-
-    def select_best_model(self, X_design, y_design, X_va=None, y_va=None,
-                          fname=None):
-        """
-        This function retrains the model with the best hyperparams'
-        configuration
-
-        Parameters
-        ----------
-        X_design: numpy.ndarray
-            the design matrix
-
-        y_design: numpy.ndarray
-            the target column vector
-
-        X_va: numpy.ndarray
-            the validation design matrix
-
-        y_va: numpy.ndarray
-            the validation target column vector
-
-        fname: str
-            the path to the file which contains the results for the best
-            hyperparameters' search phase
-
-        Returns
-        -------
-        The model trained with the best hyperparameters' configuration.
-        """
-        if fname is None:
-            fname = self.fname
-
-        best = self.select_best_hyperparams(top=1, fname=fname)
-        best_hyperparams = best[0]['hyperparams']
-
-        neural_net = nn.NeuralNetwork(X_design, y_design,
-                                      **best_hyperparams)
-        neural_net.train(X_design, y_design, X_va, y_va)
-
-        return neural_net
-
-    def load_results_pandas(self, fname=None, flat=True):
-        """ Load grid results in pandas DataFrame format """
-
-        if fname is None:
-            fname = self.fname
-
-        grid_results = self.load_results()
-        grid_results = grid_results['out']
-        result = grid_results[0]
-
-        grid_results_flat = []
-        for result in grid_results:
-
-            fold_results = (result['fold_results'])
-            fold_results_flat = []
-            for res in fold_results:
-                fold_results_flat.append(flat_fold_results(res))
-
-            grid_results_flat.extend(fold_results_flat)
-
-        df = pd.DataFrame(grid_results_flat)
-        # re-ordering
-        df = df[['id_grid', 'id_fold'] +
-                [c for c in df if c not in ['id_grid', 'id_fold']]]
-
-        if flat:
-            return df2df_flat(df=df)
-        else:
-            return df
-
-
-def flat_fold_results(fold_res):
-    """ Convert KCrossValidation results to flat format """
-
-    fold_res_flat = dict()
-    for info, info_val in fold_res.items():
-        if info != 'hyperparams':
-            fold_res_flat[info] = info_val
-
-    for par, par_value in fold_res['hyperparams'].items():
-        if type(par_value) is not list:
-            fold_res_flat[par] = par_value
-        else:
-            # handle list type parameters
-            for i, el in enumerate(par_value):
-                if i == 0:
-                    # maintain name for first list element
-                    fold_res_flat[par] = el
-                else:
-                    fold_res_flat[par+'_'+str(i)] = el
-
-    fold_res_flat['hyperparams'] = fold_res['hyperparams']
-    return fold_res_flat
-
-
-def df2df_flat(df):
-    """ Flat the learning curves in a pandas DataFrame """
-
-    new_rows = []
-
-    for irow in range(df.shape[0]):
-
-        row = df.iloc[irow]
-
-        row_others = row.copy()
-        row_others.drop(['error_per_epochs', 'error_per_epochs_va'])
-
-        errors = row['error_per_epochs']
-
-        for i, error in enumerate(errors):
-            new_row = row_others.copy()
-            new_row['error_per_epochs'] = error
-            new_row['error_per_epochs_va'] = row['error_per_epochs_va'][i]
-            # new_row['epochs_x'] = row['epochs_x'][i]
-            new_rows.append(new_row)
-
-    new_df = pd.DataFrame(new_rows)
-    return new_df
-
-
-class Holdout():
-    """ Validation Holdout method """
-    def __init__(self, X, y, split_perc=[0.5, 0.25, 0.25]):
-        """
-        Initialization for the Holdout class
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-        y : numpy.ndarray
-        split_perc : list
-            split percentages
-
-        Returns
-        -------
-
-        """
-        df = np.hstack((X, y))
-        np.random.shuffle(df)
-
-        p = df.shape[0]
-        tr_perc = split_perc[0]
-        va_perc = split_perc[1]
-        # ts_perc = split_perc[2]
-
-        split_train = int(tr_perc*p)
-        split_design = int((tr_perc+va_perc)*p)
-
-        design_set = df[:split_design, :]
-        train_set = df[:split_train, :]
-        validation_set = df[split_train:split_design, :]
-        test_set = df[split_design:, :]
-
-        self.X_design, self.y_design = np.hsplit(design_set, [X.shape[1]])
-        self.X_train, self.y_train = np.hsplit(train_set, [X.shape[1]])
-        self.X_va, self.y_va = np.hsplit(validation_set, [X.shape[1]])
-        self.X_test, self.y_test = np.hsplit(test_set, [X.shape[1]])
-
-    def model_selection(self, grid, plot=False, fpath='../images/'):
-        """
-        Holdout model selection
-
-        Parameters
-        ----------
-        grid : instance of HyperRandomGrid class
-            hyperparameter grid
-        plot : bool
-            if plot=True plots the learning curve for each grid parameter
-
-        fpath : str
-            path for images storing
-        Returns
-        -------
-        neural network object
-        """
-
-        self.fpath = fpath
-        params = []
-        errors_va = []
-        for i, pars in enumerate(grid):
-
-            net = nn.NeuralNetwork(self.X_train, self.y_train, **pars)
-            net.train(self.X_train, self.y_train)
-            print('trained')
-            params.append(net.get_params())
-            # assess on validation set
-            errors_va.append(
-                net.predict(self.X_va, self.y_va)/(self.X_va.shape[0])
-            )
-            if plot is True:
-                u.plot_error(net, fname=fpath
-                             + 'learning_curve_{}.png'.format(i))
-
-        # choosing the best hyperparameters
-        self.best_index = np.argmin(errors_va)
-        best_hyperparams = params[self.best_index]
-
-        # retraining on design set
-        net_retrained = nn.NeuralNetwork(hidden_sizes=best_hyperparams
-                                         .pop('hidden_sizes'))
-        net_retrained.train(self.X_design, self.y_design, **best_hyperparams)
-
-        df_pars = pd.DataFrame(list(grid))
-        df_pars['error'] = errors_va
-
-        self.best_hyperparams = best_hyperparams
-        self.df_pars = df_pars
-        self.model = net_retrained
-
-        return self.model
+        return best_f1_scores if error != 'mee' else best_mean_errors[0]
 
 
 class HyperGrid():

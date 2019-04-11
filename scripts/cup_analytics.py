@@ -21,8 +21,8 @@ epochs = 500
 
 fpath = '../data/CUP/'
 
-ds_tr = pd.read_csv(fpath + 'ML-CUP18-TR.csv').values
-ds_ts = pd.read_csv(fpath + 'ML-CUP18-TS.csv').values
+ds_tr = pd.read_csv(fpath + 'ML-CUP18-TR.csv', skiprows=10, header=None).values
+ds_ts = pd.read_csv(fpath + 'ML-CUP18-TS.csv', skiprows=10, header=None).values
 
 y_design, X_design = np.hsplit(ds_tr, [1])
 y_test, X_test = np.hsplit(ds_ts, [1])
@@ -182,10 +182,10 @@ if validation:
     grid = val.HyperGrid(param_ranges, grid_size, random=True)
     selection = val.ModelSelectionCV(grid,
                                      fname=fpath +
-                                     'CUP/experiment_{}_results.json.gz'.
+                                     'experiment_{}_results.json.gz'.
                                      format(experiment))
     selection.search(X_design, y_design, nfolds=nfolds)
-    best_hyperparameters = selection.select_best_hyperparams()
+    best_hyperparameters = selection.select_best_hyperparams(error='mee')
 
     with open('../data/final_setup/CUP_best_hyperparameters_{}.json'.
               format(opt.lower()),
