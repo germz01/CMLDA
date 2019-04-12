@@ -1,3 +1,4 @@
+import ipdb
 import json
 import nn
 import numpy as np
@@ -21,15 +22,15 @@ epochs = 500
 
 fpath = '../data/CUP/'
 
-ds_tr = pd.read_csv(fpath + 'ML-CUP18-TR.csv', skiprows=10, header=None).values
-ds_ts = pd.read_csv(fpath + 'ML-CUP18-TS.csv', skiprows=10, header=None).values
+ds_tr = pd.read_csv(fpath + 'ML-CUP18-TR.csv', skiprows=10, header=None)
+ds_ts = pd.read_csv(fpath + 'ML-CUP18-TS.csv', skiprows=10, header=None)
+ds_tr.drop(columns=0, inplace=True)
+ds_ts.drop(columns=0, inplace=True)
+ds_tr, ds_ts = ds_tr.values, ds_ts.values
 
-y_design, X_design = np.hsplit(ds_tr, [1])
-y_test, X_test = np.hsplit(ds_ts, [1])
+X_design, y_design = np.hsplit(ds_tr, [10])
+X_test, y_test = np.hsplit(ds_ts, [10])
 
-# simmetrized X_design:
-# X_design = (X_design*2-1)
-# X_test = (X_test*2-1)
 design_set = np.hstack((y_design, X_design))
 test_set = np.hstack((y_test, X_test))
 
@@ -41,8 +42,8 @@ np.random.shuffle(design_set)
 training_set = design_set[:int(design_set.shape[0]*split_percentage), :]
 validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
 
-y_training, X_training = np.hsplit(training_set, [1])
-y_validation, X_validation = np.hsplit(validation_set, [1])
+y_training, X_training = np.hsplit(training_set, [2])
+y_validation, X_validation = np.hsplit(validation_set, [2])
 
 ###############################################################################
 # NETWORK INITIALIZATION ######################################################

@@ -1,5 +1,6 @@
 from __future__ import division
 
+import ipdb
 import losses as lss
 import metrics
 import numpy as np
@@ -161,13 +162,12 @@ class SGD(Optimizer):
 
                     nn.W[layer] += self.velocity_W[layer] - weight_decay
 
-            self.error_per_epochs.append(np.sum(error_per_batch)/X.shape[0])
+            self.error_per_epochs.append(np.sum(error_per_batch))
 
             # IN LOCO VALIDATION ##############################################
 
             if X_va is not None:
-                error_va = self.forward_propagation(nn, X_va, y_va) / \
-                    X_va.shape[0]
+                error_va = self.forward_propagation(nn, X_va, y_va)
                 self.error_per_epochs_va.append(error_va)
                 y_pred_va = self.h[-1].reshape(-1, 1)
 
@@ -301,7 +301,7 @@ class CGD(Optimizer):
 
             # BACK-PROPAGATION ALGORITHM ######################################
 
-            self.error = self.forward_propagation(nn, X, y) / X.shape[0]
+            self.error = self.forward_propagation(nn, X, y)
             self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
 
@@ -350,8 +350,7 @@ class CGD(Optimizer):
             # IN LOCO VALIDATION ##############################################
 
             if X_va is not None:
-                error_va = self.forward_propagation(nn, X_va, y_va) / \
-                    X_va.shape[0]
+                error_va = self.forward_propagation(nn, X_va, y_va)
                 self.error_per_epochs_va.append(error_va)
                 y_pred_va = self.h[-1].reshape(-1, 1)
 
@@ -373,6 +372,9 @@ class CGD(Optimizer):
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
                 self.f1_score_per_epochs.append(bin_assess.f1_score)
                 self.f1_score_per_epochs_va.append(bin_assess_va.f1_score)
+
+            if k > 0 and (np.linalg.norm(g) < 1e-5):
+                return 1
 
             k += 1
         return 0
@@ -582,7 +584,7 @@ class CGD(Optimizer):
         while i <= max_iter:
             nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
-            error_current = self.forward_propagation(nn, X, y) / X.shape[0]
+            error_current = self.forward_propagation(nn, X, y)
 
             if (error_current >
                 (error_0 + (self.sigma_1 * alpha_current * g_d))) \
@@ -630,11 +632,11 @@ class CGD(Optimizer):
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_j * d),
                                              nn.n_layers, nn.topology)
-            error_j = self.forward_propagation(nn, X, y) / X.shape[0]
+            error_j = self.forward_propagation(nn, X, y)
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
                                              nn.n_layers, nn.topology)
-            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
+            error_lo = self.forward_propagation(nn, X, y)
 
             if error_j > error_0 + (self.sigma_1 * alpha_j * g_d) or \
                error_j >= error_lo:
@@ -658,34 +660,6 @@ class CGD(Optimizer):
             i += 1
         return alpha_j
 
-    def interpolation(self, alpha_lo, alpha_hi, W, nn, X, y, d, max_iter=10,
-                      tolerance=0.5):
-        """
-        """
-
-        current_iter = 1
-
-        while current_iter <= max_iter:
-            alpha_mid = (alpha_hi - alpha_lo) / 2
-
-            nn.W, nn.b = self.unflat_weights(W + (alpha_mid * d),
-                                             nn.n_layers, nn.topology)
-            error_mid = self.forward_propagation(nn, X, y) / X.shape[0]
-
-            if error_mid == 0 or (alpha_hi - alpha_lo) / 2 < tolerance:
-                return alpha_mid
-
-            current_iter += 1
-
-            nn.W, nn.b = self.unflat_weights(W + (alpha_lo * d),
-                                             nn.n_layers, nn.topology)
-            error_lo = self.forward_propagation(nn, X, y) / X.shape[0]
-
-            if np.sign(error_mid) == np.sign(error_lo):
-                alpha_lo = alpha_mid
-            else:
-                alpha_hi = alpha_mid
-
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X, y, d,
                                       alpha_0, tolerance=1e-2):
         """
@@ -694,7 +668,7 @@ class CGD(Optimizer):
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_0 * d),
                                          nn.n_layers, nn.topology)
-        error_a0 = self.forward_propagation(nn, X, y) / X.shape[0]
+        error_a0 = self.forward_propagation(nn, X, y)
 
         if error_a0 <= error_0 + (self.sigma_1 * alpha_0 * g_d):
             return alpha_0
@@ -705,14 +679,12 @@ class CGD(Optimizer):
 
         nn.W, nn.b = self.unflat_weights(W + (alpha_1 * d),
                                          nn.n_layers, nn.topology)
-        error_a1 = self.forward_propagation(nn, X, y) / X.shape[0]
+        error_a1 = self.forward_propagation(nn, X, y)
 
         if error_a1 <= error_0 + (self.sigma_1 * alpha_1 * g_d):
             return alpha_1
 
         # CUBIC INTERPOLATION #################################################
-
-        # pdb.set_trace()
 
         alpha_2 = 0.
 
@@ -738,7 +710,7 @@ class CGD(Optimizer):
 
             nn.W, nn.b = self.unflat_weights(W + (alpha_2 * d),
                                              nn.n_layers, nn.topology)
-            error_a2 = self.forward_propagation(nn, X, y) / X.shape[0]
+            error_a2 = self.forward_propagation(nn, X, y)
 
             if error_a2 <= error_0 + (self.sigma_1 * alpha_2 * g_d):
                 return alpha_2
