@@ -10,8 +10,9 @@
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 %% Useful packages
 \usepackage{amsmath,indentfirst,graphicx,setspace,listings,color,subfig,mathrsfs,algorithm,xfrac,verbatim,amssymb}
+\usepackage{tocbibind}
 \usepackage[colorinlistoftodos]{todonotes}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[colorlinks=false]{hyperref}
 \usepackage[noend]{algpseudocode}
 \usepackage[short]{optidef}
 \algnewcommand\algorithmicinput{\textbf{Input:}}
@@ -32,4 +33,7 @@
 	\input{chapters/1/1}
 	\input{chapters/2/2}
 	\input{chapters/3/3}
+
+    \bibliographystyle{plain}
+    \bibliography{bibliography}
 \end{document}

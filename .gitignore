@@ -8,4 +8,6 @@
 *.toc
 *.xdv
 *.synctex.gz
+*.bbl
+*.blg
 cmlda.*
