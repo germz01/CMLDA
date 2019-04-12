@@ -2,12 +2,12 @@
 \label{cha:optimizers}
 	\section{Stochastic Gradient Descent} % (fold)
 	\label{sec:sgd}
-	
+
 	% section struttura_della_rete (end)
 
 		\subsection{Momentum} % (fold)
 		\label{sec:momentum}
-		
+
 		% section forward_e_back_propagation (end)
 
 		\subsection{Regolarizzazione} % (fold)
@@ -15,46 +15,46 @@
 
 	\section{Nonlinear Conjugate Gradient} % (fold)
 	\label{sec:nonlinear_conjugate_gradient}
-	
+
 		An intresting optimization ables to lead to an improvement of the performances of the Neural Network, is the use of high-order information during the training phase.
 
 		We can, indeed, approximate the \textit{loss function} in a quadratic form, around a given point \textbf{W}, using the Taylor approximation:
 
-		 \begin{equation} 
+		 \begin{equation}
 		 	\label{quadratic}
 		    \mathcal{E}(\textbf{W} + \Delta\textbf{W}) = \mathcal{E}(\textbf{W})+\textbf{g}\mathcal{E}^T\Delta\textbf{W}+ \frac{1}{2}\Delta\textbf{W}^T\textbf{H}\Delta\textbf{W},
-		 \end{equation} 
+		 \end{equation}
 
 		where \textbf{H} is the \textit{Hessian} matrix and \textbf{g} the gradient vector, getting the benefit of choosing the search direction and the step size more carefully by using information from the second order approximation.
 
-		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be 
- 		\begin{equation} 
+		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be
+ 		\begin{equation}
 		 	\label{weight_star}
 			\Delta\textbf{W}^* = \textbf{H}^{-1}\textbf{g},
-		\end{equation} 
+		\end{equation}
 
 		carrying the weight of the computation of the inverse of the Hessian.
 
 		In order to avoid this expensive computation, we can use the \textit{Conjugate Gradient} methods, which are a class of iterative second-order optimization methods, derived from the steepest-descent algorithm, that ensure low memory requirements.
 
 		In this way, the adjustment to the synaptic weights of the network is computed as:
-		 \begin{equation} 
+		 \begin{equation}
 		 	\label{weight}
 		    \Delta\textbf{W} = \alpha\textbf{d},
-		 \end{equation} 
+		 \end{equation}
 		where $\alpha$ is the learning rate and \textbf{d} is the new direction found.
 
 		In our case, the nonlinear conjugate gradient methods are designed to solve the following minimization problem:
 
-		\begin{mini} 
+		\begin{mini}
 		  {\textbf{W}\in \mathbb{R}^n}{\mathcal{E}(\textbf{W}),}{}{}
 		\end{mini}
 
-		where $\mathcal{E}$ is the loss function and \textbf{W} are the synaptic weights of the network. 
+		where $\mathcal{E}$ is the loss function and \textbf{W} are the synaptic weights of the network.
 
 		As showed in the pseudocode \ref{cgd}, the iterative formula generates a sequence of weights $\{W_k\}$, for every epoch of training \textit{k}, as:
 
-		\begin{equation} 
+		\begin{equation}
 			\textbf{W}_{k+1} = \textbf{W}_{k} + \alpha\textbf{d}_k, \text{  }\text{  }\text{  } \textit{k} = 0,1,...,
 		\end{equation}
 
@@ -66,14 +66,14 @@
 		\subsection{Search Direction}
 		\label{sub:search_direction}
 			The direction $\textbf{d}_k$ holds the sequent property:
-			\begin{equation} 
+			\begin{equation}
 			\textbf{d}_k^T\textbf{H}\textbf{d}_{tk-1} = 0,
 			\end{equation}
 
 		 	that means it is conjugate to the previous direction $\textbf{d}_{k-1}$. Furthermore, it doesn't need to know all the 	previous directions, but it only needs the last one, which is why it requires very little storage and computation.
 
 			When dealing with quadratic functions, this method keeps the progress obtained so far in the minimization of the loss function, by ensuring that the gradient along the previous direction does not increase.
-			Anyway, it's worth to underline that this method can also be applyed with nonlinear functions: in this case, it should be necessary to restart the process, since there is no assumption that the conjugate directions previously found are still at the minimum of the function. 
+			Anyway, it's worth to underline that this method can also be applyed with nonlinear functions: in this case, it should be necessary to restart the process, since there is no assumption that the conjugate directions previously found are still at the minimum of the function.
 
 			Each new direction it's a linear combination of the steepest descent -\textbf{g} and the previous direction $\textbf{d}_{k-1}$, and it is defined as:
 			\begin{equation}
@@ -84,7 +84,7 @@
 			  \end{cases}
 			\end{equation}
 
-			where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. When applied to minimize a strictly convex quadratic function, it ensure that the directions $\textbf{d}_{k}$ and $\textbf{d}_{k-1}$ are conjugate with respective to the Hessian of the objective function, that is the property \ref{sub:search_direction} holds. 
+			where $\beta_k$ is a scalar, to be determined, that says how much of the previous direction should be added to the newest one. When applied to minimize a strictly convex quadratic function, it ensure that the directions $\textbf{d}_{k}$ and $\textbf{d}_{k-1}$ are conjugate with respective to the Hessian of the objective function, that is the property \ref{sub:search_direction} holds.
 
 			Of course, the first search direction when $k = 0$ is defined as the steepest descent direction at the initial weight $\textbf{W}_0$ while, for $k > 1$, a minimization along each of the search direction is performed.
 
@@ -122,7 +122,7 @@
  				 \beta^{HS}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{(\textbf{g}_k-\textbf{g}_{k-1}^T\textbf{d}_{k-1})}.
 			\end{equation}
 
-			The HS and the PR methods in eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of eq. \ref{beta_max} has been adopted. 
+			The HS and the PR methods in eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of eq. \ref{beta_max} has been adopted.
 			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
 
 			For what concernes the FR method (also described in eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods.%p121 nonlinear conjugate gradient method cpt5
@@ -130,12 +130,12 @@
 
 			The last method tested is the $MHS^+$ (eq. \ref{mhs}, a modified version of the Hestenes-Stiefel one.  %a new conjugate gradient algorithm for training neural network
 			It garantees sufficient descent with inexact line search and is based on a modified secant equation which approximates the second order information of the loss function with high order accuracy. Moreover, it is globally convergent.
-			
+
 			It is defined as follows:
 
 			\begin{equation}
 			\label{mhs}
- 				 \beta^{MHS}_k = \frac{\textbf{g}_k^T \~y_{k-1}^*}{\textbf{d}_{k-1}^T\~y_{k-1}^*},
+ 				 \beta^{MHS}_k = \frac{\mathbf{g}_k^T \widetilde{y}_{k-1}^*}{\mathbf{d}_{k-1}^T\widetilde{y}_{k-1}^*},
 			\end{equation}
 
 
@@ -145,17 +145,17 @@
 		\label{sub:line_search}
 			Once computed the new direction \textbf{d} involved in the new weights \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the loss function.
 
-			The step size $\alpha$ is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction. 
+			The step size $\alpha$ is nothing more than a scalar: the learning rate for the conjugate gradient algorithm, which tells how far is right to move along a given direction.
 
 			So, fixed the values of the weights \textbf{W} and the descent direction \textbf{d}, the main goal is to find the right value for $\alpha$ that is able to minimize the loss function:
 
-			 \begin{mini} 
+			 \begin{mini}
 			   {\alpha}{\mathcal{ E}(\textbf{W} + \alpha\textbf{d}).}{}{}
 			 \end{mini}
 
-			Of course, we have to deal with a tradeoff: we want a good reduction, but we can't spend too much time computing the exact value for the optimum solution. So, the smarter way to get it is to use an inexact line search, that try some candidate step size and accepts the first one satisfying some conditions.  
+			Of course, we have to deal with a tradeoff: we want a good reduction, but we can't spend too much time computing the exact value for the optimum solution. So, the smarter way to get it is to use an inexact line search, that try some candidate step size and accepts the first one satisfying some conditions.
 
-			This search is performed in two phases: 
+			This search is performed in two phases:
 			\begin{itemize}
 			\item a \textit{bracketing phase}, that finds an initial interval containing a minimizer;
 			\item an \textit{interpolation phase} that, given the interval, finds the right step length in it.
@@ -165,7 +165,7 @@
 
 			The search for the better $\alpha$ is led by two condition:
 			\begin{itemize}
-			\item the \textit{Armijo} one: 
+			\item the \textit{Armijo} one:
 			\begin{equation}
 			\mathcal{E}(W_k+\alpha _kd_k)\leq \mathcal{E}(W_k)+\sigma_1\alpha\nabla \mathcal{E}_k^Td_k
 			\end{equation}
@@ -192,7 +192,7 @@
 
 			The \texttt{line\_search} function try to find and return a good $\alpha$; if it fails, it returns an interval in which continue the searching, invoking the \texttt{zoom} function, which decreases the size of the interval, until it finds and returns a good step length.
 
-			\texttt{Zoom} invokes another function, \texttt{interpolate\_alpha}, which is nothing more than the implementation of a bisection interpolation in order to find a trial $\alpha$ inside the given interval. 
+			\texttt{Zoom} invokes another function, \texttt{interpolate\_alpha}, which is nothing more than the implementation of a bisection interpolation in order to find a trial $\alpha$ inside the given interval.
 
 
 
@@ -204,7 +204,7 @@
 			\Procedure{line\_search}{}\\
 			\State $\alpha_0 \gets \textit{0};$
 			\State $i \gets \textit{1};$
-			\While {$i \leq max\_iter$} 
+			\While {$i \leq max\_iter$}
 			 		\State  $ \text{Evaluate}\mathcal{E}(\alpha_i);$
 					\If  { $[\mathcal{E}(\alpha_i) > \mathcal{E}(0) + \sigma_1\alpha_i\nabla\mathcal{E}_0^Td_0] \text{  or  } [\mathcal{E}(\alpha_i)\leq \mathcal{E}(\alpha_{i-1}) \text{  and  } i>1]  $ }
 						\State $\alpha_* \gets \textbf{zoom}(\alpha_{i-1},\alpha_{i});$
@@ -231,34 +231,38 @@
 			\end{algorithm}
 
 
-
 			\begin{algorithm}
-			\caption{Zoom}\label{zoom}
-			\begin{algorithmic}[1]
-			\Procedure{zoom}{}
-			\Repeat 
-				\State  $ \alpha_j \gets \textit{interpolate\_alpha}(\alpha_{lo}, \alpha_{hi}); $
-				\State $ \text{Evaluate }\mathcal{E}(\alpha_j);$
-				\If {$[\mathcal{E}(\alpha_j) > \mathcal{E}(0) + \sigma_1\alpha_j\nabla\mathcal{E}_0^Td_0] \text{  or  } [\mathcal{E}(\alpha_j)\leq \mathcal{E}(\alpha_{lo}) $ }
-					\State $\alpha_{hi} \gets \alpha_{j};$
-				\Else 
-					\State $\text{Evaluate } \nabla\mathcal{E}_j^Td_j; $
-					\If { $|\nabla\mathcal{E}_j^Td_j| \leq -\sigma_2\nabla\mathcal{E}_0^Td_0$}
-						\State $\alpha_* \gets \alpha_j; $
-						\Return $\alpha_*; $
-					\EndIf
-					\If { $\nabla\mathcal{E}_j^Td_j (\alpha_{hi}-\alpha_{lo}) \geq 0 $ }
-						\State $\alpha_{hi} \gets \alpha_{lo}; $
-					\EndIf
-					\If  { $(|\mathcal{E}_{j} - \mathcal{E}_{0}| \leq threshold$ }
-						\State $\alpha_* \gets\alpha_{j}$
-						\Return $\alpha_*;$
-					\EndIf
-				\EndIf
-				\State $\alpha_{lo} \gets \alpha_{j}; $
-			\EndRepeat 
-			\EndProcedure
-			\end{algorithmic}
+				\caption{Zoom}
+				\label{alg:zoom}
+				\begin{algorithmic}[1]
+					\Procedure{Zoom}{}
+						\While{True}
+							\State  $ \alpha_j \gets \textit{interpolate\_alpha}(\alpha_{lo}, \alpha_{hi}); $
+							\State $ \text{Evaluate }\mathcal{E}(\alpha_j);$
+							\If{$\left [ \mathcal{E}(\alpha_j) > \mathcal{E}(0) + \sigma_1 \alpha_j
+							    \nabla  \mathcal{E}_0^T d_0 \right ]$ or $\left [ \mathcal{E}(\alpha_j) \leq
+							    \mathcal{E}(\alpha_{lo}) \right ]$}
+							    \State $\alpha_* \gets \alpha_j; $
+								\State \Return $\alpha_*; $
+							\Else
+								\State $\text{Evaluate } \nabla \mathcal{E}_j^T d_j; $
+								\If{$\left | \nabla \mathcal{E}_j^T d_j \right | \leq -\sigma_2 \nabla
+								    \mathcal{E}_0^T d_0$}
+								    \State $\alpha_* \gets \alpha_j; $
+									\State \Return $\alpha_*; $
+								\EndIf
+								\If{$\nabla \mathcal{E}_j^T d_j (\alpha_{hi}-\alpha_{lo}) \geq 0 $}
+									\State $\alpha_{hi} \gets \alpha_{lo}; $
+								\EndIf
+								\If{$(|\mathcal{E}_{j} - \mathcal{E}_{0}| \leq threshold$}
+									\State $\alpha_* \gets\alpha_{j}$
+									\State \Return $\alpha_*;$
+								\EndIf
+							\EndIf
+						\State $\alpha_{lo} \gets \alpha_{j}; $
+						\EndWhile
+					\EndProcedure
+				\end{algorithmic}
 			\end{algorithm}
 
 
@@ -267,12 +271,12 @@
 			\begin{algorithmic}[1]
 			\Procedure{interpolate\_alpha}{}
 			\State $i \gets \textit{1};$
-			\While {$i \leq max\_iter$} 
+			\While {$i \leq max\_iter$}
 				\State $\alpha_{mid} \gets (\alpha_{hi}-\alpha_{lo})/2$
 				\State  $ \text{Evaluate }\mathcal{E}(\alpha_{mid});$
 			 	\If  { $[\mathcal{E}(\alpha_{mid}) == 0]  \text{  or  }  [(\alpha_{hi}-\alpha_{lo})/2 < threshold] $ }
 						\Return $\alpha_{mid}; $
-				\EndIf	
+				\EndIf
 				\State   $\text{Evaluate } \mathcal{E}(\_{mid}alpha_{lo}); $
 				\If  { $sign(\mathcal{E}(\alpha_{mid})) == sign(\mathcal{E}(\alpha_{lo}))$ }
 					\State $\alpha_{lo} \gets \alpha_{mid}; $
