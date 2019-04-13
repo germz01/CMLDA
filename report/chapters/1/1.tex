@@ -1,11 +1,11 @@
 \chapter{The network} % (fold)
 \label{cha:the_network}
 	\noindent
-	In this first chapter, we provide some informations about the Artificial Neural Network we implemented from
-	scratch. We'll describe both the network's structure and the algorithm we used in order to make our network
-	\textit{learn} from the data used during the testing and validation phases. Finally we'll present the loss
-	function we have chosen for our network, and we'll provide and explanation on how it is differentiable. We'll
-	use the notation proposed in \cite{Goodfellow-et-al-2016}.
+	In this first chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
+	connected Multilayer Perceptron, we implemented from scratch. We'll describe both the network's structure and
+	the algorithm we used in order to make our network \textit{learn} from the data used during the testing and
+	validation phases. Finally we'll present the loss function we have chosen for our network, and we'll provide
+	and explanation on how it is differentiable. We'll use the notation proposed in \cite{Goodfellow-et-al-2016}.
 
 	\section{The network's structure} % (fold)
 	\label{sec:the_network_s_structure}
@@ -28,12 +28,59 @@
 	\section{The back-propagation algorithm} % (fold)
 	\label{sec:the_back-propagation_algorithm}
 		\noindent
-		In order to make the ANN learn, the information, that is, the feature vector $\mathcal{\mathbf{x}}$ taken
-		from the data given in input, has to flow from the input layer through the hidden layers and, finally, the
-		output layer, giving the approximation $\hat{\mathbf{y}}$ as output. This is called \textit{forward
-		propagation}. The \textit{back-propagation algorithm}, as described in \cite{Goodfellow-et-al-2016},
-		\cite{haykin2009neural} and \cite{mitchell1997machine}, allow the information to flow backward through the
-		network in order to computer the \textit{gradient}.
+		The learning procedure for our ANN essentialy consist in two distinct phases, the first phase in which we
+		compute the network's \textit{gradient}, that is, the derivative of the cost function
+		$\nabla_{\theta} J(\theta)$ with respect to every network's unit, and a second phase in which the
+		information gathered during the first phase is optimized using a distinct technique, like the ones
+		that will be described in chapter \ref{cha:optimizers}. For computing the gradient we have chosen to use
+		the well known \textit{backpropagation algorithm}, firstly introduced in \cite{10028086174} and described
+		in \cite{Goodfellow-et-al-2016}, \cite{haykin2009neural} and \cite{mitchell1997machine}. This algorithm is
+		also composed by two phases, a first phase, that is, the \textit{forward propagation}, in which the
+		feature vector $\mathbf{x}$ given in input has to flow from the input layer through the hidden layers and,
+		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
+		is, the \textit{back-propagation}, which allows the informtion to flow backward through the network in
+		order to compute the gradient by applying the Chain Rule of Calculus. It is import to note that with the
+		term back-propagation we mean only the method for computing the gradient, not the whole learning algorithm.
+		We now provide the pseudocode for the forward propagation and the back-propagation phases.
+
+		\begin{algorithm}
+			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
+			function.}
+			\label{alg:forward_propagation}
+			\begin{algorithmic}[1]
+				\Procedure{Forward propagation}{$l$, $\mathbf{W}^{(i)} \ i \in \{ 1, \ldots, l \}$,
+				$\mathbf{b}^{(i)} \ i \in \{ 1, \ldots, l \}$, $\mathbf{x}$, $\mathbf{y}$}
+					\State $\mathbf{h}^{(0)} = \mathbf{x}$
+					\For{$k = 1, \ldots, l$}
+						\State $\mathbf{a}^{(k)} = \mathbf{b}^{(k)} + \mathbf{W}^{(k)}\mathbf{h}^{k - 1}$
+						\State $\mathbf{h}^{(k)} = f(\mathbf{a}^{(k)})$
+					\EndFor
+					\State $\hat{\mathbf{y}} = \mathbf{h}^{(l)}$
+					\State $J = L(\hat{\mathbf{y}}, \mathbf{y}) + \lambda \Omega(\theta)$
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
+
+		\begin{algorithm}
+			\caption{Backward computation for the (deep) neural network of algorithm \ref{alg:forward_propagation}.
+			}
+			\label{alg:backward_propagation}
+			\begin{algorithmic}[1]
+				\Procedure{Backward propagation}{}
+					\State $\mathbf{g} \leftarrow \nabla_{\hat{\mathbf{y}}}J = \nabla_{\hat{\mathbf{y}}}
+					L(\hat{\mathbf{y}}, \mathbf{y})$
+					\For{$k = l, l - 1, \ldots, 1$}
+						\State $\mathbf{g} \leftarrow \nabla_{\mathbf{a}^{(k)}}J = \mathbf{g} \ \odot \
+						f'(\mathbf{a}^{(k)})$
+						\State $\nabla_{\mathbf{b}^{(k)}}J = \mathbf{g} \ + \ \lambda \nabla_{\mathbf{b}^{(k)}}
+						\Omega(\theta)$
+						\State $\nabla_{\mathbf{W}^{(k)}}J = \mathbf{g}\mathbf{h}^{(k - 1)T} \ + \ \lambda
+						\nabla_{\mathbf{W}^{(k)}} \Omega(\theta)$
+						\State $\mathbf{g} = \nabla_{\mathbf{h}^{(k - 1)}}J = \mathbf{W}^{(k)T}\mathbf{g}$
+					\EndFor
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
 	% section the_back-propagation_algorithm (end)
 
 	\section{Loss function is differentiable?} % (fold)
