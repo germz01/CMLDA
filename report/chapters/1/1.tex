@@ -60,6 +60,27 @@
 				\EndProcedure
 			\end{algorithmic}
 		\end{algorithm}
+
+		\begin{algorithm}
+			\caption{Backward computation for the (deep) neural network of algorithm \ref{alg:forward_propagation}.
+			}
+			\label{alg:backward_propagation}
+			\begin{algorithmic}[1]
+				\Procedure{Backward propagation}{}
+					\State $\mathbf{g} \leftarrow \nabla_{\hat{\mathbf{y}}}J = \nabla_{\hat{\mathbf{y}}}
+					L(\hat{\mathbf{y}}, \mathbf{y})$
+					\For{$k = l, l - 1, \ldots, 1$}
+						\State $\mathbf{g} \leftarrow \nabla_{\mathbf{a}^{(k)}}J = \mathbf{g} \ \odot \
+						f'(\mathbf{a}^{(k)})$
+						\State $\nabla_{\mathbf{b}^{(k)}}J = \mathbf{g} \ + \ \lambda \nabla_{\mathbf{b}^{(k)}}
+						\Omega(\theta)$
+						\State $\nabla_{\mathbf{W}^{(k)}}J = \mathbf{g}\mathbf{h}^{(k - 1)T} \ + \ \lambda
+						\nabla_{\mathbf{W}^{(k)}} \Omega(\theta)$
+						\State $\mathbf{g} = \nabla_{\mathbf{h}^{(k - 1)}}J = \mathbf{W}^{(k)T}\mathbf{g}$
+					\EndFor
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
 	% section the_back-propagation_algorithm (end)
 
 	\section{Loss function is differentiable?} % (fold)
