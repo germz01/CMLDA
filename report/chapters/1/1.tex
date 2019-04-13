@@ -1,17 +1,38 @@
 \chapter{The network} % (fold)
 \label{cha:the_network}
-	\section{Struttura della rete} % (fold)
-	\label{sec:struttura_della_rete}
-	
-	% section struttura_della_rete (end)
+	\noindent
+	In this first chapter, we provide some informations about the neural network we implemented from scratch.
+	We'll describe both the network's structure and the algorithm we used in order to make our network
+	\textit{learn} from the data used during the testing and validation phases. Finally we'll present the loss
+	function we have chosen for our network, and we'll provide and explanation on how it is differentiable. We'll
+	use the notation proposed in \cite{Goodfellow-et-al-2016}.
 
-	\section{Forward e back propagation} % (fold)
-	\label{sec:forward_e_back_propagation}
-	
-	% section forward_e_back_propagation (end)
+	\section{The network's structure} % (fold)
+	\label{sec:the_network_s_structure}
+		\noindent
+		Since we have to write from scratch an \textit{Artificial Neural Network}, ANN for short, we have
+		considered some alternatives before choosing the network's structure. Finally we agreed on a structure
+		composed by one \textit{input layer}, two \textit{hidden layers} and one \textit{output layer}. As
+		convention in the Machine Learning community, the number of units in the input layer is egual to the number
+		of features of the dataset that is used for the learning, validation and testing phases. The two
+		hidden layers contain, respectively, four and eight \textit{hidden neurons}, following the convention of
+		putting an increasing series of powers of two as number of hidden units per layer. We have decided to put
+		one unit in the output layer when performing a \textit{classification task} and two when performing a
+		\textit{regression task}. As we have seen studying the papers and books for gathering the necessary
+		knowledge for the project, as \cite{Goodfellow-et-al-2016}, \cite{haykin2009neural} and
+		\cite{mitchell1997machine}, choosing to consider the network's structure as an \textit{hyperparameter},
+		that is, a variable, could lead to a series of difficult choices during the validation phase, so we have
+		decided to fix the ANN structure to the one described.
+	% section the_network_s_structure (end)
+
+	\section{The backpropagation algorithm} % (fold)
+	\label{sec:the_backpropagation_algorithm}
+		\noindent
+	% section the_backpropagation_algorithm (end)
 
 	\section{Loss function is differentiable?} % (fold)
 	\label{sec:loss_function_is_differentiable_}
-	
+
 	% section loss_function_is_differentiable_ (end)
+
 % chapter the_network (end)
