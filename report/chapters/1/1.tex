@@ -1,8 +1,8 @@
 \chapter{The network} % (fold)
 \label{cha:the_network}
 	\noindent
-	In this first chapter, we provide some informations about the neural network we implemented from scratch.
-	We'll describe both the network's structure and the algorithm we used in order to make our network
+	In this first chapter, we provide some informations about the Artificial Neural Network we implemented from
+	scratch. We'll describe both the network's structure and the algorithm we used in order to make our network
 	\textit{learn} from the data used during the testing and validation phases. Finally we'll present the loss
 	function we have chosen for our network, and we'll provide and explanation on how it is differentiable. We'll
 	use the notation proposed in \cite{Goodfellow-et-al-2016}.
@@ -25,10 +25,16 @@
 		decided to fix the ANN structure to the one described.
 	% section the_network_s_structure (end)
 
-	\section{The backpropagation algorithm} % (fold)
-	\label{sec:the_backpropagation_algorithm}
+	\section{The back-propagation algorithm} % (fold)
+	\label{sec:the_back-propagation_algorithm}
 		\noindent
-	% section the_backpropagation_algorithm (end)
+		In order to make the ANN learn, the information, that is, the feature vector $\mathcal{\mathbf{x}}$ taken
+		from the data given in input, has to flow from the input layer through the hidden layers and, finally, the
+		output layer, giving the approximation $\hat{\mathbf{y}}$ as output. This is called \textit{forward
+		propagation}. The \textit{back-propagation algorithm}, as described in \cite{Goodfellow-et-al-2016},
+		\cite{haykin2009neural} and \cite{mitchell1997machine}, allow the information to flow backward through the
+		network in order to computer the \textit{gradient}.
+	% section the_back-propagation_algorithm (end)
 
 	\section{Loss function is differentiable?} % (fold)
 	\label{sec:loss_function_is_differentiable_}
