@@ -28,7 +28,19 @@
 
 	\section{The network's initialization} % (fold)
 	\label{sec:the_network_s_initialization}
+		As we know from \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}, an ANN is composed by
+		a set of weights $\mathbf{W}^{(i)}$, and a set of biases $\mathbf{b}^{(i)}$,
+		$i \in \{ 1, \ \ldots \ , \ l \}$, with $l$ representing the ANN's number of layers. Although it is common
+		practice to initialized the network's weights and biases to random, small, values, we have decided to
+		follow the \textit{normalized initialization}, as described in \cite{Glorot10understandingthe}, which
+		defines the initial values for the weights and the biases for each layer in the uniform distribution
+		taken in the range
 
+		\begin{equation*}
+		    W \sim U \left [ -\frac{\sqrt{6}}{\sqrt{m + n}}, \ \frac{\sqrt{6}}{\sqrt{m + n}} \right ]
+		\end{equation*}
+
+		with $m$ and $n$, representing the number of inputs and outputs for each layer.
 	% section the_network_s_initialization (end)
 
 	\section{The back-propagation algorithm} % (fold)
