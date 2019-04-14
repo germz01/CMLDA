@@ -1,17 +1,24 @@
-\chapter{The network} % (fold)
-\label{cha:the_network}
+\chapter{The Artificial Neural Network} % (fold)
+\label{cha:the_artificial_neural_network}
 	In this first chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
 	connected Multilayer Perceptron, we implemented from scratch. We'll describe both the network's structure and
 	the algorithm we used in order to make our network \textit{learn} from the data used during the testing and
 	validation phases. Finally we'll present the loss function we have chosen for our network, and we'll provide
 	and explanation on how it is differentiable. We'll use the notation proposed in \cite{Goodfellow-et-al-2016}.
 
-	\section{The network's structure} % (fold)
-	\label{sec:the_network_s_structure}
+	\section{The ANN's structure} % (fold)
+	\label{sec:the_ann_s_structure}
 		Since we have to write from scratch an \textit{Artificial Neural Network}, ANN for short, we have
 		considered some alternatives before choosing the network's final structure. We agreed on a structure
-		composed by one \textit{input layer}, two \textit{hidden layers} and one \textit{output layer}. As
-		convention, the number of units in the input layer is egual to the number
+		composed by:
+
+		\begin{itemize}
+			\item one \textit{input layer};
+			\item two \textit{hidden layers};
+			\item one \textit{output layer};
+		\end{itemize}
+
+		As convention, the number of units in the input layer is egual to the number
 		of features of the dataset that is used for the learning, validation and testing phases. The two
 		hidden layers contain, respectively, four and eight \textit{hidden neurons}, following the convention of
 		putting an increasing series of powers of two as number of hidden units per layer. The number of neurons
@@ -24,10 +31,10 @@
 		lead to a series of difficult choices during the validation phase, so we have decided to fix the ANN
 		structure to the one described for both the task we have to fullfil, changing only the number of units in
 		the output layer from task to task.
-	% section the_network_s_structure (end)
+	% section the_ann_s_structure (end)
 
-	\section{The network's initialization} % (fold)
-	\label{sec:the_network_s_initialization}
+	\section{Initializing the Network} % (fold)
+	\label{sec:initializing_the_network}
 		As we know from \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}, an ANN is composed by
 		a set of weights $\mathbf{W}^{(i)}$, and a set of biases $\mathbf{b}^{(i)}$,
 		$i \in \{ 1, \ \ldots \ , \ l \}$, with $l$ representing the ANN's number of layers. Although it is common
@@ -40,8 +47,12 @@
 		    W \sim U \left [ -\frac{\sqrt{6}}{\sqrt{m + n}}, \ \frac{\sqrt{6}}{\sqrt{m + n}} \right ]
 		\end{equation*}
 
-		with $m$ and $n$, representing the number of inputs and outputs for each layer.
-	% section the_network_s_initialization (end)
+		with $m$ and $n$, representing the number of inputs and outputs for each layer. This heuristic is
+		designed to compromise between the goal of initializing all layers to have the same activation variance
+		and the goal of initializing all layers to have the same gradient variance. The formula is derived using
+		the assumption that the network consists only of a chain of matrix multiplications, with no
+		nonlinearities.
+	% section initializing_the_network (end)
 
 	\section{The back-propagation algorithm} % (fold)
 	\label{sec:the_back-propagation_algorithm}
@@ -66,9 +77,13 @@
 		only the method for computing the gradient, not the whole learning algorithm. We now provide the
 		pseudocode for the forward propagation and the back-propagation phases.
 
-		\begin{algorithm}
+		\begin{algorithm}[H]
 			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
-			function.}
+			function. Here $L(\hat{\mathbf{y}}, \mathbf{y})$ represents the loss function evaluated using both
+			$\mathbf{y}$ and $\hat{\mathbf{y}}$ as inputs, more details about that will be provided in
+			section \ref{sec:loss_function_is_differentiable_}. The function $f$ applied on line $5$ represents
+			the layer's \textit{activation function}, while $\lambda \Omega(\theta)$ represents the
+			network's regularization term.}
 			\label{alg:forward_propagation}
 			\begin{algorithmic}[1]
 				\Procedure{Forward propagation}{$l$, $\mathbf{W}^{(i)} \ i \in \{ 1, \ldots, l \}$,
@@ -84,9 +99,10 @@
 			\end{algorithmic}
 		\end{algorithm}
 
-		\begin{algorithm}
-			\caption{Backward computation for the (deep) neural network of algorithm \ref{alg:forward_propagation}.
-			}
+		\begin{algorithm}[H]
+			\caption{Backward computation for the (deep) neural network of algorithm
+			\ref{alg:forward_propagation}. Here, the $\odot$ symbol represents the element-wise
+			(Hadamard) product.}
 			\label{alg:backward_propagation}
 			\begin{algorithmic}[1]
 				\Procedure{Backward propagation}{}
@@ -111,4 +127,4 @@
 
 	% section loss_function_is_differentiable_ (end)
 
-% chapter the_network (end)
+% chapter the_artificial_neural_network (end)
