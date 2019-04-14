@@ -1,6 +1,5 @@
 \chapter{The network} % (fold)
 \label{cha:the_network}
-	\noindent
 	In this first chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
 	connected Multilayer Perceptron, we implemented from scratch. We'll describe both the network's structure and
 	the algorithm we used in order to make our network \textit{learn} from the data used during the testing and
@@ -9,39 +8,51 @@
 
 	\section{The network's structure} % (fold)
 	\label{sec:the_network_s_structure}
-		\noindent
 		Since we have to write from scratch an \textit{Artificial Neural Network}, ANN for short, we have
-		considered some alternatives before choosing the network's structure. Finally we agreed on a structure
+		considered some alternatives before choosing the network's final structure. We agreed on a structure
 		composed by one \textit{input layer}, two \textit{hidden layers} and one \textit{output layer}. As
-		convention in the Machine Learning community, the number of units in the input layer is egual to the number
+		convention, the number of units in the input layer is egual to the number
 		of features of the dataset that is used for the learning, validation and testing phases. The two
 		hidden layers contain, respectively, four and eight \textit{hidden neurons}, following the convention of
-		putting an increasing series of powers of two as number of hidden units per layer. We have decided to put
-		one unit in the output layer when performing a \textit{classification task} and two when performing a
-		\textit{regression task}. As we have seen studying the papers and books for gathering the necessary
-		knowledge for the project, as \cite{Goodfellow-et-al-2016}, \cite{haykin2009neural} and
-		\cite{mitchell1997machine}, choosing to consider the network's structure as an \textit{hyperparameter},
-		that is, a variable, could lead to a series of difficult choices during the validation phase, so we have
-		decided to fix the ANN structure to the one described.
+		putting an increasing series of powers of two as number of hidden units per layer. The number of neurons
+		for the output layer depends on the kind of task the network is trying to fullfil. In the case of a
+		\textit{classification task}, like the MONKS dataset \cite{Dua:2019}, we have decided to put one unit in
+		the output layer, while in the case of a \textit{regression task}, like the CUP dataset, we have decided to
+		put two units in the output layer. As we have seen studying the papers and books for gathering the
+		necessary knowledge for the project, as \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine},
+		choosing to consider the network's structure as an \textit{hyperparameter}, that is, a variable, could
+		lead to a series of difficult choices during the validation phase, so we have decided to fix the ANN
+		structure to the one described for both the task we have to fullfil, changing only the number of units in
+		the output layer from task to task.
 	% section the_network_s_structure (end)
+
+	\section{The network's initialization} % (fold)
+	\label{sec:the_network_s_initialization}
+
+	% section the_network_s_initialization (end)
 
 	\section{The back-propagation algorithm} % (fold)
 	\label{sec:the_back-propagation_algorithm}
-		\noindent
-		The learning procedure for our ANN essentialy consist in two distinct phases, the first phase in which we
-		compute the network's \textit{gradient}, that is, the derivative of the cost function
-		$\nabla_{\theta} J(\theta)$ with respect to every network's unit, and a second phase in which the
-		information gathered during the first phase is optimized using a distinct technique, like the ones
-		that will be described in chapter \ref{cha:optimizers}. For computing the gradient we have chosen to use
+		The learning procedure for our ANN essentialy consist in two distinct phases:
+
+		\begin{enumerate}
+			\item compute the network's \textit{gradient}, that is, the derivative of the cost function
+			$\nabla_{\theta} J(\theta)$ with respect to every network's unit;
+			\item optimize the information gathered during the first phase using a distinct technique, like the
+			ones described in chapter \ref{cha:optimizers};
+		\end{enumerate}
+
+		For computing the gradient we have chosen to use
 		the well known \textit{backpropagation algorithm}, firstly introduced in \cite{10028086174} and described
-		in \cite{Goodfellow-et-al-2016}, \cite{haykin2009neural} and \cite{mitchell1997machine}. This algorithm is
+		in \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}. This algorithm is
 		also composed by two phases, a first phase, that is, the \textit{forward propagation}, in which the
 		feature vector $\mathbf{x}$ given in input has to flow from the input layer through the hidden layers and,
 		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
 		is, the \textit{back-propagation}, which allows the informtion to flow backward through the network in
-		order to compute the gradient by applying the Chain Rule of Calculus. It is import to note that with the
-		term back-propagation we mean only the method for computing the gradient, not the whole learning algorithm.
-		We now provide the pseudocode for the forward propagation and the back-propagation phases.
+		order to compute the gradient by applying the Chain Rule of Calculus, that is, a formula for computing the
+		derivative of a composition of functions. It is import to note that with the term back-propagation we mean
+		only the method for computing the gradient, not the whole learning algorithm. We now provide the
+		pseudocode for the forward propagation and the back-propagation phases.
 
 		\begin{algorithm}
 			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
