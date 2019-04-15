@@ -7,13 +7,84 @@
 		field, its convergence's rate is quite slow. We have implemented a standard SGD version, as described in
 		\cite{Goodfellow-et-al-2016}, supporting both \textit{momentum} and \textit{regularization}.
 		\cite{LIVIERIS2013491}
+
+
+
+
 		\subsection{Momentum} % (fold)
 		\label{sec:momentum}
+			When computing the adjustment of the synaptic weights $\Delta\textbf{W}_k$ as in Eq. \ref{delta}, the choice of the learning rate $\eta$ influences the convergence of the SGD algorithm.
+			The smaller is $\eta$, the smaller will be the changes in the matrix of weights and the rate of learning, but the smoother will be the trajectory.
 
-		% section forward_e_back_propagation (end)
+			On the contrary, a bigger $\eta$ will bring to a faster convergence, but also to an oscillatory behaviour.
 
-		\subsection{Regolarizzazione} % (fold)
-		\label{sec:regolarizzazione}
+			A way to accelerate the SGD is the use of the \textit{Classical Momentum} (CM), a first order optimization technique which accelerate gradient descent, and so the learning rate of the final training.
+
+			It consists in the adjustment of the new weigths through a velocity vector \textbf{v} that accumulates the gradient elements in the directions of reduction of the loss function \ref{loss} and a momentum coefficient $\alpha \in [0,1]$: the larger is  $\alpha$, the more previous gradients affect the current direction.
+
+			In this case, the classical momentum is given by:
+
+			\begin{equation}
+				\label{classical_momentum}
+				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\mathcal{E}(\textbf{W}_k).
+			\end{equation}
+
+			The new synaptic weights are then updated as:
+			\begin{equation}
+				\label{update_momentum}
+				\textbf{W}_k = \textbf{W}_{k-1}  + \textbf{v}_k.
+			\end{equation}
+
+			A variant of the CM algorithm, is the \textit{Nesterov's Accelerated Gradient} (NAG), which allows to avoid the oscillatory behaviour visible in the trajectory computed with CM, as visible in fig.\ref{fig:momentum_graph}%fig2 on the importance}. 
+
+			The velocity vector \textbf{v} is computed as:
+
+			\begin{equation}
+				\label{nesterov_momentum}
+				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\mathcal{E}(\textbf{W}_k + \alpha\textbf{v}_{k-1}).
+			\end{equation}
+			
+			The update of the weights \textbf{W} follows the one described in Eq. \ref{update_momentum}.
+
+			The variant respect Eq. \ref{classical_momentum}, shown in fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\mathcal{E}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
+
+			It's worth to underline that, in case of batch choice and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$ % Nesterov (1983).
+			\begin{figure}
+			\centering
+			  \includegraphics[width=.4\linewidth, scale=0.5]{img/figures/momentum}
+			  \caption{The classical momentum on top and the Nesterov Accelerated gradient on bottom.}
+			  \label{fig:momentum}
+
+			  \includegraphics[width=.4\linewidth, scale=0.5]{img/figures/momentum_graph}
+			  \caption{The trajectory from CM (in green) and the one from NAG (in blue).}
+			  \label{fig:momentum_graph}
+			\end{figure}
+
+
+		\subsection{Regularization} % (fold)
+		\label{sec:regularization}
+
+			In order to garantee a tradeoff between goodness and complexity of the model, the regularization is allowed in the network. This choice is important to ensure that the model doesn't grow too much in complexity. 
+
+			Regularization, infact, adds the penalty as model complexity increases, forcing some weights to take values close to zero, if they have little influence on the newtork performance and so resulting in poor generalization.
+
+			It basically modifies the objective loss functions as follows:
+			
+			\begin{mini}
+			  {\textbf{W}\in \mathbb{R}^n}{\mathcal{E}(\textbf{W}) + \lambda\mathcal{E}_c(\textbf{W}),}{}{}
+			\end{mini}
+
+			where $\mathcal{E}_c(\textbf{W})$ is a complexity penalty term measured in term of the weights, and $\lambda$ is a parameter which tells how much importance has the complexity penalty term.
+
+			Two kinds of regularization are implemented:
+
+			\begin{itemize}
+				\item \textit{L1}: also called Lasso Regression, which results in $\mathcal{E}_c(\textbf{W}) = \sum_{i=1}^{k} |w_i| = \|\textbf{W}\|_1$;
+				\item \textit{L2}: also known as Ridge Regression, which results in $\mathcal{E}_c(\textbf{W}) = \sum_{i=1}^{k}w_i^2 = \|\textbf{W}\|_2^2$.
+			\end{itemize}
+
+
+
 
 	\section{Nonlinear Conjugate Gradient} % (fold)
 	\label{sec:nonlinear_conjugate_gradient}
