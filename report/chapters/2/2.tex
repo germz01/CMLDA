@@ -4,23 +4,62 @@
 	\label{sec:sgd}
 		When choosing an optimizer, the \textit{Stochastic Gradient Descent}, SGD for short, is a quite common
 		choice. It is not the best though, since, as proved by the last developments in the machine learning
-		field, its convergence's rate is quite slow. We have implemented a standard SGD version, as described in
+		field, its convergence's rate is quite slow. 
+		Said that, it is also true that it allows to finds a very low value of the cost function quickly enough. 
+
+		The algorithm \ref{alg_sgd} is the standard SGD version implemented, as described in
 		\cite{Goodfellow-et-al-2016}, supporting both \textit{momentum} and \textit{regularization}.
 		\cite{LIVIERIS2013491}
 
+		SGD is an extension of the \textit{gradient descent algorithm}(GD). It is an iterative first-order optimization technique, usefull to minimize the objective loss function: the main goal is, indeed, to identify and compute a local minimum, moving along the direction of the steepest descent of the function, that is the negative gradient $-\nabla\mathcal{E}(\textbf{W})$.
 
+		As we already said, the objective of the training procedure is to minimize the loss function. Of course, in order to arrive to a local minimum, it is necessary to update the synaptic weights \textbf{W} at every iteration as $\textbf{W} = \textbf{W} +\Delta \textbf{W}$.
 
+		The correction applied to the weights is defined as follows, taking a step in the opposite direction of the cost gradient:
+		\begin{equation}
+			\label{delta_rule}
+			\Delta w_{ji}(n) = -\eta \frac{\partial\mathcal{E}(n)}{\partial w_{ji}(n)},
+		\end{equation}
+
+		where $\eta$ is the learning rate. The latter one is a fundamental hyperparameters which has to been choosen wisely, since it represents how much is right to move along the descent direction: too much and the procedure will be vain, missing the minimum; too little and the converge will be slow.
+
+		Unlike the GD algorithm, that could be quite costly because of the potentially big number of training examples, getting a longer time to converges to the minimum when dealing with a very large dataset, the SGD algorithm requires only the evaluation of one example for epochs (on-line mode).
+
+		Here, however, we refer to SGD even when using the entire or just a subset of training examples to be considered at each epoch of training (batch or mini batch).
+
+		The name stochastic derives from the fact that the samples are selected randomly, bringing to an approximation of the true gradient estimated using a small set of samples. This is also the reason of the typical zig-zag pattern in the path towards the minimum of the loss function, as visible in fig.\ref{fig:gradient}.
+		\begin{figure}
+			\centering
+		    \includegraphics[width=.8\linewidth, scale=0.7]{img/figures/gradient.png}
+			\caption{The different trajectories from GD and SGD.}
+			\label{fig:gradient}
+		\end{figure}
+		%Due to its stochastic nature, c. However, it has been shown that SGD almost surely converges to the global cost minimum if the cost function is convex (or pseudo-convex)[1] [1] Bottou, Léon (1998). "Online Algorithms and Stochastic Approximations". Online Learning and Neural Networks. Cambridge University Press. ISBN 978-0-521-65263-6
+		
+		For what concernes the the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the epochs for ensure convergence.
+%deeplearning
+		A sufficient condition to guarantee convergence of SGD is that the sequence of decreasing learning rates satisfy:
+
+		\begin{equation}
+			\label{delta}
+			\sum_{t=1}^\infty \eta_t = \infty \text{  } \text{ and }\text{  } \sum_{t=1}^\infty \eta_t^2 < \infty 
+		\end{equation}
+
+		Futhermore, if we assume that the Hessian matrix of the loss function is strictly positive definite at the optimum, that is having the loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
+		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016}.%Bottou L. (2012) Stochastic Gradient Descent Tricks. In: Montavon G., Orr G.B., Müller KR. (eds) Neural Networks: Tricks of the Trade. Lecture Notes in Computer Science, vol 7700. Springer, Berlin, Heidelberg
+
+		A property of SGD is that computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
 
 		\subsection{Momentum} % (fold)
 		\label{sec:momentum}
-			When computing the adjustment of the synaptic weights $\Delta\textbf{W}_k$ as in Eq. \ref{delta}, the choice of the learning rate $\eta$ influences the convergence of the SGD algorithm.
+			When computing the adjustment of the synaptic weights $\Delta\textbf{W}$ as in Eq. \ref{delta}, the choice of the learning rate $\eta$ influences the convergence of the SGD algorithm.
 			The smaller is $\eta$, the smaller will be the changes in the matrix of weights and the rate of learning, but the smoother will be the trajectory.
 
 			On the contrary, a bigger $\eta$ will bring to a faster convergence, but also to an oscillatory behaviour.
 
 			A way to accelerate the SGD is the use of the \textit{Classical Momentum} (CM), a first order optimization technique which accelerate gradient descent, and so the learning rate of the final training.
 
-			It consists in the adjustment of the new weigths through a velocity vector \textbf{v} that accumulates the gradient elements in the directions of reduction of the loss function \ref{loss} and a momentum coefficient $\alpha \in [0,1]$: the larger is  $\alpha$, the more previous gradients affect the current direction.
+			It consists in the adjustment of the new weigths through a velocity vector \textbf{v} that accumulates the gradient elements in the directions of reduction of the loss function \ref{loss} and a momentum coefficient $\alpha \in [0,1]$: the larger is  $\alpha$, the more the previous gradients affect the current direction.
 
 			In this case, the classical momentum is given by:
 
@@ -35,7 +74,7 @@
 				\textbf{W}_k = \textbf{W}_{k-1}  + \textbf{v}_k.
 			\end{equation}
 
-			A variant of the CM algorithm, is the \textit{Nesterov's Accelerated Gradient} (NAG), which allows to avoid the oscillatory behaviour visible in the trajectory computed with CM, as visible in fig.\ref{fig:momentum_graph}%fig2 on the importance}. 
+			A variant of the CM algorithm, is the \textit{Nesterov's Accelerated Gradient} (NAG), which allows to avoid the oscillatory behaviour in the trajectory computed with CM, as visible in fig.\ref{fig:momentum_graph}%fig2 on the importance}. 
 
 			The velocity vector \textbf{v} is computed as:
 
@@ -48,7 +87,7 @@
 
 			The variant respect Eq. \ref{classical_momentum}, shown in fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\mathcal{E}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
 
-			It's worth to underline that, in case of batch choice and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$ % Nesterov (1983).
+			It's worth to underline that, in case of batch mode and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$. % Nesterov (1983).
 			\begin{figure}
 			\centering
 			  \includegraphics[width=.4\linewidth, scale=0.5]{img/figures/momentum}
@@ -66,7 +105,7 @@
 
 			In order to garantee a tradeoff between goodness and complexity of the model, the regularization is allowed in the network. This choice is important to ensure that the model doesn't grow too much in complexity. 
 
-			Regularization, infact, adds the penalty as model complexity increases, forcing some weights to take values close to zero, if they have little influence on the newtork performance and so resulting in poor generalization.
+			Regularization, in fact, adds a penalty as the model's complexity increases, forcing some weights to take values close to zero,  if they have little influence on the newtork performance and so resulting in poor generalization.
 
 			It basically modifies the objective loss functions as follows:
 			
@@ -74,7 +113,7 @@
 			  {\textbf{W}\in \mathbb{R}^n}{\mathcal{E}(\textbf{W}) + \lambda\mathcal{E}_c(\textbf{W}),}{}{}
 			\end{mini}
 
-			where $\mathcal{E}_c(\textbf{W})$ is a complexity penalty term measured in term of the weights, and $\lambda$ is a parameter which tells how much importance has the complexity penalty term.
+			where $\mathcal{E}_c(\textbf{W})$ is a complexity penalty term based of the weights, and $\lambda$ is a parameter which tells how much importance must have the complexity penalty term.
 
 			Two kinds of regularization are implemented:
 
@@ -177,7 +216,7 @@
 		\label{sub:beta}
 			What really makes the difference in the computation of the conjugate gradient algorithm, is the choice of the method used to compute the $\beta$ coefficient.
 
-			Infact, there has been proposed various choices for computing it, each one giving different efficiency and properties.
+			In fact, there has been proposed various choices for computing it, each one giving different efficiency and properties.
 
 			The formulas tested in our implementation are four: the Fletcher-Reeves (FR), the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
 
