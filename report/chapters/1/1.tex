@@ -30,7 +30,93 @@
 		choosing to consider the network's structure as an \textit{hyperparameter}, that is, a variable, could
 		lead to a series of difficult choices during the validation phase, so we have decided to fix the ANN
 		structure to the one described for both the task we have to fullfil, changing only the number of units in
-		the output layer from task to task.
+		the output layer from task to task. In figure \ref{fig:ann_structure} you can see our ANN's graph for
+		the classification task.
+
+		\begin{figure}
+			\centering
+			\begin{tikzpicture}
+				\begin{scope}[every node/.style={circle,thick,draw}]
+                    \node (A) at (-2,0) {};
+                    \node (B) at (-2,-4) {};
+                    \node (C) at (0,1) {};
+                    \node (D) at (0, -1) {};
+                    \node (E) at (0,-3) {};
+                    \node (F) at (0,-5) {};
+                    \node (G) at (2,1) {};
+                    \node (H) at (2,0) {};
+                    \node (I) at (2,-1) {};
+                    \node (L) at (2,-2) {};
+                    \node (M) at (2,-3) {};
+                    \node (N) at (2,-4) {};
+                    \node (O) at (2,-5) {};
+                    \node (P) at (2,-6) {};
+                    \node (Q) at (4,-2) {};
+                \end{scope}
+
+                \coordinate[right of=Q] (d1);
+
+                \path (A) -- (B) node [black, font=\LARGE, midway, sloped] {$\dots$};
+
+                \begin{scope}[>={stealth[black]},
+                every edge/.style={draw=black,very thick}]
+                    \path [->] (A) edge node {} (C);
+                    \path [->] (A) edge node {} (D);
+                    \path [->] (A) edge node {} (E);
+                    \path [->] (A) edge node {} (F);
+                    \path [->] (B) edge node {} (C);
+                    \path [->] (B) edge node {} (D);
+                    \path [->] (B) edge node {} (E);
+                    \path [->] (B) edge node {} (F);
+
+                    \path [->] (C) edge node {} (G);
+                    \path [->] (C) edge node {} (H);
+                    \path [->] (C) edge node {} (I);
+                    \path [->] (C) edge node {} (L);
+                    \path [->] (C) edge node {} (M);
+                    \path [->] (C) edge node {} (N);
+                    \path [->] (C) edge node {} (O);
+                    \path [->] (D) edge node {} (P);
+                    \path [->] (D) edge node {} (G);
+                    \path [->] (D) edge node {} (H);
+                    \path [->] (D) edge node {} (I);
+                    \path [->] (D) edge node {} (L);
+                    \path [->] (D) edge node {} (M);
+                    \path [->] (D) edge node {} (N);
+                    \path [->] (D) edge node {} (O);
+                    \path [->] (D) edge node {} (P);
+                    \path [->] (E) edge node {} (G);
+                    \path [->] (E) edge node {} (H);
+                    \path [->] (E) edge node {} (I);
+                    \path [->] (E) edge node {} (L);
+                    \path [->] (E) edge node {} (M);
+                    \path [->] (E) edge node {} (N);
+                    \path [->] (E) edge node {} (O);
+                    \path [->] (E) edge node {} (P);
+                    \path [->] (F) edge node {} (G);
+                    \path [->] (F) edge node {} (H);
+                    \path [->] (F) edge node {} (I);
+                    \path [->] (F) edge node {} (L);
+                    \path [->] (F) edge node {} (M);
+                    \path [->] (F) edge node {} (N);
+                    \path [->] (F) edge node {} (O);
+                    \path [->] (F) edge node {} (P);
+
+                    \path [->] (G) edge node {} (Q);
+                    \path [->] (H) edge node {} (Q);
+                    \path [->] (I) edge node {} (Q);
+                    \path [->] (L) edge node {} (Q);
+                    \path [->] (M) edge node {} (Q);
+                    \path [->] (N) edge node {} (Q);
+                    \path [->] (O) edge node {} (Q);
+                    \path [->] (P) edge node {} (Q);
+
+                    \path [->] (Q) edge node {} (d1);
+                \end{scope}
+			\end{tikzpicture}
+			\caption{The ANN's structure.}
+			\label{fig:ann_structure}
+		\end{figure}
 	% section the_ann_s_structure (end)
 
 	\section{Initializing the Network} % (fold)
