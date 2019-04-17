@@ -36,7 +36,7 @@
 	\section{Initializing the Network} % (fold)
 	\label{sec:initializing_the_network}
 		As we know from \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}, an ANN is composed by
-		a set of weights $\mathbf{W}^{(i)}$, and a set of biases $\mathbf{b}^{(i)}$,
+		a set of weights $\mathbf{W}_{i}$, and a set of biases $\mathbf{b}_{i}$,
 		$i \in \{ 1, \ \ldots \ , \ l \}$, with $l$ representing the ANN's number of layers. Although it is common
 		practice to initialized the network's weights and biases to random, small, values, we have decided to
 		follow the \textit{normalized initialization}, as described in \cite{Glorot10understandingthe}, which
@@ -51,7 +51,13 @@
 		designed to compromise between the goal of initializing all layers to have the same activation variance
 		and the goal of initializing all layers to have the same gradient variance. The formula is derived using
 		the assumption that the network consists only of a chain of matrix multiplications, with no
-		nonlinearities.
+		nonlinearities. Other than this kind of initialization, we also make available the standard
+		\textit{random initialization} for creating a network, described at the beginning of this section, which
+		initialize the weights and the biases for each layer in the uniform distribution taken in the range
+
+		\begin{equation*}
+		    W \sim U \left [ - 0.7, \ 0.7 \right ].
+		\end{equation*}
 	% section initializing_the_network (end)
 
 	\section{The back-propagation algorithm} % (fold)
