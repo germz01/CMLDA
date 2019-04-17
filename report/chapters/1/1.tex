@@ -1,0 +1,130 @@
+\chapter{The Artificial Neural Network} % (fold)
+\label{cha:the_artificial_neural_network}
+	In this first chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
+	connected Multilayer Perceptron, we implemented from scratch. We'll describe both the network's structure and
+	the algorithm we used in order to make our network \textit{learn} from the data used during the testing and
+	validation phases. Finally we'll present the loss function we have chosen for our network, and we'll provide
+	and explanation on how it is differentiable. We'll use the notation proposed in \cite{Goodfellow-et-al-2016}.
+
+	\section{The ANN's structure} % (fold)
+	\label{sec:the_ann_s_structure}
+		Since we have to write from scratch an \textit{Artificial Neural Network}, ANN for short, we have
+		considered some alternatives before choosing the network's final structure. We agreed on a structure
+		composed by:
+
+		\begin{itemize}
+			\item one \textit{input layer};
+			\item two \textit{hidden layers};
+			\item one \textit{output layer};
+		\end{itemize}
+
+		As convention, the number of units in the input layer is egual to the number
+		of features of the dataset that is used for the learning, validation and testing phases. The two
+		hidden layers contain, respectively, four and eight \textit{hidden neurons}, following the convention of
+		putting an increasing series of powers of two as number of hidden units per layer. The number of neurons
+		for the output layer depends on the kind of task the network is trying to fullfil. In the case of a
+		\textit{classification task}, like the MONKS dataset \cite{Dua:2019}, we have decided to put one unit in
+		the output layer, while in the case of a \textit{regression task}, like the CUP dataset, we have decided to
+		put two units in the output layer. As we have seen studying the papers and books for gathering the
+		necessary knowledge for the project, as \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine},
+		choosing to consider the network's structure as an \textit{hyperparameter}, that is, a variable, could
+		lead to a series of difficult choices during the validation phase, so we have decided to fix the ANN
+		structure to the one described for both the task we have to fullfil, changing only the number of units in
+		the output layer from task to task.
+	% section the_ann_s_structure (end)
+
+	\section{Initializing the Network} % (fold)
+	\label{sec:initializing_the_network}
+		As we know from \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}, an ANN is composed by
+		a set of weights $\mathbf{W}^{(i)}$, and a set of biases $\mathbf{b}^{(i)}$,
+		$i \in \{ 1, \ \ldots \ , \ l \}$, with $l$ representing the ANN's number of layers. Although it is common
+		practice to initialized the network's weights and biases to random, small, values, we have decided to
+		follow the \textit{normalized initialization}, as described in \cite{Glorot10understandingthe}, which
+		defines the initial values for the weights and the biases for each layer in the uniform distribution
+		taken in the range
+
+		\begin{equation*}
+		    W \sim U \left [ -\frac{\sqrt{6}}{\sqrt{m + n}}, \ \frac{\sqrt{6}}{\sqrt{m + n}} \right ]
+		\end{equation*}
+
+		with $m$ and $n$, representing the number of inputs and outputs for each layer. This heuristic is
+		designed to compromise between the goal of initializing all layers to have the same activation variance
+		and the goal of initializing all layers to have the same gradient variance. The formula is derived using
+		the assumption that the network consists only of a chain of matrix multiplications, with no
+		nonlinearities.
+	% section initializing_the_network (end)
+
+	\section{The back-propagation algorithm} % (fold)
+	\label{sec:the_back-propagation_algorithm}
+		The learning procedure for our ANN essentialy consist in two distinct phases:
+
+		\begin{enumerate}
+			\item compute the network's \textit{gradient}, that is, the derivative of the cost function
+			$\nabla_{\theta} J(\theta)$ with respect to every network's unit;
+			\item optimize the information gathered during the first phase using a distinct technique, like the
+			ones described in chapter \ref{cha:optimizers};
+		\end{enumerate}
+
+		For computing the gradient we have chosen to use
+		the well known \textit{backpropagation algorithm}, firstly introduced in \cite{10028086174} and described
+		in \cite{Goodfellow-et-al-2016,haykin2009neural,mitchell1997machine}. This algorithm is
+		also composed by two phases, a first phase, that is, the \textit{forward propagation}, in which the
+		feature vector $\mathbf{x}$ given in input has to flow from the input layer through the hidden layers and,
+		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
+		is, the \textit{back-propagation}, which allows the informtion to flow backward through the network in
+		order to compute the gradient by applying the Chain Rule of Calculus, that is, a formula for computing the
+		derivative of a composition of functions. It is import to note that with the term back-propagation we mean
+		only the method for computing the gradient, not the whole learning algorithm. We now provide the
+		pseudocode for the forward propagation and the back-propagation phases.
+
+		\begin{algorithm}[H]
+			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
+			function. Here $L(\hat{\mathbf{y}}, \mathbf{y})$ represents the loss function evaluated using both
+			$\mathbf{y}$ and $\hat{\mathbf{y}}$ as inputs, more details about that will be provided in
+			section \ref{sec:loss_function_is_differentiable_}. The function $f$ applied on line $5$ represents
+			the layer's \textit{activation function}, while $\lambda \Omega(\theta)$ represents the
+			network's regularization term.}
+			\label{alg:forward_propagation}
+			\begin{algorithmic}[1]
+				\Procedure{Forward propagation}{$l$, $\mathbf{W}^{(i)} \ i \in \{ 1, \ldots, l \}$,
+				$\mathbf{b}^{(i)} \ i \in \{ 1, \ldots, l \}$, $\mathbf{x}$, $\mathbf{y}$}
+					\State $\mathbf{h}^{(0)} = \mathbf{x}$
+					\For{$k = 1, \ldots, l$}
+						\State $\mathbf{a}^{(k)} = \mathbf{b}^{(k)} + \mathbf{W}^{(k)}\mathbf{h}^{k - 1}$
+						\State $\mathbf{h}^{(k)} = f(\mathbf{a}^{(k)})$
+					\EndFor
+					\State $\hat{\mathbf{y}} = \mathbf{h}^{(l)}$
+					\State $J = L(\hat{\mathbf{y}}, \mathbf{y}) + \lambda \Omega(\theta)$
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
+
+		\begin{algorithm}[H]
+			\caption{Backward computation for the (deep) neural network of algorithm
+			\ref{alg:forward_propagation}. Here, the $\odot$ symbol represents the element-wise
+			(Hadamard) product.}
+			\label{alg:backward_propagation}
+			\begin{algorithmic}[1]
+				\Procedure{Backward propagation}{}
+					\State $\mathbf{g} \leftarrow \nabla_{\hat{\mathbf{y}}}J = \nabla_{\hat{\mathbf{y}}}
+					L(\hat{\mathbf{y}}, \mathbf{y})$
+					\For{$k = l, l - 1, \ldots, 1$}
+						\State $\mathbf{g} \leftarrow \nabla_{\mathbf{a}^{(k)}}J = \mathbf{g} \ \odot \
+						f'(\mathbf{a}^{(k)})$
+						\State $\nabla_{\mathbf{b}^{(k)}}J = \mathbf{g} \ + \ \lambda \nabla_{\mathbf{b}^{(k)}}
+						\Omega(\theta)$
+						\State $\nabla_{\mathbf{W}^{(k)}}J = \mathbf{g}\mathbf{h}^{(k - 1)T} \ + \ \lambda
+						\nabla_{\mathbf{W}^{(k)}} \Omega(\theta)$
+						\State $\mathbf{g} = \nabla_{\mathbf{h}^{(k - 1)}}J = \mathbf{W}^{(k)T}\mathbf{g}$
+					\EndFor
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
+	% section the_back-propagation_algorithm (end)
+
+	\section{Loss function is differentiable?} % (fold)
+	\label{sec:loss_function_is_differentiable_}
+
+	% section loss_function_is_differentiable_ (end)
+
+% chapter the_artificial_neural_network (end)

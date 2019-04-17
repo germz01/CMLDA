@@ -1,14 +1,16 @@
 from __future__ import division
 
+import activations as act
+import ipdb
+import json
+import gzip
 import nn
-import matplotlib.pyplot as plt
 import numpy as np
+import metrics
 import pandas as pd
 import random as rnd
+import subprocess
 import utils as u
-import json
-import metrics
-import gzip
 
 from itertools import product
 from tqdm import tqdm
@@ -79,13 +81,15 @@ class KFoldCrossValidation(object):
         self.folds = list()
         self.results = list()
 
-        self.fold_results = []
+        self.fold_errors = [[], []]
+        self.accuracies = []
+        self.f1_scores = []
 
         if shuffle:
             np.random.shuffle(self.dataset)
 
         self.set_folds(nfolds)
-        self.validate(X, y, neural_net, nfolds)
+        self.validate(X, y, neural_net, nfolds, **kwargs)
 
     def set_folds(self, nfolds):
         """
@@ -110,7 +114,7 @@ class KFoldCrossValidation(object):
             low = high
             high += record_per_fold
 
-    def validate(self, X, y, neural_net, nfolds, plot_curves=False, **kwargs):
+    def validate(self, X, y, neural_net, nfolds, **kwargs):
         """
         This function implements the core of the k-fold cross validation
         algorithm. For each fold, the neural network is trained using the
@@ -143,6 +147,8 @@ class KFoldCrossValidation(object):
         Returns
         -------
         """
+        W_initial, b_initial = neural_net.W, neural_net.b
+
         for i in tqdm(np.arange(nfolds),
                       desc='{}-FOLD CROSS VALIDATION PROGRESS'.format(nfolds)):
 
@@ -152,100 +158,27 @@ class KFoldCrossValidation(object):
             X_train, y_train = np.hsplit(train_set, [X.shape[1]])
             X_va, y_va = np.hsplit(self.folds[i], [X.shape[1]])
 
-            neural_net.train(X_train, y_train, X_va, y_va)
+            neural_net.train(X_train, y_train, X_va=X_va, y_va=y_va, **kwargs)
 
-            # assessment = self.model_assessment(X_va, y_va, model=neural_net)
-            assessment = {'mse': neural_net.error_per_epochs_va[-1]}
-            self.results.append(assessment)
-            # self.results.append(loss)
+            self.fold_errors[0].\
+                append(neural_net.optimizer.error_per_epochs[-1])
+            self.fold_errors[1].\
+                append(neural_net.optimizer.error_per_epochs_va[-1])
 
-            fold_results = {
-                'id_fold': i+1,
-                'mse_tr': neural_net.error_per_epochs[-1],
-                'mse_va': neural_net.error_per_epochs_va[-1],
-                'mee_tr': neural_net.mee_per_epochs[-1],
-                'mee_va': neural_net.mee_per_epochs_va[-1],
-
-                'error_per_epochs': neural_net.error_per_epochs,
-                'error_per_epochs_va': neural_net.error_per_epochs_va,
-                'mee_per_epochs': neural_net.mee_per_epochs,
-                'mee_per_epochs_va': neural_net.mee_per_epochs_va,
-
-                # 'accuracy_per_epochs': neural_net.accuracy_per_epochs,
-                # 'accuracy_per_epochs_va': neural_net.accuracy_per_epochs_va,
-                'hyperparams': neural_net.get_params()
-            }
             if neural_net.task == 'classifier':
-                y_pred = neural_net.predict(X_va)
-                y_pred = np.apply_along_axis(lambda x: 0 if x < .5 else 1, 1,
-                                             y_pred).reshape(-1, 1)
+                self.accuracies.append(neural_net.optimizer.
+                                       accuracy_per_epochs_va[-1])
+                self.f1_scores.append(neural_net.optimizer.
+                                      f1_score_per_epochs_va[-1])
 
-                # y_pred = np.round(y_pred)
-                bca = metrics.BinaryClassifierAssessment(y_pred, y_va,
-                                                         printing=False)
-                fold_results['accuracy'] = bca.accuracy
-                fold_results['f1_score'] = bca.f1_score
+            if kwargs['optimizer'] == 'SGD':
+                neural_net.restore_weights()
+            else:
+                neural_net.W, neural_net.b = W_initial, b_initial
 
-            if neural_net.task == 'regression':
-                # add mean euclidean error
-                pass
+        self.aggregate_results(neural_net.optimizer.params)
 
-            self.fold_results.append(fold_results)
-            neural_net.reset()
-
-            if plot_curves:
-                plt.plot(range(len(neural_net.error_per_epochs)),
-                         neural_net.error_per_epochs,
-                         label='FOLD {}, VALIDATION ERROR: {}'.
-                         format(i, round(assessment['mse'], 2)))
-
-        self.aggregated_results = self.aggregate_assessments()
-
-        if plot_curves:
-            plt.title('LEARNING CURVES FOR A {}-FOLD CROSS VALIDATION.\nMEAN '
-                      'VALIDATION ERROR {}, VARIANCE {}.'.
-                      format(nfolds, round(
-                        self.aggregated_results['mse']['mean'], 2),
-                        round(self.aggregated_results['mse']['std'], 2)),
-                      fontsize=8)
-            plt.ylabel('ERROR PER EPOCH')
-            plt.xlabel('EPOCHS')
-            plt.grid()
-            plt.legend(fontsize=8)
-            plt.savefig('../images/{}_fold_cross_val_lcs.pdf'.
-                        format(nfolds), bbox_inches='tight')
-            plt.close()
-
-        return self.aggregated_results
-
-    def model_assessment(self, X_va, y_va, model):
-        """
-        Computes assessment measures for each fold evaluation.
-
-        Parameters
-        ----------
-        X_va: numpy.ndarray
-            the validation design matrix
-
-        y_va: numpy.ndarray
-            the validation target column vector
-
-        model: nn.NeuralNetwork
-            the model to use for the validation phase
-
-        Returns
-        -------
-        assessment : dict
-            dictionary with structure { metric: estimated value}.
-        """
-
-        assessment = dict()
-        y_pred = model.predict(X_va)
-        assessment['mse'] = metrics.mse(y_va, y_pred)
-        # possibile aggiungere altre metriche al dizionario
-        return assessment
-
-    def aggregate_assessments(self):
+    def aggregate_results(self, hyperparams):
         """
         Computes aggregation measures for each assessment metric.
 
@@ -259,20 +192,37 @@ class KFoldCrossValidation(object):
             out = {metric: {'mean': 0, 'std': 0, 'median': 0, 'values': []}}
 
         """
+        self.fold_results = {"statistics":
+                             {"values":
+                              {"train": self.fold_errors[0],
+                               "validation": self.fold_errors[1]},
+                              "mean": np.mean(self.fold_errors[1]),
+                              "std": np.std(self.fold_errors[1])
+                              }
+                             }
 
-        metrics = self.results[0].keys()
+        if act.identity not in hyperparams['activation']:
+            self.fold_results["accuracy_score"] = np.mean(self.accuracies)
+            self.fold_results["f1_score"] = np.mean(self.f1_scores)
 
-        out = {metric: {'values': []} for metric in metrics}
-        for res in self.results:
-            for metric in metrics:
-                out[metric]['values'].append(res[metric])
+        acts = []
 
-        for metric in metrics:
-            out[metric]['mean'] = np.mean(out[metric]['values'])
-            out[metric]['std'] = np.std(out[metric]['values'])
-            out[metric]['median'] = np.median(out[metric]['values'])
+        for f in hyperparams['activation']:
+            if f is act.sigmoid:
+                acts.append('sigmoid')
+            elif f is act.relu:
+                acts.append('relu')
+            elif f is act.tanh:
+                acts.append('tanh')
+            else:
+                acts.append('identity')
 
-        return out
+        acts = ' -> '.join(acts)
+        hyperparams['activation'] = acts
+        hyperparams['topology'] = [str(s) for s in hyperparams['topology']]
+        hyperparams['topology'] = ' -> '.join(hyperparams['topology'])
+
+        self.fold_results["hyperparameters"] = hyperparams
 
 
 class ModelSelectionCV(object):
@@ -359,50 +309,44 @@ class ModelSelectionCV(object):
 
         if save_results:
             with gzip.open(fname, 'w') as f:
-                f.write('{"out": [')
+                f.write('{"results": [')
 
         i = 0
 
-        for rep in tqdm(range(self.repetitions),
-                        desc="CROSS VALIDATION'S REPETITION PROGRESS"):
-            dataset = np.hstack((X_design, y_design))
-            np.random.shuffle(dataset)
-            X_design, y_design = np.hsplit(dataset,
-                                           [X_design.shape[1]])
+        dataset = np.hstack((X_design, y_design))
+        np.random.shuffle(dataset)
+        X_design, y_design = np.hsplit(dataset, [X_design.shape[1]])
 
-            for hyperparams in tqdm(self.grid,
-                                    desc='GRID SEARCH {}'
-                                    .format(kwargs['par_name']
-                                            if 'par_name' in kwargs else '')):
-                # instanciate neural network
-                i += 1
-                for trial in tqdm(range(ntrials), desc="TRIALS"):
-                    # repeated inizialization of the net
-                    neural_net = nn.NeuralNetwork(X_design, y_design,
-                                                  **hyperparams)
-                    cross_val = KFoldCrossValidation(
-                        X_design, y_design,
-                        neural_net, nfolds=nfolds,
-                        shuffle=False)
+        for hyperparams in tqdm(self.grid,
+                                desc='GRID SEARCH {}'
+                                .format(kwargs['par_name']
+                                        if 'par_name' in kwargs else '')):
+            # instanciate neural network
+            i += 1
 
-                    out = dict()
-                    out['hyperparams'] = neural_net.get_params()
-                    out['errors'] = cross_val.aggregated_results
-                    out['fold_results'] = cross_val.fold_results
-                    out['id_grid'] = i
-                    out['id_trial'] = trial
-                    # fold results
-                    for res in out['fold_results']:
-                        res['id_grid'] = i
-                        res['id_trial'] = trial
+            if hyperparams['optimizer'] == 'SGD':
+                hyperparams['momentum'] = {'type': hyperparams['type'],
+                                           'alpha': hyperparams['alpha']
+                                           }
+                hyperparams.pop('type')
+                hyperparams.pop('alpha')
 
-                    if save_results:
-                        with gzip.open(fname, 'a') as f:
-                            json.dump(out, f, indent=4)
-                            if i != self.n_iter:
-                                f.write(',\n')
-                            else:
-                                f.write('\n ]}')
+            neural_net = nn.\
+                NeuralNetwork(X_design, y_design,
+                              hidden_sizes=hyperparams['hidden_sizes'],
+                              activation=hyperparams['activation'],
+                              task=hyperparams['task'])
+            cross_val = KFoldCrossValidation(X_design, y_design,
+                                             neural_net, nfolds=nfolds,
+                                             **hyperparams)
+
+            if save_results:
+                with gzip.open(fname, 'a') as f:
+                    json.dump(cross_val.fold_results, f, indent=4)
+                    if i != self.n_iter:
+                        f.write(',\n')
+                    else:
+                        f.write('\n ]}')
 
     def load_results(self, fname=None):
         """
@@ -421,12 +365,13 @@ class ModelSelectionCV(object):
         """
         if fname is None:
             fname = self.fname
+
         with gzip.open(fname, 'r') as f:
             data = json.load(f)
+
         return data
 
-    def select_best_hyperparams(self, error='mse', metric='mean', top=1,
-                                fname=None):
+    def select_best_hyperparams(self, error='mse', top=5, fname=None):
         """
         Selection of the best hyperparameters
 
@@ -452,221 +397,19 @@ class ModelSelectionCV(object):
         if fname is None:
             fname = self.fname
         data = self.load_results(fname=fname)
-        errors = [res['errors'][error][metric] for res in data['out']]
-        best_indexes = (np.argsort(errors))[:top]
 
-        return list(np.array(data['out'])[best_indexes])
+        best_mean_errors = np.argsort([res['statistics']['mean']
+                                       for res in data['results']])[:top]
+        best_mean_errors = [data['results'][i] for i in best_mean_errors]
 
-    def select_best_model(self, X_design, y_design, X_va=None, y_va=None,
-                          fname=None):
-        """
-        This function retrains the model with the best hyperparams'
-        configuration
+        if error != 'mee':
+            best_f1_scores = np.argsort(r['statistics']['f1_score']
+                                        for r in best_mean_errors)[0]
+            best_f1_scores = best_mean_errors[best_f1_scores]
 
-        Parameters
-        ----------
-        X_design: numpy.ndarray
-            the design matrix
+        subprocess.call(['rm', fname])
 
-        y_design: numpy.ndarray
-            the target column vector
-
-        X_va: numpy.ndarray
-            the validation design matrix
-
-        y_va: numpy.ndarray
-            the validation target column vector
-
-        fname: str
-            the path to the file which contains the results for the best
-            hyperparameters' search phase
-
-        Returns
-        -------
-        The model trained with the best hyperparameters' configuration.
-        """
-        if fname is None:
-            fname = self.fname
-
-        best = self.select_best_hyperparams(top=1, fname=fname)
-        best_hyperparams = best[0]['hyperparams']
-
-        neural_net = nn.NeuralNetwork(X_design, y_design,
-                                      **best_hyperparams)
-        neural_net.train(X_design, y_design, X_va, y_va)
-
-        return neural_net
-
-    def load_results_pandas(self, fname=None, flat=True):
-        """ Load grid results in pandas DataFrame format """
-
-        if fname is None:
-            fname = self.fname
-
-        grid_results = self.load_results()
-        grid_results = grid_results['out']
-        result = grid_results[0]
-
-        grid_results_flat = []
-        for result in grid_results:
-
-            fold_results = (result['fold_results'])
-            fold_results_flat = []
-            for res in fold_results:
-                fold_results_flat.append(flat_fold_results(res))
-
-            grid_results_flat.extend(fold_results_flat)
-
-        df = pd.DataFrame(grid_results_flat)
-        # re-ordering
-        df = df[['id_grid', 'id_fold'] +
-                [c for c in df if c not in ['id_grid', 'id_fold']]]
-
-        if flat:
-            return df2df_flat(df=df)
-        else:
-            return df
-
-
-def flat_fold_results(fold_res):
-    """ Convert KCrossValidation results to flat format """
-
-    fold_res_flat = dict()
-    for info, info_val in fold_res.items():
-        if info != 'hyperparams':
-            fold_res_flat[info] = info_val
-
-    for par, par_value in fold_res['hyperparams'].items():
-        if type(par_value) is not list:
-            fold_res_flat[par] = par_value
-        else:
-            # handle list type parameters
-            for i, el in enumerate(par_value):
-                if i == 0:
-                    # maintain name for first list element
-                    fold_res_flat[par] = el
-                else:
-                    fold_res_flat[par+'_'+str(i)] = el
-
-    fold_res_flat['hyperparams'] = fold_res['hyperparams']
-    return fold_res_flat
-
-
-def df2df_flat(df):
-    """ Flat the learning curves in a pandas DataFrame """
-
-    new_rows = []
-
-    for irow in range(df.shape[0]):
-
-        row = df.iloc[irow]
-
-        row_others = row.copy()
-        row_others.drop(['error_per_epochs', 'error_per_epochs_va'])
-
-        errors = row['error_per_epochs']
-
-        for i, error in enumerate(errors):
-            new_row = row_others.copy()
-            new_row['error_per_epochs'] = error
-            new_row['error_per_epochs_va'] = row['error_per_epochs_va'][i]
-            # new_row['epochs_x'] = row['epochs_x'][i]
-            new_rows.append(new_row)
-
-    new_df = pd.DataFrame(new_rows)
-    return new_df
-
-
-class Holdout():
-    """ Validation Holdout method """
-    def __init__(self, X, y, split_perc=[0.5, 0.25, 0.25]):
-        """
-        Initialization for the Holdout class
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-        y : numpy.ndarray
-        split_perc : list
-            split percentages
-
-        Returns
-        -------
-
-        """
-        df = np.hstack((X, y))
-        np.random.shuffle(df)
-
-        p = df.shape[0]
-        tr_perc = split_perc[0]
-        va_perc = split_perc[1]
-        # ts_perc = split_perc[2]
-
-        split_train = int(tr_perc*p)
-        split_design = int((tr_perc+va_perc)*p)
-
-        design_set = df[:split_design, :]
-        train_set = df[:split_train, :]
-        validation_set = df[split_train:split_design, :]
-        test_set = df[split_design:, :]
-
-        self.X_design, self.y_design = np.hsplit(design_set, [X.shape[1]])
-        self.X_train, self.y_train = np.hsplit(train_set, [X.shape[1]])
-        self.X_va, self.y_va = np.hsplit(validation_set, [X.shape[1]])
-        self.X_test, self.y_test = np.hsplit(test_set, [X.shape[1]])
-
-    def model_selection(self, grid, plot=False, fpath='../images/'):
-        """
-        Holdout model selection
-
-        Parameters
-        ----------
-        grid : instance of HyperRandomGrid class
-            hyperparameter grid
-        plot : bool
-            if plot=True plots the learning curve for each grid parameter
-
-        fpath : str
-            path for images storing
-        Returns
-        -------
-        neural network object
-        """
-
-        self.fpath = fpath
-        params = []
-        errors_va = []
-        for i, pars in enumerate(grid):
-
-            net = nn.NeuralNetwork(self.X_train, self.y_train, **pars)
-            net.train(self.X_train, self.y_train)
-            print('trained')
-            params.append(net.get_params())
-            # assess on validation set
-            errors_va.append(
-                net.predict(self.X_va, self.y_va)/(self.X_va.shape[0])
-            )
-            if plot is True:
-                u.plot_error(net, fname=fpath
-                             + 'learning_curve_{}.png'.format(i))
-
-        # choosing the best hyperparameters
-        self.best_index = np.argmin(errors_va)
-        best_hyperparams = params[self.best_index]
-
-        # retraining on design set
-        net_retrained = nn.NeuralNetwork(hidden_sizes=best_hyperparams
-                                         .pop('hidden_sizes'))
-        net_retrained.train(self.X_design, self.y_design, **best_hyperparams)
-
-        df_pars = pd.DataFrame(list(grid))
-        df_pars['error'] = errors_va
-
-        self.best_hyperparams = best_hyperparams
-        self.df_pars = df_pars
-        self.model = net_retrained
-
-        return self.model
+        return best_f1_scores if error != 'mee' else best_mean_errors[0]
 
 
 class HyperGrid():
@@ -767,7 +510,8 @@ class HyperGrid():
         for par, interval in self.param_ranges.items():
             if (type(interval) is int) or \
                (type(interval) is float) or \
-               (type(interval) is str):
+               (type(interval) is str) or \
+               (type(interval) is bool):
                 types[par] = 'constant'
             elif type(interval) is list:
                 types[par] = list

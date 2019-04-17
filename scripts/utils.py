@@ -1,8 +1,11 @@
 from __future__ import division
 
+import activations
+import ipdb
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+import optimizers
 
 # CONSTANTS
 
@@ -43,54 +46,116 @@ def compose_topology(X, hidden_sizes, y, task):
 # PLOTTING RELATED FUNCTIONS
 
 
-def plot_learning_curve(nn, fname='../images/learning_curve.pdf'):
-    """
-    This functions plots the learning curves for a model given in input.
+def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
+                                  fname='../report/img/'):
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY']
 
-    Parameters
-    ----------
-    nn: nn.NeuralNetwork
-        the neural network
-
-    fname: str
-        where to save the learning curve's plot
-        (Default value = '../images/learning_curve.pdf')
-
-    Returns
-    -------
-    """
-
-    par_str = r"""$\eta= {}, \alpha= {}, \lambda= {}$,'batch= {}, h-sizes={}""".format(
-        np.round(nn.params['eta'], 2),
-        np.round(nn.params['alpha'], 2),
-        np.round(nn.params['reg_lambda'], 3),
-        nn.params['batch_size'],
-        nn.params['hidden_sizes']
-    )
-
-    plt.figure(figsize=(15, 5))
-    plt.plot(range(len(nn.error_per_epochs)),
-             nn.error_per_epochs, linestyle='--',
-             label='training')
-    if nn.error_per_epochs_va is not None:
-        plt.plot(range(len(nn.error_per_epochs_va)),
-                 nn.error_per_epochs_va, linestyle='-',
-                 label='validation')
-
-    if nn.stop_GL is not None:
-        plt.axvline(nn.stop_GL, linestyle=':', label='GL early stop')
-
-    if nn.stop_PQ is not None:
-        plt.axvline(nn.stop_PQ, linestyle='-.', label='PQ early stop')
-
-    plt.ylabel('MSE error by epoch')
-    plt.xlabel('Epochs')
+    plt.subplot(211)
+    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN')
+    plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
     plt.grid()
-    plt.suptitle('Learning curve')
+    plt.title('{} PER EPOCHS'.format(metric))
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
     plt.legend()
-    plt.title(par_str, fontsize=10)
-    plt.savefig(fname)
+
+    plt.subplot(212)
+    plt.title('FINAL RESULTS AND PARAMETERS')
+    plt.text(.25, .25, build_info_string(optimizer, data, test_type, metric,
+             params), ha='left', va='center', fontsize=8)
+    plt.axis('off')
     plt.tight_layout()
+
+    saving_str = '../report/img/SGD/' \
+        if type(optimizer) is optimizers.SGD else '../report/img/CGD/'
+    saving_str += 'sgd_' if type(optimizer) is optimizers.SGD else 'cgd_'
+    saving_str += metric.lower() + '_' + test_type.lower() + '.pdf'
+
+    plt.savefig(saving_str, bbox_inches='tight')
+    plt.close()
+
+
+def build_info_string(optimizer, data, test_type, metric, params):
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY']
+
+    special_char = {'alpha': r'$\alpha$', 'eta': r'$\eta$',
+                    'reg_lambda': r'$\lambda$', 'beta_m': r'$\beta$',
+                    'rho': r'$\rho$', 'reg_method': 'Regularization',
+                    'momentum_type': 'Momentum',
+                    'sigma_1': r'$\sigma_1$', 'sigma_2': r'$\sigma_2$',
+                    'max_epochs': 'Max epoch', 'error_goal': 'Error goal'}
+    act_list = []
+
+    to_ret = 'OPTIMIZER:\n'
+    to_ret += 'Stochastic gradient descent\n' \
+        if type(optimizer) is optimizers.SGD else \
+        'Conjugate gradient descent\n'
+
+    to_ret += '\nFINAL VALUES:\n'
+    to_ret += '{} TRAINING = {}\n{} = {}\n'.\
+        format(metric, round(data[0][-1], 4), metric + ' ' + test_type,
+               round(data[1][-1], 4))
+    to_ret += '\nHYPERPARAMETERS:\n'
+
+    for param in params:
+        if param != 'topology' and param != 'activation' \
+           and param != 'd_m':
+            to_ret += special_char[param] + ' = {}'.format(params[param]) + \
+                '\n'
+
+    to_ret += '\nTOPOLOGY:\n'
+    to_ret += str(params['topology']).replace('[', '').replace(']', '').\
+        replace(', ', ' -> ')
+
+    to_ret += '\n\nACTIVATIONS:\n'
+    act_list.append('input')
+
+    for act in params['activation']:
+        if act is activations.sigmoid:
+            act_list.append('sigmoid')
+        elif act is activations.relu:
+            act_list.append('relu')
+        elif act is activations.tanh:
+            act_list.append('tanh')
+        else:
+            act_list.append('identity')
+
+    to_ret += ' -> '.join(act_list)
+
+    return to_ret
+
+
+def plot_betas_learning_curves(monk, betas, data, title, metric,
+                               fname='../report/img/'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    plt.subplot(211)
+
+    for i in range(len(data[0])):
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=betas[i],
+                     alpha=.65)
+    plt.grid()
+    plt.title(title + ' WITH STANDARD DIRECTION')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.subplot(212)
+
+    for i in range(len(data[1])):
+        plt.semilogy(range(len(data[1][i])), data[1][i], label=betas[i],
+                     alpha=.65)
+
+    plt.grid()
+    plt.title(title + ' WITH MODIFIED DIRECTION')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.tight_layout()
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_betas.pdf',
+                bbox_inches='tight')
     plt.close()
 
 

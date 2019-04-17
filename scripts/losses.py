@@ -26,7 +26,7 @@ def mean_squared_error(y_hat, y, gradient=False):
     if gradient:
         return y_hat - y
     else:
-        return 0.5 * np.sum(np.square(y_hat - y))
+        return 0.5 * (np.sum(np.square(y_hat - y)) / y.shape[0])
 
 
 def mean_euclidean_error(y_hat, y, gradient=False):
@@ -52,7 +52,7 @@ def mean_euclidean_error(y_hat, y, gradient=False):
     if gradient:
         return ((y_hat - y) / np.linalg.norm(y_hat - y))
     else:
-        return np.linalg.norm(y_hat - y)
+        return np.linalg.norm(y_hat - y) / y.shape[0]
 
 
 def mee(d, y):
