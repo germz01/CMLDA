@@ -39,9 +39,9 @@
 		a set of weights $\mathbf{W}_{i}$, and a set of biases $\mathbf{b}_{i}$,
 		$i \in \{ 1, \ \ldots \ , \ l \}$, with $l$ representing the ANN's number of layers. Although it is common
 		practice to initialized the network's weights and biases to random, small, values, we have decided to
-		follow the \textit{normalized initialization}, as described in \cite{Glorot10understandingthe}, which
-		defines the initial values for the weights and the biases for each layer in the uniform distribution
-		taken in the range
+		follow the \textit{normalized initialization}, as described in
+		\cite{Glorot10understandingthe,Goodfellow-et-al-2016}, which defines the initial values for the weights
+		and the biases for each layer in the uniform distribution taken in the range
 
 		\begin{equation*}
 		    W \sim U \left [ -\frac{\sqrt{6}}{\sqrt{m + n}}, \ \frac{\sqrt{6}}{\sqrt{m + n}} \right ]
@@ -66,9 +66,11 @@
 
 		\begin{enumerate}
 			\item compute the network's \textit{gradient}, that is, the derivative of the cost function
-			$\nabla_{\theta} J(\theta)$ with respect to every network's unit;
-			\item optimize the information gathered during the first phase using a distinct technique, like the
-			ones described in chapter \ref{cha:optimizers};
+			$\nabla_{\theta} J(\theta)$, with $\theta$ representing the ANN's hyperparameters, with respect to
+			every network's unit using the well known \textit{back-propagation algorithm};
+			\item optimize the information gathered during the first phase using a distinct optimizer, chosen
+			among the \textit{Stochastic Gradient Descent} and the \textit{Conjugate Gradient Descent}, as
+			described in chapter \ref{cha:optimizers};
 		\end{enumerate}
 
 		For computing the gradient we have chosen to use
@@ -79,9 +81,7 @@
 		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
 		is, the \textit{back-propagation}, which allows the informtion to flow backward through the network in
 		order to compute the gradient by applying the Chain Rule of Calculus, that is, a formula for computing the
-		derivative of a composition of functions. It is import to note that with the term back-propagation we mean
-		only the method for computing the gradient, not the whole learning algorithm. We now provide the
-		pseudocode for the forward propagation and the back-propagation phases.
+		derivative of a composition of functions.
 
 		\begin{algorithm}[H]
 			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
@@ -89,39 +89,55 @@
 			$\mathbf{y}$ and $\hat{\mathbf{y}}$ as inputs, more details about that will be provided in
 			section \ref{sec:loss_function_is_differentiable_}. The function $f$ applied on line $5$ represents
 			the layer's \textit{activation function}, while $\lambda \Omega(\theta)$ represents the
-			network's regularization term.}
+			network's regularization term, with $\theta$ representing the ANN's hyperparameters.}
 			\label{alg:forward_propagation}
 			\begin{algorithmic}[1]
-				\Procedure{Forward propagation}{$l$, $\mathbf{W}^{(i)} \ i \in \{ 1, \ldots, l \}$,
-				$\mathbf{b}^{(i)} \ i \in \{ 1, \ldots, l \}$, $\mathbf{x}$, $\mathbf{y}$}
-					\State $\mathbf{h}^{(0)} = \mathbf{x}$
+				\Procedure{Forward propagation}{$l$, $\mathbf{W}_{i} \ i \in \{ 1, \ldots, l \}$,
+				$\mathbf{b}_{i} \ i \in \{ 1, \ldots, l \}$, $\mathbf{x}$, $\mathbf{y}$}
+					\State $\mathbf{h}_{0} = \mathbf{x}$
 					\For{$k = 1, \ldots, l$}
-						\State $\mathbf{a}^{(k)} = \mathbf{b}^{(k)} + \mathbf{W}^{(k)}\mathbf{h}^{k - 1}$
-						\State $\mathbf{h}^{(k)} = f(\mathbf{a}^{(k)})$
+						\State $\mathbf{a}_{k} = \mathbf{b}_{k} + \mathbf{W}_{k}\mathbf{h}_{k - 1}$
+						\State $\mathbf{h}_{k} = f(\mathbf{a}_{k})$
 					\EndFor
-					\State $\hat{\mathbf{y}} = \mathbf{h}^{(l)}$
+					\State $\hat{\mathbf{y}} = \mathbf{h}_{l}$
 					\State $J = L(\hat{\mathbf{y}}, \mathbf{y}) + \lambda \Omega(\theta)$
 				\EndProcedure
 			\end{algorithmic}
 		\end{algorithm}
 
+		Since each one of the ANN's layers has its own
+		\textit{activation function}, that is, a function that has to be applyied to the output of every layer's
+		neuron, it is particularly usefull to think of the ANN like a composition of functions, and, for this
+		reason, the Chain Rule of Calculus play a decisive role in the gradient's computation by back-propagation.
+		It is import to note that with the term back-propagation we mean
+		only the method for computing the gradient, not the whole learning algorithm. We now provide the
+		pseudocode for the forward propagation and the back-propagation phases, as shown in algorithms
+		\ref{alg:forward_propagation} and \ref{alg:backward_propagation}.
+
 		\begin{algorithm}[H]
 			\caption{Backward computation for the (deep) neural network of algorithm
 			\ref{alg:forward_propagation}. Here, the $\odot$ symbol represents the element-wise
-			(Hadamard) product.}
+			(Hadamard) product, while $\nabla_{\hat{\mathbf{y}}}J =
+			\nabla_{\hat{\mathbf{y}}}L(\hat{\mathbf{y}}, \mathbf{y})$ represents the gradient of the loss
+			function computed with respect to the output $\hat{\mathbf{y}}$. $\nabla_{\mathbf{b}_{k}}J$,
+			$\nabla_{\mathbf{W}_{k}}J$ and $\nabla_{\mathbf{h}_{k - 1}}J$ represents the gradient of the
+			loss function computed with respect to, respectively, $\mathbf{b}_{k}$, $\mathbf{W}_{k}$ and
+			$\mathbf{h}_{k - 1}$, and finally $\nabla_{\mathbf{b}_{k}} \Omega(\theta)$ and
+			$\nabla_{\mathbf{W}_{k}} \Omega(\theta)$ represents the gradient of the ANN's hyperparameters computed
+			with respect to, respectively, $\mathbf{b}_{k}$ and $\mathbf{W}_{k}$.}
 			\label{alg:backward_propagation}
 			\begin{algorithmic}[1]
 				\Procedure{Backward propagation}{}
 					\State $\mathbf{g} \leftarrow \nabla_{\hat{\mathbf{y}}}J = \nabla_{\hat{\mathbf{y}}}
 					L(\hat{\mathbf{y}}, \mathbf{y})$
 					\For{$k = l, l - 1, \ldots, 1$}
-						\State $\mathbf{g} \leftarrow \nabla_{\mathbf{a}^{(k)}}J = \mathbf{g} \ \odot \
-						f'(\mathbf{a}^{(k)})$
-						\State $\nabla_{\mathbf{b}^{(k)}}J = \mathbf{g} \ + \ \lambda \nabla_{\mathbf{b}^{(k)}}
+						\State $\mathbf{g} \leftarrow \nabla_{\mathbf{a}_{k}}J = \mathbf{g} \ \odot \
+						f'(\mathbf{a}_{k})$
+						\State $\nabla_{\mathbf{b}_{k}}J = \mathbf{g} \ + \ \lambda \nabla_{\mathbf{b}_{k}}
 						\Omega(\theta)$
-						\State $\nabla_{\mathbf{W}^{(k)}}J = \mathbf{g}\mathbf{h}^{(k - 1)T} \ + \ \lambda
-						\nabla_{\mathbf{W}^{(k)}} \Omega(\theta)$
-						\State $\mathbf{g} = \nabla_{\mathbf{h}^{(k - 1)}}J = \mathbf{W}^{(k)T}\mathbf{g}$
+						\State $\nabla_{\mathbf{W}_{k}}J = \mathbf{g}\mathbf{h}_{k - 1}^{T} \ + \ \lambda
+						\nabla_{\mathbf{W}_{k}} \Omega(\theta)$
+						\State $\mathbf{g} = \nabla_{\mathbf{h}_{k - 1}}J = \mathbf{W}_{k}^{T}\mathbf{g}$
 					\EndFor
 				\EndProcedure
 			\end{algorithmic}
