@@ -7,27 +7,37 @@
 		field, its convergence's rate is quite slow. 
 		Said that, it is also true that it allows to finds a very low value of the cost function quickly enough. 
 
-		The algorithm \ref{alg_sgd} is the standard SGD version implemented, as described in
+		The algorithm \ref{alg:sgd} shows the standard SGD version implemented, as described in
 		\cite{Goodfellow-et-al-2016}, supporting both \textit{momentum} and \textit{regularization}.
 		\cite{LIVIERIS2013491}
 
-		SGD is an extension of the \textit{gradient descent algorithm}(GD). It is an iterative first-order optimization technique, usefull to minimize the objective loss function: the main goal is, indeed, to identify and compute a local minimum, moving along the direction of the steepest descent of the function, that is the negative gradient $-\nabla\mathcal{E}(\textbf{W})$.
+		SGD is an extension of the \textit{gradient descent algorithm}(GD). It is an iterative first-order optimization technique, usefull to minimize the objective loss function.
 
-		As we already said, the objective of the training procedure is to minimize the loss function. Of course, in order to arrive to a local minimum, it is necessary to update the synaptic weights \textbf{W} at every iteration as $\textbf{W} = \textbf{W} +\Delta \textbf{W}$.
+		The main goal is, indeed, to minimize the loss function in Eq. \ref{loss}, in order to obtain a neural network with good generalization property:
 
-		The correction applied to the weights is defined as follows, taking a step in the opposite direction of the cost gradient:
+		\begin{mini}
+		  {\textbf{W}\in \mathbb{R}^n}{\textit{L}(\textbf{W}),}{\label{minimization}}{}
+		\end{mini}
+
+		where $\textit{L}$ is the loss function and \textbf{W} are the synaptic weights of the network.
+
+		The way to achieve this result, is to identify and compute a local minimum, moving along the direction of the steepest descent of the function, that is the negative gradient $-\nabla\textit{L}(\textbf{W})$.
+
+		Of course, in order to find a local minimum, it is necessary to update the synaptic weights \textbf{W} at each iteration as $\textbf{W} = \textbf{W} +\Delta \textbf{W}$.
+
+		The correction applied to the each one of the weights is defined as follows, taking a step in the opposite direction of the cost gradient:
 		\begin{equation}
 			\label{delta_rule}
-			\Delta w_{ji}(n) = -\eta \frac{\partial\mathcal{E}(n)}{\partial w_{ji}(n)},
+			\Delta w_{ji} = -\eta \frac{\partial\textit{L}}{\partial w_{ji}},
 		\end{equation}
 
-		where $\eta$ is the learning rate. The latter one is a fundamental hyperparameters which has to been choosen wisely, since it represents how much is right to move along the descent direction: too much and the procedure will be vain, missing the minimum; too little and the converge will be slow.
+		where $\eta$ is the learning rate. The latter one is a fundamental hyperparameter which has to been choosen wisely, since it represents how much is right to move along the descent direction: too much and the procedure will be vain, missing the minimum; too little and the converge will be slow.
 
-		Unlike the GD algorithm, that could be quite costly because of the potentially big number of training examples, getting a longer time to converges to the minimum when dealing with a very large dataset, the SGD algorithm requires only the evaluation of one example for epochs (on-line mode).
+		Unlike the GD algorithm, that could get a longer time to converges to the minimum because of the potentially big number of training examples, the SGD algorithm requires only the evaluation of one example for epochs (on-line mode).
 
-		Here, however, we refer to SGD even when using the entire or just a subset of training examples to be considered at each epoch of training (batch or mini batch).
+		Here, however, we refer to SGD even when using the entire or just a subset of training dataset (batch or mini batch).
 
-		The name stochastic derives from the fact that the samples are selected randomly, bringing to an approximation of the true gradient estimated using a small set of samples. This is also the reason of the typical zig-zag pattern in the path towards the minimum of the loss function, as visible in fig.\ref{fig:gradient}.
+		The name stochastic derives from the fact that the samples are randomly selected, bringing to an approximation of the true gradient, estimated using a small set of samples. This is also the reason of the typical zig-zag pattern in the path towards the minimum of the loss function, as visible in fig.\ref{fig:gradient}.
 		\begin{figure}
 			\centering
 		    \includegraphics[width=.8\linewidth, scale=0.7]{img/figures/gradient.png}
@@ -36,7 +46,7 @@
 		\end{figure}
 		%Due to its stochastic nature, c. However, it has been shown that SGD almost surely converges to the global cost minimum if the cost function is convex (or pseudo-convex)[1] [1] Bottou, Léon (1998). "Online Algorithms and Stochastic Approximations". Online Learning and Neural Networks. Cambridge University Press. ISBN 978-0-521-65263-6
 		
-		For what concernes the the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the epochs for ensure convergence.
+		For what concernes the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the epochs for ensure convergence.
 %deeplearning
 		A sufficient condition to guarantee convergence of SGD is that the sequence of decreasing learning rates satisfy:
 
@@ -44,13 +54,35 @@
 			\label{delta}
 			\sum_{t=1}^\infty \eta_t = \infty \text{  } \text{ and }\text{  } \sum_{t=1}^\infty \eta_t^2 < \infty 
 		\end{equation}
-
-		Futhermore, if we assume that the Hessian matrix of the loss function is strictly positive definite at the optimum, that is having the loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
+		
+		%The cost function C(w) is three times differentiable with continuous derivatives.4 It is bounded from below, i.e. C(w) ≥ Cmin. We can assume, without loss of generality, that C(w) ≥ 0 - Online Learning and Stochastic Approximations, Leon Bottou
+		Futhermore, if we assume that the Hessian matrix of the loss function is strictly positive definite at the optimum, which means that the loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
 		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016}.%Bottou L. (2012) Stochastic Gradient Descent Tricks. In: Montavon G., Orr G.B., Müller KR. (eds) Neural Networks: Tricks of the Trade. Lecture Notes in Computer Science, vol 7700. Springer, Berlin, Heidelberg
 
-		A property of SGD is that computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
+		A property of SGD is that the computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
 
-		\subsection{Momentum} % (fold)
+		\begin{algorithm}[H]
+			\caption{Stochastic Gradient Descent Algorithm. The learning rate $\eta$, the $\alpha$ term and the maximum number of epochs are given.}
+			\label{alg:sgd}
+			\begin{algorithmic}[1]
+				\Procedure{Stochastic Gradient Descent}{}
+					\State Initialize \textbf{W} and \textbf{v}
+					\State $k \gets 0$
+					\While {$k < max\_epochs$}
+						\State Sample a minibatch of \textit{m} training examples \{\textit{$(x_0,y_0),(x_1,y_1),...,(x_m,y_m)$}\}
+						\If {Nesterov Momentum}
+							\State $\textbf{W} \gets \textbf{W} + \alpha \textbf{v}$
+						\EndIf
+						\State Compute gradient estimate: $\textbf{g} \gets \frac {1}{m} \nabla \sum_i\textit{L}(\textbf{W})$
+						\State Compute velocity update: $\textbf{v} \gets \alpha \textbf{v} - \eta \textbf{g}$
+						\State Apply update: $\textbf{W} \gets \textbf{W} + \textbf{v}$
+					\EndWhile
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
+
+
+		\subsection{Momentum}
 		\label{sec:momentum}
 			When computing the adjustment of the synaptic weights $\Delta\textbf{W}$ as in Eq. \ref{delta}, the choice of the learning rate $\eta$ influences the convergence of the SGD algorithm.
 			The smaller is $\eta$, the smaller will be the changes in the matrix of weights and the rate of learning, but the smoother will be the trajectory.
@@ -59,13 +91,13 @@
 
 			A way to accelerate the SGD is the use of the \textit{Classical Momentum} (CM), a first order optimization technique which accelerate gradient descent, and so the learning rate of the final training.
 
-			It consists in the adjustment of the new weigths through a velocity vector \textbf{v} that accumulates the gradient elements in the directions of reduction of the loss function \ref{loss} and a momentum coefficient $\alpha \in [0,1]$: the larger is  $\alpha$, the more the previous gradients affect the current direction.
+			It consists in the adjustment of the new weigths through a velocity vector \textbf{v} that accumulates the gradient elements in the directions of reduction of the loss function, and in a momentum coefficient $\alpha \in [0,1]$: the larger is  $\alpha$, the more the previous gradients affect the current direction.
 
 			In this case, the classical momentum is given by:
 
 			\begin{equation}
 				\label{classical_momentum}
-				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\mathcal{E}(\textbf{W}_k).
+				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\textit{L}(\textbf{W}_k).
 			\end{equation}
 
 			The new synaptic weights are then updated as:
@@ -80,27 +112,31 @@
 
 			\begin{equation}
 				\label{nesterov_momentum}
-				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\mathcal{E}(\textbf{W}_k + \alpha\textbf{v}_{k-1}).
+				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\textit{L}(\textbf{W}_k + \alpha\textbf{v}_{k-1}).
 			\end{equation}
 			
 			The update of the weights \textbf{W} follows the one described in Eq. \ref{update_momentum}.
 
-			The variant respect Eq. \ref{classical_momentum}, shown in fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\mathcal{E}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
+			The variant respect Eq. \ref{classical_momentum}, shown in fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\textit{L}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
 
-			It's worth to underline that, in case of batch mode and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$. % Nesterov (1983).
+			It's worth to underline that, in case of batch mode and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$. % Nesterov, Y. (1983) A Method for Solving a Convex Programming Problem with Convergence Rate O(1/K2) . Soviet Mathematics Doklady, 27, 372-367.
 			\begin{figure}
 			\centering
-			  \includegraphics[width=.4\linewidth, scale=0.5]{img/figures/momentum}
-			  \caption{The classical momentum on top and the Nesterov Accelerated gradient on bottom.}
-			  \label{fig:momentum}
-
-			  \includegraphics[width=.4\linewidth, scale=0.5]{img/figures/momentum_graph}
-			  \caption{The trajectory from CM (in green) and the one from NAG (in blue).}
-			  \label{fig:momentum_graph}
+				\begin{subfigure}[b]{0.4\textwidth}
+					\includegraphics[width=\textwidth]{img/figures/momentum}
+			  		\caption{The classical momentum on top and the Nesterov Accelerated gradient on bottom.}
+				\label{fig:momentum}
+				\end{subfigure}
+				\qquad
+				\begin{subfigure}[b]{0.4\textwidth}
+					\includegraphics[width=\textwidth]{img/figures/momentum_graph}
+				    \caption{The trajectory from CM (in green) and the one from NAG (in blue).}
+				\label{fig:momentum_graph}
+				\end{subfigure}
 			\end{figure}
 
 
-		\subsection{Regularization} % (fold)
+		\subsection{Regularization}
 		\label{sec:regularization}
 
 			In order to garantee a tradeoff between goodness and complexity of the model, the regularization is allowed in the network. This choice is important to ensure that the model doesn't grow too much in complexity. 
@@ -110,44 +146,27 @@
 			It basically modifies the objective loss functions as follows:
 			
 			\begin{mini}
-			  {\textbf{W}\in \mathbb{R}^n}{\mathcal{E}(\textbf{W}) + \lambda\mathcal{E}_c(\textbf{W}),}{}{}
+			  {\textbf{W}\in \mathbb{R}^n}{\textit{L}(\textbf{W}) + \lambda\Omega(\textbf{W}),}{}{}
 			\end{mini}
 
-			where $\mathcal{E}_c(\textbf{W})$ is a complexity penalty term based of the weights, and $\lambda$ is a parameter which tells how much importance must have the complexity penalty term.
+			where $\Omega(\textbf{W})$ is a complexity penalty term based of the weights, and $\lambda$ is a parameter which tells how much importance must have the complexity penalty term.
 
 			Two kinds of regularization are implemented:
 
 			\begin{itemize}
-				\item \textit{L1}: also called Lasso Regression, which results in $\mathcal{E}_c(\textbf{W}) = \sum_{i=1}^{k} |w_i| = \|\textbf{W}\|_1$;
-				\item \textit{L2}: also known as Ridge Regression, which results in $\mathcal{E}_c(\textbf{W}) = \sum_{i=1}^{k}w_i^2 = \|\textbf{W}\|_2^2$.
+				\item \textit{L1}: also called Lasso Regression, which results in $\Omega(\textbf{W}) = \sum_{i=1}^{k} |w_i| = \|\textbf{W}\|_1$;
+				\item \textit{L2}: also known as Ridge Regression, which results in $\Omega(\textbf{W}) = \sum_{i=1}^{k}w_i^2 = \|\textbf{W}\|_2^2$.
 			\end{itemize}
 
 
 
 
-	\section{Nonlinear Conjugate Gradient} % (fold)
+	\section{Nonlinear Conjugate Gradient} 
 	\label{sec:nonlinear_conjugate_gradient}
 
-		An intresting optimization ables to lead to an improvement of the performances of the Neural Network, is the use of high-order information during the training phase.
+		An intresting optimization ables to lead to an improvement of the performances of the neural network, is the use of high-order information during the training phase: this brings to a more accurate choice of the search direction and of the step size, by using information from the second order approximation.
 
-		We can, indeed, approximate the \textit{loss function} in a quadratic form, around a given point \textbf{W}, using the Taylor approximation:
-
-		 \begin{equation}
-		 	\label{quadratic}
-		    \mathcal{E}(\textbf{W} + \Delta\textbf{W}) = \mathcal{E}(\textbf{W})+\textbf{g}\mathcal{E}^T\Delta\textbf{W}+ \frac{1}{2}\Delta\textbf{W}^T\textbf{H}\Delta\textbf{W},
-		 \end{equation}
-
-		where \textbf{H} is the \textit{Hessian} matrix and \textbf{g} the gradient vector, getting the benefit of choosing the search direction and the step size more carefully by using information from the second order approximation.
-
-		Given Eq. \ref{quadratic}, the optimum adjustment to apply to the weights of the network should be
- 		\begin{equation}
-		 	\label{weight_star}
-			\Delta\textbf{W}^* = \textbf{H}^{-1}\textbf{g},
-		\end{equation}
-
-		carrying the weight of the computation of the inverse of the Hessian.
-
-		In order to avoid this expensive computation, we can use the \textit{Conjugate Gradient} methods, which are a class of iterative second-order optimization methods, derived from the steepest-descent algorithm, that ensure low memory requirements.
+		In order to avoid the expensive computation of the inverse of the Hessian, we can use the \textit{Conjugate Gradient} methods, which are a class of iterative second-order optimization methods, derived from the steepest-descent algorithm, that ensure low memory requirements.
 
 		In this way, the adjustment to the synaptic weights of the network is computed as:
 		 \begin{equation}
@@ -156,23 +175,41 @@
 		 \end{equation}
 		where $\alpha$ is the learning rate and \textbf{d} is the new direction found.
 
-		In our case, the nonlinear conjugate gradient methods are designed to solve the following minimization problem:
+		In our case, the nonlinear conjugate gradient methods are designed to solve the minimization problem defined in Eq.\ref{minimization}.
 
-		\begin{mini}
-		  {\textbf{W}\in \mathbb{R}^n}{\mathcal{E}(\textbf{W}),}{}{}
-		\end{mini}
-
-		where $\mathcal{E}$ is the loss function and \textbf{W} are the synaptic weights of the network.
-
-		As showed in the pseudocode \ref{cgd}, the iterative formula generates a sequence of weights $\{W_k\}$, for every epoch of training \textit{k}, as:
+		As showed in the pseudocode \ref{alg:cgd}, the iterative formula generates a sequence of weights $\{W_k\}$, for every epoch of training \textit{k}, as:
 
 		\begin{equation}
-			\textbf{W}_{k+1} = \textbf{W}_{k} + \alpha\textbf{d}_k, \text{  }\text{  }\text{  } \textit{k} = 0,1,...,
+			\textbf{W}_{k+1} = \textbf{W}_{k} + \alpha_k\textbf{d}_k, \text{  }\text{  }\text{  } \textit{k} = 0,1,...,
 		\end{equation}
 
 		where $\alpha_k$ is a learning rate and $\textbf{d}_k$ is a descent direction. These are the new synaptic weights computed with the adjustment of eq.\ref{weight}.
 
 		% Because the error function E(~,) is nonquadratic, the algorithm will not necessarily con- verge in N steps. If the algorithm has not converged after N steps, the algorithm is restarted, i.e., initializing fik+J to the current steepest descent direction ~k+~  A Scaled Conjugate Gradient Algorithm for Fast Supervised Learning p4
+		
+		\begin{algorithm}[H]
+			\caption{Nonlinear Conjugate Gradient Algorithm. The maximum number of epochs and the tolerance are given.}
+			\label{alg:cgd}
+			\begin{algorithmic}[1]
+				\Procedure{Nonlinear Conjugate Gradient}{}
+					\State Initialize $\textbf{W}_0$ and $\textit{L}_g$
+					\State $k \gets 0$, $g_0 \gets 0$
+					\While {$k < max\_epochs$}
+						\State Evaluate the loss function $\textit{L}_k$ and its gradient $\textbf{g}_k$ 
+						\If {$\textit{L}_k < \textit{L}_g \text{ } \text{ or } \text{ } \|\textbf{g}_k\|> tolerance$}
+							\State
+							\Return Error goal reached
+						\EndIf
+						\State Compute the $\beta$ with one of the methods HS, MHS, FR, PR
+
+						\State Compute the direction: $\textbf{d}_k \gets - \textbf{g}_k + \beta\textbf{d}_k$
+						\State Compute the learning rate $\alpha_k$ with a Line Search 
+						\State Update the weights: $\textbf{W}_{k+1} \gets \textbf{W}_{k} + \alpha_k\textbf{d}_k$
+						\State $k \gets k + 1$
+					\EndWhile
+				\EndProcedure
+			\end{algorithmic}
+		\end{algorithm}
 
 
 		\subsection{Search Direction}
@@ -241,7 +278,7 @@
 			For what concernes the FR method (also described in eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods.%p121 nonlinear conjugate gradient method cpt5
 			Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
 
-			The last method tested is the $MHS^+$ (eq. \ref{mhs}, a modified version of the Hestenes-Stiefel one.  %a new conjugate gradient algorithm for training neural network
+			The last method tested is the $MHS^+$, a modified version of the Hestenes-Stiefel one \cite{LIVIERIS2013491}. 
 			It garantees sufficient descent with inexact line search and is based on a modified secant equation which approximates the second order information of the loss function with high order accuracy. Moreover, it is globally convergent.
 
 			It is defined as follows:
@@ -253,7 +290,7 @@
 
 			In order to better understand the formula \ref{mhs}, it's important to describe all the components involved in its definiton.
 
-			When dealing with quasi-Newton methods, an approximation $\textbf{B}_{k-1}$ of the Hessian of the loss function $\nabla^2\mathcal{E}_{k-1}$ is update such that $\textbf{B}_k$ satisfies the secant condition:
+			When dealing with quasi-Newton methods, an approximation $\textbf{B}_{k-1}$ of the Hessian of the loss function $\nabla^2\textit{L}_{k-1}$ is update such that $\textbf{B}_k$ satisfies the secant condition:
 
 			\begin{equation}
 			\label{secant_1}
@@ -262,6 +299,7 @@
 
  			where $\textbf{y}_{k-1}$ is defined as $\textbf{g}_k - \textbf{g}_{k-1}$.
 %new quasi newton method for unconstrain-wei
+
  			Wei et al. \ref{wei} derived a class of modified secant condition:
 
 			\begin{equation}
@@ -278,11 +316,11 @@
  			with \textbf{u} a vector satisying $(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u} \neq 0$ and $\theta_{k-1}$ defined as:
  			\begin{equation}
 			\label{theta}
- 			 \theta_{k-1} = 2(\mathcal{E}_{k-1} - \mathcal{E}_{k}) + (\textbf{g}_k + \textbf{g}_{k-1})^T(\textbf{W}_k - \textbf{W}_{k-1}).
+ 			 \theta_{k-1} = 2(\textit{L}_{k-1} - \textit{L}_{k}) + (\textbf{g}_k + \textbf{g}_{k-1})^T(\textbf{W}_k - \textbf{W}_{k-1}).
  			\end{equation}	
 
 
- 			Since for $\|(\textbf{W}_k - \textbf{W}_{k-1})\| > 1$ the standard secant Eq.\ref{secant_1} better approximates $\nabla^2\mathcal{E}_{k-1}(\textbf{W}_k - \textbf{W}_{k-1})$ than the modified version in Eq.\ref{secant_2}, Livieris et al. proposed a modification of the equation in this way:
+ 			Since for $\|(\textbf{W}_k - \textbf{W}_{k-1})\| > 1$ the standard secant Eq.\ref{secant_1} better approximates $\nabla^2\textit{L}_{k-1}(\textbf{W}_k - \textbf{W}_{k-1})$ than the modified version in Eq.\ref{secant_2}, Livieris et al. proposed a modification of the equation in this way:
 
  			\begin{equation}
 			\label{secant_3}
@@ -294,22 +332,40 @@
  				\widetilde{y}_{k-1}^* = y_{k-1} + \rho_{k-1} \frac{max\{\theta_{k-1},0\}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
  			\end{equation}
 
- 			where $\rho_{k-1} \in \{0,1\}$ is a parameter that switch between the standard secant Eq.\ref{secant_1} and the modified one \ref{secant_3}, setting $\rho_{k-1}$ as:
+ 			where $\rho_{k-1} \in \{0,1\}$ is a parameter that switch between the standard secant equation Eq.\ref{secant_1} and the modified one Eq.\ref{secant_3}, setting $\rho_{k-1}$ as:
 
 			\begin{equation}
 			\label{rho}
 			  \rho_{k-1} =\begin{cases}
-			    1 , & \|(\textbf{W}_k - \textbf{W}_{k-1})\| \leq 1;\\
+			    1 , & \text{if }\|(\textbf{W}_k - \textbf{W}_{k-1})\| \leq 1;\\
 			    0 , & \text{otherwise.}
 			  \end{cases}
 			\end{equation}
 
-			It's suggested to use $MHS^+$ with the search direction $\textbf{d}^+$ defined by Eq.\ref{mod_dir}.
+			Since the following assumptions are satisfied by the loss function in Eq.\ref{loss}:
+
+			\begin{asu} - \label{as:1}
+  				The level set $\mathcal{L} = \{w \in \mathbb{R}^n | \textit{L}(\textbf{W}) \leq L(\textbf{W}_0)\}$ is bounded, there exist a constant $B > 0$ s.t. $\|\textbf{W}\| \leq B, \forall \textbf{W} \in \mathcal{L}$;
+			\end{asu}
+
+			\begin{asu} - \label{as:2}
+				If in some neighborhood $\mathcal{N} \in \mathcal{L}$, \textit{L} is differentiable and its gradient \textbf{g} is Lipschitz continuous, then there exists a constant $ L > 0 $ such that
+				\begin{equation}
+				\label{ass2}
+				  \|\textbf{g}(\textbf{W})-\textbf{g}(\widetilde{\textbf{W}})\|, \forall \textbf{ W},\widetilde{\textbf{W}} \in \mathcal{N},
+				\end{equation}
+			\end{asu}
+			if the conjugate gradient algorithm is performed using $MSH^+$ and computing the search direction $\textbf{d}^+$ as defined by Eq.\ref{mod_dir}, we have:
+
+			\begin{equation}
+			\label{conv_mhs}
+			  \lim_{k \to \infty} \|\textbf{g}_k\| = 0,
+			\end{equation}
+
+			that is the convergence of the algorithm.
 
 
-
-
-		\subsection{Line Search} % (fold)
+		\subsection{Line Search} 
 		\label{sub:line_search}
 			Once computed the new direction \textbf{d} involved in the new weights \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the loss function.
 
@@ -318,7 +374,7 @@
 			So, fixed the values of the weights \textbf{W} and the descent direction \textbf{d}, the main goal is to find the right value for $\alpha$ that is able to minimize the loss function:
 
 			 \begin{mini}
-			   {\alpha}{\mathcal{ E}(\textbf{W} + \alpha\textbf{d}).}{}{}
+			   {\alpha}{\textit{L}(\textbf{W} + \alpha\textbf{d}).}{}{}
 			 \end{mini}
 
 			Of course, we have to deal with a tradeoff: we want a good reduction, but we can't spend too much time computing the exact value for the optimum solution. So, the smarter way to get it is to use an inexact line search, that try some candidate step size and accepts the first one satisfying some conditions.
@@ -335,16 +391,16 @@
 			\begin{itemize}
 			\item the \textit{Armijo} one:
 			\begin{equation}
-			\mathcal{E}(W_k+\alpha _kd_k)\leq \mathcal{E}(W_k)+\sigma_1\alpha\nabla \mathcal{E}_k^Td_k
+			\textit{L}(W_k+\alpha _kd_k)\leq \textit{L}(W_k)+\sigma_1\alpha\nabla \textit{L}_k^Td_k
 			\end{equation}
 
-			which ensure that $\alpha$ gives a sufficient decrease of the objective function, being this reduction proportional to the step length $\alpha$ and the directional derivative $\nabla \mathcal{E}_k^Td_k$.
+			which ensure that $\alpha$ gives a sufficient decrease of the objective function, being this reduction proportional to the step length $\alpha$ and the directional derivative $\nabla \textit{L}_k^Td_k$.
 
 			The constant $\sigma_1$ has been set $\sigma_1=10^{-4}$, since it is suggested in literature to be quite small.
 
 			\item the \textit{Strong Wolfe} condition:
 			\begin{equation}
-			|\nabla \mathcal{E}(W_k+\alpha _kd_k)^Td_k|\leq \mathcal{E}(W_k)+\sigma_2|\nabla \mathcal{E}_k^Td_k|
+			|\nabla \textit{L}(W_k+\alpha _kd_k)^Td_k|\leq \textit{L}(W_k)+\sigma_2|\nabla \textit{L}_k^Td_k|
 			\end{equation}
 			which garantees to choose steps whose size is not too small.
 
@@ -354,46 +410,34 @@
 			Futhermore, having choosen the strong condition, which doesn't allow the derivative to be too positive, we are sure that the $\alpha$ found lies close to a stationary point of the function.
 			\end{itemize}
 
-			The algorithm satisfing the Strong Wolfe conditions is implemented through three functions, as described in the pseudocodes \ref{linesearch}, \ref{zoom}, \ref{bisection}:  \texttt{line\_search}, \texttt{zoom} and \texttt{interpolate\_alpha}.
-
-			Since two consecutive values may be similar in finite-precision arithmetic, we set a threshold in both the \texttt{line\_search} and  \texttt{interpolate\_alpha} functions, which garantees that the algorithm stops if two values of $\alpha$ are too close or if the maximum number of iterations has been reached.
-
-			The \texttt{line\_search} function try to find and return a good $\alpha$; if it fails, it returns an interval in which continue the searching, invoking the \texttt{zoom} function, which decreases the size of the interval, until it finds and returns a good step length.
-
-			\texttt{Zoom} invokes another function, \texttt{interpolate\_alpha}, which is nothing more than the implementation of a bisection interpolation in order to find a trial $\alpha$ inside the given interval.
-
-
-
 			\begin{algorithm}
-			\caption{Line Search}\label{linesearch}
+			\caption{Line Search satisfying the strong Wolfe conditions. $\alpha_1 > 0$ and $\alpha_{max}$ are given.}\label{alg:linesearch}
 			\begin{algorithmic}[1]
-			% \Input {\alpha_1>0, \alpha_{max}}\\
-			% \Output {\alpha_*}\\
-			\Procedure{line\_search}{}\\
-			\State $\alpha_0 \gets \textit{0};$
-			\State $i \gets \textit{1};$
-			\While {$i \leq max\_iter$}
-			 		\State  $ \text{Evaluate}\mathcal{E}(\alpha_i);$
-					\If  { $[\mathcal{E}(\alpha_i) > \mathcal{E}(0) + \sigma_1\alpha_i\nabla\mathcal{E}_0^Td_0] \text{  or  } [\mathcal{E}(\alpha_i)\leq \mathcal{E}(\alpha_{i-1}) \text{  and  } i>1]  $ }
-						\State $\alpha_* \gets \textbf{zoom}(\alpha_{i-1},\alpha_{i});$
-						\Return $\alpha_*; $
-					\EndIf
-					\State   $\text{Evaluate } \nabla\mathcal{E}_{i} $
-					\If  { $|\nabla\mathcal{E}_{i}| \leq -\sigma_2\nabla\mathcal{E}_0^Td_0 $}
-						\State $\alpha_* \gets \alpha_i; $
-						\Return $\alpha_*; $
-					\EndIf
-					\If  { $\nabla\mathcal{E}_{i} \geq 0$ }
-						\State $\alpha_* \gets \textbf{zoom}(\alpha_{i},\alpha_{i-1}); $
-						\Return $\alpha_*; $
-					\EndIf
-					\If  { $(|\mathcal{E}_{i} - \mathcal{E}_{i-1}| \leq threshold$ }
-						\State $\alpha_* \gets\alpha_{i}$
-						\Return $\alpha_*;$
-					\EndIf
-					\State $\text{Choose  } \alpha_{i+1}  \in (\alpha_i, \alpha_{max});$
-					\State $i \gets i+1; $
-			\EndWhile
+				\Procedure{line\_search}{}
+				\State $\alpha_0 \gets \textit{0};$
+				\State $i \gets \textit{1};$
+				\While {$i \leq max\_iter$}
+				 		\State  $ \text{Evaluate}\textit{L}(\alpha_i);$
+						\If  { $[\textit{L}(\alpha_i) > \textit{L}(0) + \sigma_1\alpha_i\nabla\textit{L}_0^Td_0] \text{  or  } [\textit{L}(\alpha_i)\leq \textit{L}(\alpha_{i-1}) \text{  and  } i>1]  $ }
+							\State $\alpha_* \gets \textbf{zoom}(\alpha_{i-1},\alpha_{i});$
+							\Return $\alpha_*; $
+						\EndIf
+						\State   $\text{Evaluate } \nabla\textit{L}_{i} $
+						\If  { $|\nabla\textit{L}_{i}| \leq -\sigma_2\nabla\textit{L}_0^Td_0 $}
+							\State $\alpha_* \gets \alpha_i; $
+							\Return $\alpha_*; $
+						\EndIf
+						\If  { $\nabla\textit{L}_{i} \geq 0$ }
+							\State $\alpha_* \gets \textbf{zoom}(\alpha_{i},\alpha_{i-1}); $
+							\Return $\alpha_*; $
+						\EndIf
+						\If  { $(|\textit{L}_{i} - \textit{L}_{i-1}| \leq threshold$ }
+							\State $\alpha_* \gets\alpha_{i}$
+							\Return $\alpha_*;$
+						\EndIf
+						\State $\text{Choose  } \alpha_{i+1}  \in (\alpha_i, \alpha_{max});$
+						\State $i \gets i+1; $
+				\EndWhile
 			\EndProcedure
 			\end{algorithmic}
 			\end{algorithm}
@@ -405,24 +449,24 @@
 				\begin{algorithmic}[1]
 					\Procedure{Zoom}{}
 						\While{True}
-							\State  $ \alpha_j \gets \textit{interpolate\_alpha}(\alpha_{lo}, \alpha_{hi}); $
-							\State $ \text{Evaluate }\mathcal{E}(\alpha_j);$
-							\If{$\left [ \mathcal{E}(\alpha_j) > \mathcal{E}(0) + \sigma_1 \alpha_j
-							    \nabla  \mathcal{E}_0^T d_0 \right ]$ or $\left [ \mathcal{E}(\alpha_j) \leq
-							    \mathcal{E}(\alpha_{lo}) \right ]$}
+							\State  $ \alpha_j \gets \textit{quadratic\_interpolation}(\alpha_{lo}, \alpha_{hi}); $
+							\State $ \text{Evaluate }\textit{L}(\alpha_j);$
+							\If{$\left [ \textit{L}(\alpha_j) > \textit{L}(0) + \sigma_1 \alpha_j
+							    \nabla  \textit{L}_0^T d_0 \right ]$ or $\left [ \textit{L}(\alpha_j) \leq
+							    \textit{L}(\alpha_{lo}) \right ]$}
 							    \State $\alpha_* \gets \alpha_j; $
 								\State \Return $\alpha_*; $
 							\Else
-								\State $\text{Evaluate } \nabla \mathcal{E}_j^T d_j; $
-								\If{$\left | \nabla \mathcal{E}_j^T d_j \right | \leq -\sigma_2 \nabla
-								    \mathcal{E}_0^T d_0$}
+								\State $\text{Evaluate } \nabla \textit{L}_j^T d_j; $
+								\If{$\left | \nabla \textit{L}_j^T d_j \right | \leq -\sigma_2 \nabla
+								    \textit{L}_0^T d_0$}
 								    \State $\alpha_* \gets \alpha_j; $
 									\State \Return $\alpha_*; $
 								\EndIf
-								\If{$\nabla \mathcal{E}_j^T d_j (\alpha_{hi}-\alpha_{lo}) \geq 0 $}
+								\If{$\nabla \textit{L}_j^T d_j (\alpha_{hi}-\alpha_{lo}) \geq 0 $}
 									\State $\alpha_{hi} \gets \alpha_{lo}; $
 								\EndIf
-								\If{$(|\mathcal{E}_{j} - \mathcal{E}_{0}| \leq threshold$}
+								\If{$(|\textit{L}_{j} - \textit{L}_{0}| \leq threshold$}
 									\State $\alpha_* \gets\alpha_{j}$
 									\State \Return $\alpha_*;$
 								\EndIf
@@ -433,26 +477,37 @@
 				\end{algorithmic}
 			\end{algorithm}
 
+			The algorithm satisfing the Strong Wolfe conditions is implemented through the functions described in the pseudocodes \ref{alg:linesearch}, \ref{alg:zoom}.
 
-			\begin{algorithm}
-			\caption{Interpolate}\label{bisection}
-			\begin{algorithmic}[1]
-			\Procedure{interpolate\_alpha}{}
-			\State $i \gets \textit{1};$
-			\While {$i \leq max\_iter$}
-				\State $\alpha_{mid} \gets (\alpha_{hi}-\alpha_{lo})/2$
-				\State  $ \text{Evaluate }\mathcal{E}(\alpha_{mid});$
-			 	\If  { $[\mathcal{E}(\alpha_{mid}) == 0]  \text{  or  }  [(\alpha_{hi}-\alpha_{lo})/2 < threshold] $ }
-						\Return $\alpha_{mid}; $
-				\EndIf
-				\State   $\text{Evaluate } \mathcal{E}(\_{mid}alpha_{lo}); $
-				\If  { $sign(\mathcal{E}(\alpha_{mid})) == sign(\mathcal{E}(\alpha_{lo}))$ }
-					\State $\alpha_{lo} \gets \alpha_{mid}; $
-				\Else
-					\State $\alpha_{hi} \gets \alpha_{mid}; $
-				\EndIf
-				\State $i \gets i+1; $
-			\EndWhile
-			\EndProcedure
-			\end{algorithmic}
-			\end{algorithm}
+			Since two consecutive values may be similar in finite-precision arithmetic, we set a threshold in both the \texttt{line\_search} and the quadratic interpolation functions, which garantees that the algorithm stops if two values of $\alpha$ are too close or if the maximum number of iterations has been reached.
+
+			%The \texttt{line\_search} function try to find and return a good $\alpha$; if it fails, it returns an interval in which continue the searching, invoking the \texttt{zoom} function, which decreases the size of the interval, until it finds and returns a good step length.
+
+			%\texttt{Zoom} invokes another function, \texttt{interpolate\_alpha}, which is nothing more than the implementation of a bisection interpolation in order to find a trial $\alpha$ inside the given interval.
+
+
+
+			
+
+			% \begin{algorithm}
+			% \caption{Interpolate}\label{bisection}
+			% \begin{algorithmic}[1]
+			% \Procedure{interpolate\_alpha}{}
+			% \State $i \gets \textit{1};$
+			% \While {$i \leq max\_iter$}
+			% 	\State $\alpha_{mid} \gets (\alpha_{hi}-\alpha_{lo})/2$
+			% 	\State  $ \text{Evaluate }\textit{L}(\alpha_{mid});$
+			%  	\If  { $[\textit{L}(\alpha_{mid}) == 0]  \text{  or  }  [(\alpha_{hi}-\alpha_{lo})/2 < threshold] $ }
+			% 			\Return $\alpha_{mid}; $
+			% 	\EndIf
+			% 	\State   $\text{Evaluate } \textit{L}(\_{mid}alpha_{lo}); $
+			% 	\If  { $sign(\textit{L}(\alpha_{mid})) == sign(\textit{L}(\alpha_{lo}))$ }
+			% 		\State $\alpha_{lo} \gets \alpha_{mid}; $
+			% 	\Else
+			% 		\State $\alpha_{hi} \gets \alpha_{mid}; $
+			% 	\EndIf
+			% 	\State $i \gets i+1; $
+			% \EndWhile
+			% \EndProcedure
+			% \end{algorithmic}
+			% \end{algorithm}
