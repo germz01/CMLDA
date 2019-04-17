@@ -144,9 +144,17 @@
 		\end{algorithm}
 	% section the_back-propagation_algorithm (end)
 
-	\section{Loss function is differentiable?} % (fold)
-	\label{sec:loss_function_is_differentiable_}
-
-	% section loss_function_is_differentiable_ (end)
+	\section{The Loss function} % (fold)
+	\label{sec:the_loss_function}
+		It section \ref{sec:the_back-propagation_algorithm} we have referred to the \textit{Loss function} as to a
+		function that takes as input the ANN's output vector $\hat{\mathbf{y}}$ and the \textit{ground truth}
+		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. But what
+		essentially is a Loss function? As a matter of fact, the Loss function can be considered like
+		one way of measuring the performance of the model that utilizes it, an ANN in this case. There are various
+		types of Loss functions, for our network we have decided to use two kinds of functions, varying on the
+		type of task the ANN is fulfilling, the \textit{Mean Squared Error}, MSE for short, when the task is a
+		classification task, and the \textit{Mean Euclidean Error}, MEE for short, when the task is a regression
+		task.
+	% section the_loss_function (end)
 
 % chapter the_artificial_neural_network (end)
