@@ -146,6 +146,31 @@
 
 	\section{The activation functions} % (fold)
 	\label{sec:the_activation_functions}
+		As we have mentioned in section \ref{sec:the_back-propagation_algorithm}, each one of the ANN's layers
+		has an \textit{activation function}, that is, a function that is applied to $\mathbf{a}_{k}$ in order to
+		obtain $\mathbf{h}_k$, with $k \in \{1,\ldots,l\}$. We can say that an activation function of a node
+		defines the output of that node, and maps $\mathbf{a}_{k}$ into the desired range. For being chosen as
+		an activation functions, a function has to possess a series of properties, such as
+
+		\begin{itemize}
+			\item \textit{nonlinearity}: when the activation function is non-linear, then a two-layer neural
+			network can be proven to be a universal function approximator;
+			\item \textit{range}: when the range of the activation function is finite, gradient-based training
+			methods, such as the ones described in chapter \ref{cha:optimizers}, tend to be more stable, because
+			pattern presentations significantly affect only limited weights;
+			\item \textit{continuously differentiable}: since the functions have to be envolved in the Chain Rule
+			of Calculus during the gradient's computation in the back-propagation algorithm;
+		\end{itemize}
+
+		There are many functions that can be used as activation functions for an ANN; we have chosen to utilize the
+		well known \textit{logistic function}, i.e. the \textit{sigmoid function}, which is computed as
+
+		\begin{align*}
+		    &f(x) = \sigma(x) = \frac{1}{1 + e^{-x}} \\
+		    &f'(x) = \sigma'(x) = f(x)(1 - f(x)),
+		\end{align*}
+
+		and is defined in the range $\left ( 0,\ 1 \right )$.
 
 	% section the_activation_functions (end)
 
@@ -155,11 +180,11 @@
 		function that takes as input the ANN's output vector $\hat{\mathbf{y}}$ and the \textit{ground truth}
 		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. But what
 		essentially is a Loss function? As a matter of fact, the Loss function can be considered like
-		one way of measuring the performance of the model that utilizes it, an ANN in this case. There are various
-		types of Loss functions, for our network we have decided to use two well known functions, varying on the
-		type of task the ANN is fulfilling, the \textit{Mean Squared Error}, MSE for short, when the task is a
-		classification task, and the \textit{Mean Euclidean Error}, MEE for short, when the task is a regression
-		task. The MSE is obtained with the formula
+		one way of measuring the performance, or equivalently the error, of the model that utilizes it, an ANN in
+		this case. There are various types of Loss functions, for our network we have decided to use two well
+		known functions, varying on the type of task the ANN is fulfilling, the \textit{Mean Squared Error}, MSE
+		for short, when the task is a classification task, and the \textit{Mean Euclidean Error}, MEE for short,
+		when the task is a regression task. The MSE is obtained with the formula
 
 		\begin{equation*}
 		    \text{MSE} = \frac{1}{m}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i},
@@ -179,8 +204,15 @@
 		$\hat{\mathbf{y}}$ is
 
 		\begin{equation*}
-		     \nabla_{\hat{\mathbf{y}}}L\left(\hat{\mathbf{y}}, \mathbf{y}\right) = \nabla_{\hat{\mathbf{y}}}
-		     \frac{1}{2}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i}
+		     \nabla_{\hat{\mathbf{y}}}\text{MSE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
+		     \hat{\mathbf{y}} - \mathbf{y},
+		\end{equation*}
+
+		while the gradient for the MEE is
+
+		\begin{equation*}
+		     \nabla_{\hat{\mathbf{y}}}\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
+		     \frac{\hat{\mathbf{y}} - \mathbf{y}}{\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right)}.
 		\end{equation*}
 	% section the_loss_function (end)
 
