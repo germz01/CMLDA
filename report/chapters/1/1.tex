@@ -156,7 +156,7 @@
 			$\nabla_{\theta} J(\theta)$, with $\theta$ representing the ANN's hyperparameters, with respect to
 			every network's unit using the well known \textit{back-propagation algorithm};
 			\item optimize the information gathered during the first phase using a distinct optimizer, chosen
-			among the \textit{Stochastic Gradient Descent} and the \textit{Conjugate Gradient Descent}, as
+			among the \textit{Stochastic Gradient Descent} and the \textit{Conjugate Gradient Method}, as
 			described in chapter \ref{cha:optimizers};
 		\end{enumerate}
 
@@ -166,7 +166,7 @@
 		also composed by two phases, a first phase, that is, the \textit{forward propagation}, in which the
 		feature vector $\mathbf{x}$ given in input has to flow from the input layer through the hidden layers and,
 		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
-		is, the \textit{back-propagation}, which allows the informtion to flow backward through the network in
+		is, the \textit{back-propagation}, which allows the information to flow backward through the network in
 		order to compute the gradient by applying the Chain Rule of Calculus, that is, a formula for computing the
 		derivative of a composition of functions.
 
@@ -274,12 +274,14 @@
 		when the task is a regression task. The MSE is obtained with the formula
 
 		\begin{equation*}
+		\label{mse}
 		    \text{MSE} = \frac{1}{m}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i},
 		\end{equation*}
 
 		while the MEE is obtained with the formula
 
 		\begin{equation*}
+		\label{mee}
 		    \text{MEE} = \frac{1}{m}\sum_{i = 1}^{m}\sqrt{\left (\hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i}},
 		\end{equation*}
 
