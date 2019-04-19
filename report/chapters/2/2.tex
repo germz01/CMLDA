@@ -4,8 +4,8 @@
 	\label{sec:sgd}
 		When choosing an optimizer, the \textit{Stochastic Gradient Descent}, SGD for short, is a quite common
 		choice. It is not the best though, since, as proved by the last developments in the machine learning
-		field, its convergence's rate is quite slow. 
-		Said that, it is also true that it allows to finds a very low value of the cost function quickly enough. 
+		field, its convergence's rate is quite slow.
+		Said that, it is also true that it allows to finds a very low value of the cost function quickly enough.
 
 		The algorithm \ref{alg:sgd} shows the standard SGD version implemented, as described in
 		\cite{Goodfellow-et-al-2016}, supporting both \textit{momentum} and \textit{regularization}.
@@ -45,19 +45,19 @@
 			\label{fig:gradient}
 		\end{figure}
 		%Due to its stochastic nature, c. However, it has been shown that SGD almost surely converges to the global cost minimum if the cost function is convex (or pseudo-convex)[1] [1] Bottou, Léon (1998). "Online Algorithms and Stochastic Approximations". Online Learning and Neural Networks. Cambridge University Press. ISBN 978-0-521-65263-6
-		
+
 		For what concernes the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the epochs for ensure convergence.
 %deeplearning
 		A sufficient condition to guarantee convergence of SGD is that the sequence of decreasing learning rates satisfy:
 
 		\begin{equation}
 			\label{delta}
-			\sum_{t=1}^\infty \eta_t = \infty \text{  } \text{ and }\text{  } \sum_{t=1}^\infty \eta_t^2 < \infty 
+			\sum_{t=1}^\infty \eta_t = \infty \text{  } \text{ and }\text{  } \sum_{t=1}^\infty \eta_t^2 < \infty
 		\end{equation}
-		
+
 		%The cost function C(w) is three times differentiable with continuous derivatives.4 It is bounded from below, i.e. C(w) ≥ Cmin. We can assume, without loss of generality, that C(w) ≥ 0 - Online Learning and Stochastic Approximations, Leon Bottou
 		Futhermore, if we assume that the Hessian matrix of the Loss function is strictly positive definite at the optimum, which means that the Loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
-		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016, Montavon-2012,Bottou:1999:OLS:304710.304720}.
+		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016,Montavon:2012:NNT:2480981,Saad:1999:OLN:304710}.
 
 		A property of SGD is that the computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
 
@@ -106,7 +106,7 @@
 				\textbf{W}_k = \textbf{W}_{k-1}  + \textbf{v}_k.
 			\end{equation}
 
-			A variant of the CM algorithm, is the \textit{Nesterov's Accelerated Gradient} (NAG), which allows to avoid the oscillatory behaviour in the trajectory computed with CM, as visible in Fig.\ref{fig:momentum_graph}%fig2 on the importance}. 
+			A variant of the CM algorithm, is the \textit{Nesterov's Accelerated Gradient} (NAG), which allows to avoid the oscillatory behaviour in the trajectory computed with CM, as visible in Fig.\ref{fig:momentum_graph}%fig2 on the importance}.
 
 			The velocity vector \textbf{v} is computed as:
 
@@ -114,7 +114,7 @@
 				\label{nesterov_momentum}
 				\textbf{v}_k = \alpha\textbf{v}_{k-1} + \eta\nabla\textit{L}(\textbf{W}_k + \alpha\textbf{v}_{k-1}).
 			\end{equation}
-			
+
 			The update of the weights \textbf{W} follows the one described in Eq. \ref{update_momentum}.
 
 			The variant respect Eq. \ref{classical_momentum}, shown in Fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\textit{L}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
@@ -139,12 +139,12 @@
 		\subsection{Regularization}
 		\label{sec:regularization}
 
-			In order to garantee a tradeoff between goodness and complexity of the model, the regularization is allowed in the network. This choice is important to ensure that the model doesn't grow too much in complexity. 
+			In order to garantee a tradeoff between goodness and complexity of the model, the regularization is allowed in the network. This choice is important to ensure that the model doesn't grow too much in complexity.
 
 			Regularization, in fact, adds a penalty as the model's complexity increases, forcing some weights to take values close to zero,  if they have little influence on the newtork performance and so resulting in poor generalization.
 
 			It basically modifies the objective Loss functions as follows:
-			
+
 			\begin{mini}
 			  {\textbf{W}\in \mathbb{R}^n}{\textit{L}(\textbf{W}) + \lambda\Omega(\textbf{W}),}{}{}
 			\end{mini}
@@ -161,7 +161,7 @@
 
 
 
-	\section{Nonlinear Conjugate Gradient} 
+	\section{Nonlinear Conjugate Gradient}
 	\label{sec:nonlinear_conjugate_gradient}
 
 		An intresting optimization ables to lead to an improvement of the performances of the neural network, is the use of high-order information during the training phase: this brings to a more accurate choice of the search direction and of the step size, by using information from the second order approximation.
@@ -186,7 +186,7 @@
 		where $\alpha_k$ is a learning rate and $\textbf{d}_k$ is a descent direction. These are the new synaptic weights computed with the adjustment of Eq.\ref{weight}.
 
 		% Because the error function E(~,) is nonquadratic, the algorithm will not necessarily con- verge in N steps. If the algorithm has not converged after N steps, the algorithm is restarted, i.e., initializing fik+J to the current steepest descent direction ~k+~  A Scaled Conjugate Gradient Algorithm for Fast Supervised Learning p4
-		
+
 		\begin{algorithm}[H]
 			\caption{Nonlinear Conjugate Gradient Algorithm. The maximum number of epochs and the tolerance are given.}
 			\label{alg:cgd}
@@ -195,7 +195,7 @@
 					\State Initialize $\textbf{W}_0$ and $\textit{L}_g$
 					\State $k \gets 0$, $g_0 \gets 0$
 					\While {$k < max\_epochs$}
-						\State Evaluate the Loss function $\textit{L}_k$ and its gradient $\textbf{g}_k$ 
+						\State Evaluate the Loss function $\textit{L}_k$ and its gradient $\textbf{g}_k$
 						\If {$\textit{L}_k < \textit{L}_g \text{ } \text{ or } \text{ } \|\textbf{g}_k\|> tolerance$}
 							\State
 							\Return Error goal reached
@@ -203,7 +203,7 @@
 						\State Compute the $\beta$ with one of the methods HS, MHS, FR, PR
 
 						\State Compute the direction: $\textbf{d}_k \gets - \textbf{g}_k + \beta\textbf{d}_k$
-						\State Compute the learning rate $\alpha_k$ with a Line Search 
+						\State Compute the learning rate $\alpha_k$ with a Line Search
 						\State Update the weights: $\textbf{W}_{k+1} \gets \textbf{W}_{k} + \alpha_k\textbf{d}_k$
 						\State $k \gets k + 1$
 					\EndWhile
@@ -237,7 +237,7 @@
 
 			Of course, the first search direction when $k = 0$ is defined as the steepest descent direction at the initial weight $\textbf{W}_0$ while, for $k > 1$, a minimization along each of the search direction is performed.
 
-			Since it may be that the direction found is not a descent direction of the objective function, another modified search direction, proposed by Zang et al.\ref{zhang}, has been tested in the project. It ensures sufficient descent $g_k^T = -\|g_k\|^2$, indipendent of the line search used or the convexity of the objective function, and is defined as follows:
+			Since it may be that the direction found is not a descent direction of the objective function, another modified search direction, proposed by Zang et al.\cite{L-2006}, has been tested in the project. It ensures sufficient descent $g_k^T = -\|g_k\|^2$, indipendent of the line search used or the convexity of the objective function, and is defined as follows:
 
 			\begin{equation}
 			\label{mod_dir}
@@ -257,13 +257,14 @@
 
 			The formulas tested in our implementation are four: the Fletcher-Reeves (FR), the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
 
-			One of the properties that must be garanteed, is the global convergence of the method. Since, in our network, we are dealing with a nonquadratic Loss function, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{Gilbert-1992}:
+			One of the properties that must be garanteed, is the global convergence of the method. Since, in our network, we are dealing with a nonquadratic Loss function, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
 			\begin{equation}
 			\label{beta_max}
 				 \beta^+ = max\{\beta, 0\}.
 			\end{equation}
 
-			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction. Furthermore, because of the nonquadratic nature of the error function, the algorithm will not necessarily converge in N steps, as it usually does when applied to quadratic functions. The use of $\beta$ in Eq. \ref{beta_max} is similar to adopt the strategy of restarting the algorithm after N steps, initializing $d_k$ to the current steepest descent direction \cite{Marti-1993}.
+			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction. Furthermore, because of the nonquadratic nature of the error function, the algorithm will not necessarily converge in N steps, as it usually does when applied to quadratic functions. The use of $\beta$ in Eq. \ref{beta_max} is similar to adopt the strategy of restarting the algorithm after N steps, initializing $d_k$ to the current steepest descent direction
+			\cite{MOLLER1993525}.
 
 			\begin{equation}
 			\label{betas}
@@ -275,10 +276,10 @@
 			The HS and the PR methods in Eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of Eq. \ref{beta_max} has been adopted.
 			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
 
-			For what concernes the FR method (also described in Eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods \cite{book:92812}.
+			For what concernes the FR method (also described in Eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods \cite{Boyd:2004:CO:993483}, chapter 5.
 			Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
 
-			The last method tested is the $MHS^+$, a modified version of the Hestenes-Stiefel one \cite{LIVIERIS2013491}. 
+			The last method tested is the $MHS^+$, a modified version of the Hestenes-Stiefel one \cite{LIVIERIS2013491}.
 			It garantees sufficient descent with inexact line search and is based on a modified secant equation which approximates the second order information of the Loss function with high order accuracy. Moreover, it is globally convergent.
 
 			It is defined as follows:
@@ -305,19 +306,19 @@
 			\begin{equation}
 			\label{secant_2}
  				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{y}_{k-1},
- 			\end{equation}		
+ 			\end{equation}
 
 
 			\begin{equation}
 			\label{secant_2}
- 			 \widetilde{y}_{k-1} =  y_{k-1} + \frac{\theta_{k-1}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},  		
- 			\end{equation}	
+ 			 \widetilde{y}_{k-1} =  y_{k-1} + \frac{\theta_{k-1}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
+ 			\end{equation}
 
  			with \textbf{u} a vector satisying $(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u} \neq 0$ and $\theta_{k-1}$ defined as:
  			\begin{equation}
 			\label{theta}
  			 \theta_{k-1} = 2(\textit{L}_{k-1} - \textit{L}_{k}) + (\textbf{g}_k + \textbf{g}_{k-1})^T(\textbf{W}_k - \textbf{W}_{k-1}).
- 			\end{equation}	
+ 			\end{equation}
 
 
  			Since for $\|(\textbf{W}_k - \textbf{W}_{k-1})\| > 1$ the standard secant Eq.\ref{secant_1} better approximates $\nabla^2\textit{L}_{k-1}(\textbf{W}_k - \textbf{W}_{k-1})$ than the modified version in Eq.\ref{secant_2}, Livieris and Pintelas\cite{LIVIERIS2013491} proposed a modification of the equation in this way:
@@ -325,7 +326,7 @@
  			\begin{equation}
 			\label{secant_3}
  				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{y}_{k-1}^*,
- 			\end{equation}	
+ 			\end{equation}
 
  			\begin{equation}
 			\label{y_3}
@@ -365,7 +366,7 @@
 			that is the convergence of the algorithm.
 
 
-		\subsection{Line Search} 
+		\subsection{Line Search}
 		\label{sub:line_search}
 			Once computed the new direction \textbf{d} involved in the new weights \textbf{W}+$\alpha$\textbf{d}, a line search has to be implemented in order to find the right step size which minimize the Loss function.
 
@@ -477,7 +478,7 @@
 				\end{algorithmic}
 			\end{algorithm}
 
-			The algorithm satisfing the Strong Wolfe conditions is implemented through the functions described in the pseudocodes \ref{alg:linesearch}, \ref{alg:zoom} and is based on the the algorithms presented in \cite{book:92811}.
+			The algorithm satisfing the Strong Wolfe conditions is implemented through the functions described in the pseudocodes \ref{alg:linesearch}, \ref{alg:zoom} and is based on the the algorithms presented in \cite{Boyd:2004:CO:993483}, chapter 3.
 
 			Since two consecutive values may be similar in finite-precision arithmetic, we set a threshold in both the \texttt{line\_search} and the quadratic interpolation functions, which garantees that the algorithm stops if two values of $\alpha$ are too close or if the maximum number of iterations has been reached.
 
@@ -487,7 +488,7 @@
 
 
 
-			
+
 
 			% \begin{algorithm}
 			% \caption{Interpolate}\label{bisection}
