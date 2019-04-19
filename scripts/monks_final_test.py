@@ -69,7 +69,7 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
 
-for ds in [0]:
+for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
             'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)

@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 # EXPERIMENTAL SETUP ##########################################################
 
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
-grid_size = 20
+grid_size = 30
 split_percentage = 0.8
 epochs = 500
 
@@ -175,7 +175,7 @@ if validation:
     param_ranges = {}
 
     if opt == 'SGD':
-        param_ranges['eta'] = (0.3, 7.)
+        param_ranges['eta'] = (0.6, 0.8)
 
         type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
         assert type_m in ['standard', 'nesterov']
@@ -183,7 +183,7 @@ if validation:
 
         param_ranges['alpha'] = (0.5, 0.9)
         param_ranges['reg_method'] = 'l2'
-        param_ranges['reg_lambda'] = 0.0
+        param_ranges['reg_lambda'] = (0.001, 0.01)
         param_ranges['epochs'] = epochs
     else:
         beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')

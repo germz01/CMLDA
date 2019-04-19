@@ -38,6 +38,45 @@
         performances for each one of this points and finally selecting the best combinations of parameters based
         on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
         \textit{recall} and \textit{f1-score}.
+
+        \subsection{Results for Stochastic Gradient Descent} % (fold)
+        \label{sub:results_for_stochastic_gradient_descent}
+
+            \begin{table}[H]
+                \centering
+                \begin{subtable}{\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+                            \hline
+                            Task & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$ & MSE (TR -
+                            TS) &
+                            Accuracy (TR - TS) (\%) \\
+                            \hline
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.61 & 0.83 & 0.0 & 0.0058 - 0.026 &
+                            100 \% - 95 \% \\
+                            \hline
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.64 & 0.78 & 0.0
+                            & 0.00092 - 0.015 &
+                            100 \% - 97 \% \\
+                            \hline
+                            MONK 3 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.66 & 0.86 & 0.0072
+                            & 0.035 - 0.017 &
+                            93 \% - 97 \% \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{subtable}
+                \caption{Results for the Stochastic Gradient Descent. In order to obtain this results we used
+                the Nesterov's momentum.}
+                \label{monks}
+    \end{table}
+
+        % subsection results_for_stochastic_gradient_descent (end)
+
+        \subsection{Results for Conjugate Gradient Descent} % (fold)
+        \label{sub:results_for_conjugate_gradient_descent}
+
+        % subsection results_for_conjugate_gradient_descent (end)
     % section monks (end)
 
 % chapter experiments (end)
