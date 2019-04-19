@@ -1,13 +1,43 @@
-\chapter{Test} % (fold)
-\label{cha:test}
+\chapter{Experiments} % (fold)
+\label{cha:experiments}
+    In this final chapter we present the results we obtained by applying our model to the datasets we have used
+    to validate and test our ANN, namely, MONKS and CUP. Other than the results, we also present some details
+    about the validation phase for each one of the datasets. We enrich the presentation by adding some graphs of
+    the ANN's performances during the experimental phase.
 
-	\section{Monk} % (fold)
-	\label{sec:monk}	
-	% section monk (end)
+    \section{MONKS} % (fold)
+    \label{sec:monks}
+        Before delving into the details of the results we obtained by applying our model to the dataset, we
+        provide some informations about the \textit{preprocessing routines} and \textit{validation schema} we
+        decided to use. Here are the steps we followed in order to reach the final states of our analysis.
 
-	\section{Cup} % (fold)
-	\label{sec:cup}
-	% section cup (end)
+        \begin{enumerate}
+            \item Since the MONKS datasets’ feature are categorical, that is, every feature’s value represents a
+            class, not a numerical value, we preprocessed the three datasets by writing a script
+            for applying a \textit{1-of-k encoding}, hence obtaining 17 binary input features.
+            \item As a supplementary preprocessing phase, we have applied a \textit{symmetrization} to the matrix
+            containing the dataset’s values, in order to ease the training during the validation phase by having a
+            matrix of values closer to the symmetric behavior of the sigmoid function, which was introduced in
+            section \ref{sec:the_activation_functions}.
+            \item Since we have chosen to follow \cite{Bergstra:2012:RSH:2188385.2188395} for the hyperparameters'
+            search during the validation phase, we first performed some \textit{preliminary trials} in order to
+            have a glimpse on the best intervals for searching our model's hyperparameters. During this trials we
+            manually varied the model's hyperparameters, e.g. the learning rate, the momentum constant and so on
+            for the SGD and the rho constant for the CGD, and observed the resulting \textit{learning curves}. For
+            this part of the analysis we have used the $20\%$ of the training set as validation set, and the
+            remaining part for training the network.
+            \item We then deepen the search using the most interesting intervals discovered during the preliminary
+            trials in the validation phase by using our implementation of the (random)
+            \textit{grid search algorithm}, in which we also used our implementation of the
+            \textit{k-fold cross validation algorithm} (which follows the standard approach of using a value of 3
+            for the k parameter).
+        \end{enumerate}
 
-	
-% chapter test (end)
+        That is, our validation schema for the MONKS dataset essentially consist in using the random grid search
+        algorithm to investigate some random sampled "points" in the hyperparameters' space, evaluating the
+        performances for each one of this points and finally selecting the best combinations of parameters based
+        on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
+        \textit{recall} and \textit{f1-score}.
+    % section monks (end)
+
+% chapter experiments (end)
