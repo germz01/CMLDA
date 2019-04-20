@@ -33,7 +33,7 @@
             of 3 for the k parameter).
         \end{enumerate}
 
-        That is, our validation schema for the MONKS dataset essentially consist in using the random grid
+        Our validation schema for the MONKS dataset essentially consists in using the random grid
         search
         algorithm to investigate some random sampled "points" in the hyperparameters' space, evaluating the
         performances for each one of this points and finally selecting the best combinations of parameters
@@ -41,7 +41,7 @@
         on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
         \textit{recall} and \textit{f1-score}. Both in table \ref{tab:monks_sgd} and table
         \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
-        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Descent,
+        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Method,
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
         MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using the
         the final configurations for the hyperparameters obtained during the validation phase.
@@ -76,13 +76,13 @@
 
             For efficiency related reasons we have decided to use the \textit{Nesterov momentum}, as
             described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the
-            validation and testing phases. The regularization constant $\lambda$ is uses only in the third
+            validation and testing phases. The regularization constant $\lambda$ is used only in the third
             dataset, since Monk 3 is the only one among the three that has noisy samples.
 
         % subsection results_for_stochastic_gradient_descent (end)
 
-        \subsection{Results for Conjugate Gradient Descent} % (fold)
-        \label{sub:results_for_conjugate_gradient_descent}
+        \subsection{Results for Conjugate Gradient Method} % (fold)
+        \label{sub:results_for_conjugate_gradient_method}
 
         \begin{table}[H]
                 \centering
@@ -123,11 +123,11 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Results for the Conjugate Gradient Descent.}
+                \caption{Results for the Conjugate Gradient Method.}
                 \label{tab:monks_cgd}
         \end{table}
 
-        % subsection results_for_conjugate_gradient_descent (end)
+        % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)
 
 % chapter experiments (end)
