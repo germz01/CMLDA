@@ -70,7 +70,7 @@ else:
 neural_net, initial_W, initial_b = None, None, None
 
 if testing or testing_betas:
-    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
+    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[4, 8],
                                   activation='sigmoid')
     initial_W, initial_b = neural_net.W, neural_net.b
 
@@ -78,7 +78,7 @@ if testing or testing_betas:
 # PRELIMINARY TRAINING ########################################################
 #
 pars = {}
-betas = ['hs', 'mhs', 'fr', 'pr']
+betas = ['hs', 'mhs', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
@@ -88,8 +88,8 @@ if testing:
     if opt == 'SGD':
         pars = {'epochs': epochs,
                 'batch_size': X_training.shape[0],
-                'eta': 0.5,
-                'momentum': {'type': 'nesterov', 'alpha': 0.9},
+                'eta': 0.61,
+                'momentum': {'type': 'nesterov', 'alpha': 0.83},
                 'reg_lambda': 0.0,
                 'reg_method': 'l2'}
 
@@ -99,7 +99,7 @@ if testing:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
                 'strong': True,
-                'rho': 0.5}
+                'rho': 0.67}
         if testing_betas:
             for beta in betas:
                 pars['beta_m'] = beta
@@ -110,6 +110,7 @@ if testing:
 
                     pars['plus'] = True
                     pars['d_m'] = d_m
+                    pars['sigma_2'] = 0.3
 
                     neural_net.train(X_training, y_training, opt,
                                      X_va=X_validation, y_va=y_validation,
@@ -152,8 +153,10 @@ if testing:
 
         print 'FINAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
                                                   error_per_epochs_va[-1])
-        print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
-                                                 error_per_epochs))
+        print 'EPOCHS OF TRAINING: {}'.format(len(neural_net.optimizer.
+                                                  error_per_epochs))
+        print 'CONVERGENCE EPOCH: {}'.format(neural_net.optimizer.
+                                             convergence)
         print '\n'
 
         u.plot_learning_curve_with_info(

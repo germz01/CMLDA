@@ -42,6 +42,8 @@ class Optimizer(object):
         self.accuracy_per_epochs_va = []
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
+        self.convergence = 0
+        self.max_accuracy = 0
 
     def forward_propagation(self, nn, x, y):
         for i in range(nn.n_layers):
@@ -189,6 +191,10 @@ class SGD(Optimizer):
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
                 self.f1_score_per_epochs.append(bin_assess.f1_score)
                 self.f1_score_per_epochs_va.append(bin_assess_va.f1_score)
+
+                if (bin_assess_va.accuracy > self.max_accuracy):
+                    self.max_accuracy = bin_assess_va.accuracy
+                    self.convergence = e
 
 
 class CGD(Optimizer):
@@ -372,6 +378,10 @@ class CGD(Optimizer):
                 self.accuracy_per_epochs_va.append(bin_assess_va.accuracy)
                 self.f1_score_per_epochs.append(bin_assess.f1_score)
                 self.f1_score_per_epochs_va.append(bin_assess_va.f1_score)
+
+                if (bin_assess_va.accuracy > self.max_accuracy):
+                    self.max_accuracy = bin_assess_va.accuracy
+                    self.convergence = k
 
             if k > 0 and (np.linalg.norm(g) < 1e-5):
                 return 1
