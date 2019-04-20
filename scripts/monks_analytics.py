@@ -214,7 +214,12 @@ if validation:
     selection.search(X_design, y_design, nfolds=nfolds)
     best_hyperparameters = selection.select_best_hyperparams()
 
-    with open('../data/final_setup/monks_{}_best_hyperparameters_{}.json'.
-              format(ds, opt.lower()),
-              'w') as json_file:
+    json_name = ''
+
+    if opt == 'SGD':
+        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}.json'.format(ds, opt.lower())
+    else:
+        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}_{}.json'.format(ds, opt.lower(), param_ranges['beta_m'])
+
+    with open(json_name, 'w') as json_file:
         json.dump(best_hyperparameters, json_file, indent=4)

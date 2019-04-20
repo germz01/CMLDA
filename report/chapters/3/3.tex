@@ -2,8 +2,8 @@
 \label{cha:experiments}
     In this final chapter we present the results we obtained by applying our model to the datasets we have used
     to validate and test our ANN, namely, MONKS and CUP. Other than the results, we also present some details
-    about the validation phase for each one of the datasets. We enrich the presentation by adding some graphs of
-    the ANN's performances during the experimental phase.
+    about the validation phase for each one of the datasets. We enrich the presentation by adding some graphs
+    of the ANN's performances during the experimental phase.
 
     \section{MONKS} % (fold)
     \label{sec:monks}
@@ -12,32 +12,39 @@
         decided to use. Here are the steps we followed in order to reach the final states of our analysis.
 
         \begin{enumerate}
-            \item Since the MONKS datasets’ feature are categorical, that is, every feature’s value represents a
-            class, not a numerical value, we preprocessed the three datasets by writing a script
+            \item Since the MONKS datasets’ feature are categorical, that is, every feature’s value represents
+            a class, not a numerical value, we preprocessed the three datasets by writing a script
             for applying a \textit{1-of-k encoding}, hence obtaining 17 binary input features.
-            \item As a supplementary preprocessing phase, we have applied a \textit{symmetrization} to the matrix
-            containing the dataset’s values, in order to ease the training during the validation phase by having a
-            matrix of values closer to the symmetric behavior of the sigmoid function, which was introduced in
-            section \ref{sec:the_activation_functions}.
-            \item Since we have chosen to follow \cite{Bergstra:2012:RSH:2188385.2188395} for the hyperparameters'
-            search during the validation phase, we first performed some \textit{preliminary trials} in order to
-            have a glimpse on the best intervals for searching our model's hyperparameters. During this trials we
-            manually varied the model's hyperparameters, e.g. the learning rate, the momentum constant and so on
-            for the SGD and the rho constant for the CGD, and observed the resulting \textit{learning curves}. For
-            this part of the analysis we have used the $20\%$ of the training set as validation set, and the
-            remaining part for training the network.
-            \item We then deepen the search using the most interesting intervals discovered during the preliminary
-            trials in the validation phase by using our implementation of the (random)
+            \item As a supplementary preprocessing phase, we have applied a \textit{symmetrization} to the
+            matrix containing the dataset’s values, in order to ease the training during the validation phase
+            by having a matrix of values closer to the symmetric behavior of the sigmoid function, which was
+            introduced in section \ref{sec:the_activation_functions}.
+            \item Since we have chosen to follow \cite{Bergstra:2012:RSH:2188385.2188395} for the
+            hyperparameters' search during the validation phase, we first performed some
+            \textit{preliminary trials} in order to have a glimpse on the best intervals for searching our
+            model's hyperparameters. During this trials we manually varied the model's hyperparameters, e.g.
+            the learning rate, the momentum constant and so on for the SGD and the rho constant for the CGD,
+            and observed the resulting \textit{learning curves}. For this part of the analysis we have used
+            the $20\%$ of the training set as validation set, and the remaining part for training the network.
+            \item We then deepen the search using the most interesting intervals discovered during the
+            preliminary trials in the validation phase by using our implementation of the (random)
             \textit{grid search algorithm}, in which we also used our implementation of the
-            \textit{k-fold cross validation algorithm} (which follows the standard approach of using a value of 3
-            for the k parameter).
+            \textit{k-fold cross validation algorithm} (which follows the standard approach of using a value
+            of 3 for the k parameter).
         \end{enumerate}
 
-        That is, our validation schema for the MONKS dataset essentially consist in using the random grid search
+        That is, our validation schema for the MONKS dataset essentially consist in using the random grid
+        search
         algorithm to investigate some random sampled "points" in the hyperparameters' space, evaluating the
-        performances for each one of this points and finally selecting the best combinations of parameters based
+        performances for each one of this points and finally selecting the best combinations of parameters
+        based
         on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
-        \textit{recall} and \textit{f1-score}.
+        \textit{recall} and \textit{f1-score}. Both in table \ref{tab:monks_sgd} and table
+        \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
+        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Descent,
+        represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
+        MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using the
+        the final configurations for the hyperparameters obtained during the validation phase.
 
         \subsection{Results for Stochastic Gradient Descent} % (fold)
         \label{sub:results_for_stochastic_gradient_descent}
@@ -48,33 +55,59 @@
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
                             \hline
-                            Task & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$ & MSE (TR -
-                            TS) &
-                            Accuracy (TR - TS) (\%) \\
+                            Task & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
+                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
                             \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.61 & 0.83 & 0.0 & 0.0058 - 0.026 &
-                            100 \% - 95 \% \\
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.61 & 0.83 & 0.0 & 0.018 - 0.026 &
+                            97 \% - 95 \% \\
                             \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.64 & 0.78 & 0.0
-                            & 0.00092 - 0.015 &
-                            100 \% - 97 \% \\
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.64 & 0.78 & 0.0 & 0.010 - 0.015 &
+                            98 \% - 97 \% \\
                             \hline
                             MONK 3 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.66 & 0.86 & 0.0072
-                            & 0.035 - 0.017 &
-                            93 \% - 97 \% \\
+                            & 0.015 - 0.017 & 97 \% - 97 \% \\
                             \hline
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Results for the Stochastic Gradient Descent. In order to obtain this results we used
-                the Nesterov's momentum.}
-                \label{monks}
-    \end{table}
+                \caption{Results for the Stochastic Gradient Descent.}
+                \label{tab:monks_sgd}
+            \end{table}
+
+            For efficiency related reasons we have decided to use the \textit{Nesterov momentum}, as
+            described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the
+            validation and testing phases. The regularization constant $\lambda$ is uses only in the third
+            dataset, since Monk 3 is the only one among the three that has noisy samples.
 
         % subsection results_for_stochastic_gradient_descent (end)
 
         \subsection{Results for Conjugate Gradient Descent} % (fold)
         \label{sub:results_for_conjugate_gradient_descent}
+
+        \begin{table}[H]
+                \centering
+                \begin{subtable}{\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+                            \hline
+                            Task & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
+                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
+                            \hline
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.61 & 0.83 & 0.0 & 0.018 - 0.026 &
+                            97 \% - 95 \% \\
+                            \hline
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.64 & 0.78 & 0.0 & 0.010 - 0.015 &
+                            98 \% - 97 \% \\
+                            \hline
+                            MONK 3 & 17 -> 4 -> 8 -> 1 & batch & sigmoid & 0.66 & 0.86 & 0.0072
+                            & 0.015 - 0.017 & 97 \% - 97 \% \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{subtable}
+                \caption{Results for the Stochastic Gradient Descent.}
+                \label{tab:monks_sgd}
+        \end{table}
 
         % subsection results_for_conjugate_gradient_descent (end)
     % section monks (end)

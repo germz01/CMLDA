@@ -69,13 +69,19 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
 
+beta = None
+
+if opt == 'CGD':
+    beta = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
+    assert beta in ['hs', 'mhs', 'fr', 'pr']
+
 for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
             'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
     else:
         hps = path_to_json + \
-            'monks_{}_best_hyperparameters_cgd.json'.format(ds + 1)
+            'monks_{}_best_hyperparameters_cgd_{}.json'.format(ds + 1, beta)
 
     with open(hps) as json_file:
         params = json.load(json_file)
@@ -117,5 +123,11 @@ for ds in [0, 1, 2]:
                                            np.mean(acc_tr), np.std(acc_tr),
                                            np.mean(acc_ts), np.std(acc_ts)]
 
-statistics.to_csv(path_or_buf=fpath + opt.lower() + '_monks_statistics.csv',
-                  index=False)
+file_name = None
+
+if opt == 'SGD':
+    file_name = fpath + opt.lower() + '_monks_statistics.csv'
+else:
+    file_name = fpath + opt.lower() + '_' + beta + '_monks_statistics.csv'
+
+statistics.to_csv(path_or_buf=file_name, index=False)
