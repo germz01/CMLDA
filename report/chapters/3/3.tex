@@ -43,7 +43,7 @@
         \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
         using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Method,
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
-        MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using the
+        MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
         the final configurations for the hyperparameters obtained during the validation phase.
 
         \subsection{Results for Stochastic Gradient Descent} % (fold)
@@ -127,14 +127,15 @@
                 \label{tab:monks_cgd}
         \end{table}
 
-        For what concernes the results for the Conjugate Gradient Method, for all the configurations tested, the direction has been set to the modified one.%by eq.
-
-        It's immediate to see the higher performances achieved by the modified $MHS^+$ method and by the $HS^+$ one, both reaching an accuracy of 100\% in the training and test sets. On the contrary, the PR method performes worse than the Stochastic Gradient Descent, behaving as in presence of overfitting. 
-
-        As in the SGD results, the third dataset tested (Monk 3) obtains a little worse performances because of the presence of noise in it.
-        Anyway, it's interesting to underline that these models are able to reach higher accuracies with the ability to "auto-tune" themeselves,  without the necessity to modify at hand hyperparameters as the learning rate or the the momentum term. 
-
-
+        For what concernes the results for the Conjugate Gradient Method, for all the configurations tested,
+        the direction has been set to the modified one. It's immediate to see the higher performances
+        achieved by the modified $MHS^+$ method and by the $HS^+$ one, both reaching an accuracy of 100\% in
+        the training and test sets. On the contrary, the PR method performes worse than the Stochastic
+        Gradient Descent, behaving as in presence of overfitting. As in the SGD results, the third dataset
+        tested (Monk 3) obtains a little worse performances because of the presence of noise in it.
+        Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
+        ability to "auto-tune" themeselves,  without the necessity to modify at hand hyperparameters as the
+        learning rate or the the momentum term.
 
         % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)
