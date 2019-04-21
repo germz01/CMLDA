@@ -69,6 +69,7 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
+convergence_ts = list()
 
 beta = None
 
@@ -115,6 +116,7 @@ for ds in [0, 1, 2]:
         mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
+        convergence_ts.append(neural_net.optimizer.convergence)
         neural_net.restore_weights()
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
@@ -122,7 +124,7 @@ for ds in [0, 1, 2]:
                                            np.mean(mse_ts), np.std(mse_ts),
                                            np.mean(acc_tr), np.std(acc_tr),
                                            np.mean(acc_ts), np.std(acc_ts),
-                                           neural_net.optimizer.convergence]
+                                           np.mean(convergence_ts)]
 
 file_name = None
 
