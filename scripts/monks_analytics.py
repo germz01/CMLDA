@@ -202,8 +202,10 @@ if validation:
         param_ranges['strong'] = True
         param_ranges['plus'] = True
         param_ranges['sigma_2'] = (0.1, 0.4)
-        param_ranges['rho'] = (0., 1.)
-
+        if beta_m == 'mhs':
+            param_ranges['rho'] = (0., 1.)
+        else:
+            param_ranges['rho'] = 0.0
     param_ranges['optimizer'] = opt
     param_ranges['hidden_sizes'] = [4, 8]
     param_ranges['activation'] = 'sigmoid'

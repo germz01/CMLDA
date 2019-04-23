@@ -53,7 +53,7 @@ class Optimizer(object):
 
         if nn.task == 'classifier':
             return lss.mean_squared_error(self.h[-1].T, y)
-        return lss.mean_euclidean_error(self.h[-1].T, y)
+        return lss.mean_squared_error(self.h[-1].T, y)  # mee
 
     def back_propagation(self, nn, x, y):
         g = 0
@@ -61,7 +61,7 @@ class Optimizer(object):
         if nn.task == 'classifier':
             g = lss.mean_squared_error(self.h[-1], y.T, gradient=True)
         else:
-            g = lss.mean_euclidean_error(self.h[-1], y.T, gradient=True)
+            g = lss.mean_squared_error(self.h[-1], y.T, gradient=True)  # mee
 
         for layer in reversed(range(nn.n_layers)):
             g = np.multiply(g, nn.activation[layer](self.a[layer], dev=True))

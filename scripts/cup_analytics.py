@@ -64,7 +64,7 @@ else:
 neural_net, initial_W, initial_b = None, None, None
 
 if testing or testing_betas:
-    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
+    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[16,32],
                                   activation='sigmoid', task='regression')
     initial_W, initial_b = neural_net.W, neural_net.b
 
@@ -124,7 +124,7 @@ if testing:
 
     if testing_betas:
         u.plot_betas_learning_curves('CUP', betas, [errors_std, errors],
-                                     'ERRORS', 'MEE')
+                                     'ERRORS', 'MSE')
     else:
         print '\n'
         print 'INITIAL ERROR: {}'.\
@@ -154,7 +154,7 @@ if validation:
     param_ranges = {}
 
     if opt == 'SGD':
-        param_ranges['eta'] = (0.3, 7.)
+        param_ranges['eta'] = (0.004, 0.2)
 
         type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
         assert type_m in ['standard', 'nesterov']
@@ -162,7 +162,7 @@ if validation:
 
         param_ranges['alpha'] = (0.5, 0.9)
         param_ranges['reg_method'] = 'l2'
-        param_ranges['reg_lambda'] = 0.0
+        param_ranges['reg_lambda'] = (0.0003, 0.003)
         param_ranges['epochs'] = epochs
     else:
         beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
@@ -178,10 +178,12 @@ if validation:
         param_ranges['strong'] = True
         param_ranges['plus'] = True
         param_ranges['sigma_2'] = (0.1, 0.4)
-        param_ranges['rho'] = (0., 1.)
-
+        if beta_m == 'mhs':
+            param_ranges['rho'] = (0., 1.)
+        else:
+            param_ranges['rho'] = 0.0
     param_ranges['optimizer'] = opt
-    param_ranges['hidden_sizes'] = [4, 8]
+    param_ranges['hidden_sizes'] = [16, 32]
     param_ranges['activation'] = 'sigmoid'
     param_ranges['task'] = 'regression'
 
