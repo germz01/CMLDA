@@ -77,10 +77,10 @@ sample = None if raw_input('SAMPLE A LEARING CURVE?[Y/N] ') == 'N' else \
 
 if opt == 'SGD':
     hps = path_to_json + \
-            'cup_best_hyperparameters_sgd.json'
+            'SGD/CUP_best_hyperparameters_sgd.json'
 else:
     hps = path_to_json + \
-            'cup_best_hyperparameters_cgd_{}.json'.format(beta)
+            'CGD/' + str(beta) + 'CUP_best_hyperparameters_cgd.json'
 
 with open(hps) as json_file:
     params = json.load(json_file)
