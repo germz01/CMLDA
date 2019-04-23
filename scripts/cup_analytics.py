@@ -16,7 +16,7 @@ nfolds = 3
 grid_size = 20
 split_percentage = 0.7
 epochs = 500
-
+beta_m = ''
 ###############################################################################
 # LOADING DATASET #############################################################
 
@@ -195,8 +195,8 @@ if validation:
     selection.search(X_design, y_design, nfolds=nfolds)
     best_hyperparameters = selection.select_best_hyperparams(error='mee')
 
-    with open('../data/final_setup/CUP_best_hyperparameters_{}.json'.
-              format(opt.lower()),
+    with open('../data/final_setup/CUP_best_hyperparameters_{}_{}.json'.
+              format(opt.lower(), beta_m),
               'w') as json_file:
         json.dump(best_hyperparameters, json_file, indent=4)
 
