@@ -74,10 +74,12 @@
                 \label{tab:monks_sgd}
             \end{table}
 
-            For efficiency related reasons we have decided to use the \textit{Nesterov momentum}, as
+           In order to compare the results in a similar configuration between the SGD and the CG, we have decided to adopt only the batch mode for training the ANN.
+            Futhermore, for efficiency related reasons we have decided to use the \textit{Nesterov momentum}, as
             described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the
             validation and testing phases. The regularization constant $\lambda$ is used only in the third
             dataset, since Monk 3 is the only one among the three that has noisy samples.
+
 
         % subsection results_for_stochastic_gradient_descent (end)
 
@@ -128,14 +130,15 @@
         \end{table}
 
         For what concernes the results for the Conjugate Gradient Method, for all the configurations tested,
-        the direction has been set to the modified one. It's immediate to see the higher performances
-        achieved by the modified $MHS^+$ method and by the $HS^+$ one, both reaching an accuracy of 100\% in
-        the training and test sets. On the contrary, the PR method performes worse than the Stochastic
-        Gradient Descent, behaving as in presence of overfitting. As in the SGD results, the third dataset
-        tested (Monk 3) obtains a little worse performances because of the presence of noise in it.
+        the direction has been set to the modified one, since it's the one who gave better results in the preliminary tests.
+
+        It's immediate to see the higher performances achieved by the modified $MHS^+$ method and by the $HS^+$ one, reaching an accuracy of 100\% in both
+        the training and test sets. On the contrary, the $PR^+$ method performes worse than the Stochastic
+        Gradient Descent, behaving as in presence of overfitting. Like in the results obtained from SGD, the third dataset tested (Monk 3) gets a little worse performances because of the presence of noise in it.
         Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
-        ability to "auto-tune" themeselves,  without the necessity to modify at hand hyperparameters as the
-        learning rate or the the momentum term.
+        ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the learning rate or the the momentum term.
+
+        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methods reach the highest accuracy in the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge towards an optimum value.
 
         % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)

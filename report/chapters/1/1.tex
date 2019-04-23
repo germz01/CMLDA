@@ -265,44 +265,46 @@
 	\label{sec:the_loss_function}
 		It section \ref{sec:the_back-propagation_algorithm} we have referred to the \textit{Loss function} as to a
 		function that takes as input the ANN's output vector $\hat{\mathbf{y}}$ and the \textit{ground truth}
-		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. But what
-		essentially is a Loss function? As a matter of fact, the Loss function can be considered like
+		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. 
+
+		But what essentially is a Loss function? As a matter of fact, the Loss function can be considered like
 		one way of measuring the performance, or equivalently the error, of the model that utilizes it, an ANN in
-		this case. There are various types of Loss functions, for our network we have decided to use two well
-		known functions, varying on the type of task the ANN is fulfilling, the \textit{Mean Squared Error}, MSE
-		for short, when the task is a classification task, and the \textit{Mean Euclidean Error}, MEE for short,
-		when the task is a regression task. The MSE is obtained with the formula
+		this case. There are various types of Loss functions, for our network we have decided to use a well
+		known function: the \textit{Mean Squared Error}, MSE
+		for short, for both the classification and the regression tasks.
+
+		The MSE is obtained with the formula
 
 		\begin{equation*}
 		\label{mse}
 		    \text{MSE} = \frac{1}{m}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i},
 		\end{equation*}
 
-		while the MEE is obtained with the formula
+		% while the MEE is obtained with the formula
 
-		\begin{equation*}
-		\label{mee}
-		    \text{MEE} = \frac{1}{m}\sum_{i = 1}^{m}\sqrt{\left (\hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i}},
-		\end{equation*}
+		% \begin{equation*}
+		% \label{mee}
+		%     \text{MEE} = \frac{1}{m}\sum_{i = 1}^{m}\sqrt{\left (\hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i}},
+		% \end{equation*}
 
-		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. Since this
-		formulas are used for computing the performances of our models, our primary goal is to minimize their
+		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. Since this formula is used for computing the performances of our models, our primary goal is to minimize its
 		output as much as possible by computing the gradient during the backward propagation step of the
-		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. In order to
-		do so, they have to be \textit{differentiable} functions. The gradient for the MSE with respect to
-		$\hat{\mathbf{y}}$ is
+		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. Of course, in order to do so, it must be a \textit{differentiable} function. 
+
+		The gradient for the MSE with respect to
+		$\hat{\mathbf{y}}$ is defined as:
 
 		\begin{equation*}
 		     \nabla_{\hat{\mathbf{y}}}\text{MSE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
-		     \hat{\mathbf{y}} - \mathbf{y},
+		     \hat{\mathbf{y}} - \mathbf{y}.
 		\end{equation*}
 
-		while the gradient for the MEE is
+		% while the gradient for the MEE is
 
-		\begin{equation*}
-		     \nabla_{\hat{\mathbf{y}}}\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
-		     \frac{\hat{\mathbf{y}} - \mathbf{y}}{\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right)}.
-		\end{equation*}
+		% \begin{equation*}
+		%      \nabla_{\hat{\mathbf{y}}}\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
+		%      \frac{\hat{\mathbf{y}} - \mathbf{y}}{\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right)}.
+		% \end{equation*}
 	% section the_loss_function (end)
 
 % chapter the_artificial_neural_network (end)
