@@ -80,7 +80,7 @@ if opt == 'SGD':
             'SGD/CUP_best_hyperparameters_sgd.json'
 else:
     hps = path_to_json + \
-            'CGD/' + str(beta) + 'CUP_best_hyperparameters_cgd.json'
+            'CGD/' + str(beta) + '/CUP_best_hyperparameters_cgd.json'
 
 with open(hps) as json_file:
     params = json.load(json_file)

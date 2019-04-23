@@ -73,7 +73,7 @@
                     \midrule
                     $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
 
-                    $\rho$ & $[0., 1.]$ \\
+                    $\rho$ & $[0.0, 1.0]$ \\
 
                     \midrule
               \end{tabular}
@@ -186,7 +186,7 @@
 
         Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16, 32]$.
 
-        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to discover the best parameter for the network. As described in Sec.\ref{sec:monks}, has been implemented, \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.  Tab. \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried out.
+        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to discover the best parameters for the network. As described in Sec.\ref{sec:monks}, it has been implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.  Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried out.
 
         Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient Methods is the modified one.
 
@@ -217,7 +217,7 @@
                     \midrule
                     $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
 
-                    $\rho$ & $[0., 1.]$ \\
+                    $\rho$ & $[0.0, 1.0]$ \\
 
                     \midrule
               \end{tabular}
@@ -236,7 +236,7 @@
                             Model & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
                             & MSE (TR - TS) \\
                             \hline
-                            SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 0.83 - 1.66 \\
+                            SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 1.00 - 1.35 \\
                             \hline
                         \end{tabular}
                     }
@@ -254,13 +254,13 @@
                             $\beta$ & Topology & Batch size & Activation & $\sigma_1$ & $\sigma_2$ & $\rho$
                             & MSE (TR - TS) \\
                             \hline
-                            $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.7 - 1.18\\
+                            $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.97 - 1.50\\
                             \hline
                             $HS^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.39 & 0.0
-                            & 0.68 - 1.17  \\
+                            & 0.97 - 1.50  \\
                             \hline
                             $PR^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.86 & 0.00
-                            & 0.015 - 0.017\\
+                            & 1.15 - 1.41\\
                             \hline
                         \end{tabular}
                     }
