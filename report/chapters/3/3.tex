@@ -39,12 +39,47 @@
         performances for each one of this points and finally selecting the best combinations of parameters
         based
         on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
-        \textit{recall} and \textit{f1-score}. Both in table \ref{tab:monks_sgd} and table
+        \textit{recall} and \textit{f1-score}. Both in Tab. \ref{tab:monks_sgd} and Tab. 
         \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
-        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Method,
+        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Methods,
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
         MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
         the final configurations for the hyperparameters obtained during the validation phase.
+        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase. 
+
+        \begin{table}[H]
+          \centering
+          \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
+          \begin{minipage}{.4\textwidth}
+              \centering
+              \begin{tabular}{cc}
+                    \toprule
+                    Hyperparameter & Ranges\\
+                    \midrule
+                    $\eta$ & $\left [0.6, 0.8 \right ]$\\
+
+                    $\alpha$ & $[0.5, 0.9]$ \\
+
+                    $\lambda$ & $[0.001, 0.01]$ \\
+
+                    \midrule
+              \end{tabular}
+          \end{minipage}
+          \begin{minipage}{.4\textwidth}
+              \centering
+              \begin{tabular}{cc}
+                    \toprule
+                    Hyperparameter & Ranges\\
+                    \midrule
+                    $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
+
+                    $\rho$ & $[0., 1.]$ \\
+
+                    \midrule
+              \end{tabular}
+            \end{minipage}
+            \label{tab:hyper_monk}
+        \end{table}
 
         \subsection{Results for Stochastic Gradient Descent} % (fold)
         \label{sub:results_for_stochastic_gradient_descent}
@@ -83,7 +118,7 @@
 
         % subsection results_for_stochastic_gradient_descent (end)
 
-        \subsection{Results for Conjugate Gradient Method} % (fold)
+        \subsection{Results for Conjugate Gradient Methods} % (fold)
         \label{sub:results_for_conjugate_gradient_method}
 
         \begin{table}[H]
@@ -125,11 +160,11 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Results for the Conjugate Gradient Method.}
+                \caption{Results for the Conjugate Gradient Methods.}
                 \label{tab:monks_cgd}
         \end{table}
 
-        For what concernes the results for the Conjugate Gradient Method, for all the configurations tested,
+        For what concernes the results for the Conjugate Gradient Methods, for all the configurations tested,
         the direction has been set to the modified one, since it's the one who gave better results in the preliminary tests.
 
         It's immediate to see the higher performances achieved by the modified $MHS^+$ method and by the $HS^+$ one, reaching an accuracy of 100\% in both
@@ -138,7 +173,7 @@
         Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
         ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the learning rate or the the momentum term.
 
-        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methods reach the highest accuracy in the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge towards an optimum value.
+        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methodss reach the highest accuracy in the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge towards an optimum value.
 
         % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)
