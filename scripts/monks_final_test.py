@@ -1,8 +1,8 @@
 import json
-import ipdb
 import nn
 import numpy as np
 import pandas as pd
+import utils
 import warnings
 
 from tqdm import tqdm
@@ -77,6 +77,9 @@ if opt == 'CGD':
     beta = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
     assert beta in ['hs', 'mhs', 'fr', 'pr']
 
+sample = None if raw_input('SAMPLE A LEARING CURVE?[Y/N] ') == 'N' else \
+        np.random.randint(0, ntrials)
+
 for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
@@ -118,6 +121,23 @@ for ds in [0, 1, 2]:
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
         convergence_ts.append(neural_net.optimizer.convergence)
         neural_net.restore_weights()
+
+        if sample is not None and sample == trial:
+            saving_str = 'monks_{}'.format(ds + 1) if opt == 'SGD' else \
+                '{}_monks_{}'.format(beta, ds + 1)
+
+            utils.plot_learning_curve_with_info(
+                neural_net.optimizer,
+                [neural_net.optimizer.error_per_epochs,
+                 neural_net.optimizer.error_per_epochs_va],
+                'TEST', 'MSE', neural_net.optimizer.params,
+                fname=saving_str)
+            utils.plot_learning_curve_with_info(
+                neural_net.optimizer,
+                [neural_net.optimizer.accuracy_per_epochs,
+                 neural_net.optimizer.accuracy_per_epochs_va],
+                'TEST', 'ACCURACY', neural_net.optimizer.params,
+                fname=saving_str)
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),
