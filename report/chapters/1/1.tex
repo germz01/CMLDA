@@ -154,7 +154,8 @@
 		\begin{enumerate}
 			\item compute the network's \textit{gradient}, that is, the derivative of the cost function
 			$\nabla_{\theta} J(\theta)$, with $\theta$ representing the ANN's hyperparameters, with respect to
-			every network's unit using the well known \textit{back-propagation algorithm};
+			every network's unit using the well known \textit{back-propagation algorithm}, described by
+            algorithm \ref{alg:forward_propagation} and \ref{alg:backward_propagation};
 			\item optimize the information gathered during the first phase using a distinct optimizer, chosen
 			among the \textit{Stochastic Gradient Descent} and the \textit{Conjugate Gradient Method}, as
 			described in chapter \ref{cha:optimizers};
@@ -167,7 +168,7 @@
 		feature vector $\mathbf{x}$ given in input has to flow from the input layer through the hidden layers and,
 		finally, the output layer, giving the approximation $\hat{\mathbf{y}}$ as output, and a second one, that
 		is, the \textit{back-propagation}, which allows the information to flow backward through the network in
-		order to compute the gradient by applying the Chain Rule of Calculus, that is, a formula for computing the
+		order to compute the gradient by applying the Chain Rule of Calculus, that is, a technique for computing the
 		derivative of a composition of functions.
 
 		\begin{algorithm}[H]
@@ -237,7 +238,7 @@
 		has an \textit{activation function}, that is, a function that is applied to $\mathbf{a}_{k}$ in order to
 		obtain $\mathbf{h}_k$, with $k \in \{1,\ldots,l\}$. We can say that an activation function of a node
 		defines the output of that node, and maps $\mathbf{a}_{k}$ into the desired range. For being chosen as
-		an activation functions, a function has to possess a series of properties, such as
+		an activation function, a function has to possess a series of properties, such as
 
 		\begin{itemize}
 			\item \textit{nonlinearity}: when the activation function is non-linear, then a two-layer neural
@@ -265,46 +266,28 @@
 	\label{sec:the_loss_function}
 		It section \ref{sec:the_back-propagation_algorithm} we have referred to the \textit{Loss function} as to a
 		function that takes as input the ANN's output vector $\hat{\mathbf{y}}$ and the \textit{ground truth}
-		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. 
-
-		But what essentially is a Loss function? As a matter of fact, the Loss function can be considered like
+		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. But what
+        essentially is a Loss function? As a matter of fact, the Loss function can be considered like
 		one way of measuring the performance, or equivalently the error, of the model that utilizes it, an ANN in
 		this case. There are various types of Loss functions, for our network we have decided to use a well
-		known function: the \textit{Mean Squared Error}, MSE
-		for short, for both the classification and the regression tasks.
-
-		The MSE is obtained with the formula
+		known function: the \textit{Mean Squared Error}, MSE for short, for both the classification and the
+        regression tasks. The MSE is obtained with the formula
 
 		\begin{equation*}
 		\label{mse}
 		    \text{MSE} = \frac{1}{m}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i},
 		\end{equation*}
 
-		% while the MEE is obtained with the formula
-
-		% \begin{equation*}
-		% \label{mee}
-		%     \text{MEE} = \frac{1}{m}\sum_{i = 1}^{m}\sqrt{\left (\hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i}},
-		% \end{equation*}
-
-		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. Since this formula is used for computing the performances of our models, our primary goal is to minimize its
+		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. Since this
+        formula is used for computing the performances of our models, our primary goal is to minimize its
 		output as much as possible by computing the gradient during the backward propagation step of the
-		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. Of course, in order to do so, it must be a \textit{differentiable} function. 
-
-		The gradient for the MSE with respect to
+		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. Of course,
+        in order to do so, it must be a \textit{differentiable} function. The gradient for the MSE with respect to
 		$\hat{\mathbf{y}}$ is defined as:
 
 		\begin{equation*}
 		     \nabla_{\hat{\mathbf{y}}}\text{MSE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
 		     \hat{\mathbf{y}} - \mathbf{y}.
 		\end{equation*}
-
-		% while the gradient for the MEE is
-
-		% \begin{equation*}
-		%      \nabla_{\hat{\mathbf{y}}}\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
-		%      \frac{\hat{\mathbf{y}} - \mathbf{y}}{\text{MEE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right)}.
-		% \end{equation*}
-	% section the_loss_function (end)
 
 % chapter the_artificial_neural_network (end)
