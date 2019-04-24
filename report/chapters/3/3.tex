@@ -2,8 +2,9 @@
 \label{cha:experiments}
     In this final chapter we present the results we obtained by applying our model to the datasets we have used
     to validate and test our ANN, namely, MONKS and CUP. Other than the results, we also present some details
-    about the validation phase for each one of the datasets. We enrich the presentation by adding some graphs
-    of the ANN's performances during the experimental phase.
+    about the validation phase for each one of the datasets. In appendix \ref{cha:monks_learning_curves} and
+    \ref{cha:cup_learning_curves} we added some graphs of the ANN's performances during the experimental phases, in
+    order to enrich the presentation.
 
     \section{MONKS} % (fold)
     \label{sec:monks}
@@ -29,8 +30,8 @@
             \item We then deepen the search using the most interesting intervals discovered during the
             preliminary trials in the validation phase by using our implementation of the (random)
             \textit{grid search algorithm}, in which we also used our implementation of the
-            \textit{k-fold cross validation algorithm} (which follows the standard approach of using a value
-            of 3 for the k parameter).
+            \textit{k-fold cross validation algorithm} (which follows the approach of using a value
+            of 5 for the k parameter).
         \end{enumerate}
 
         Our validation schema for the MONKS dataset essentially consists in using the random grid
@@ -39,43 +40,41 @@
         performances for each one of this points and finally selecting the best combinations of parameters
         based
         on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
-        \textit{recall} and \textit{f1-score}. Both in Tab. \ref{tab:monks_sgd} and Tab. 
+        \textit{recall} and \textit{f1-score}. Both in Tab. \ref{tab:monks_sgd} and Tab.
         \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
         using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Methods,
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
         MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
         the final configurations for the hyperparameters obtained during the validation phase.
-        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase. 
+        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase.
 
         \begin{table}[H]
           \centering
           \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
           \begin{minipage}{.4\textwidth}
               \centering
-              \begin{tabular}{cc}
-                    \toprule
+              \begin{tabular}{| c | c |}
+                    \hline
                     Hyperparameters & Ranges\\
-                    \midrule
-                    $\eta$ & $\left [0.6, 0.8 \right ]$\\
-
+                    \hline
+                    $\eta$ & $\left [0.6, 0.8 \right ]$ \\
+                    \hline
                     $\alpha$ & $[0.5, 0.9]$ \\
-
+                    \hline
                     $\lambda$ & $[0.001, 0.01]$ \\
-
-                    \midrule
+                    \hline
               \end{tabular}
           \end{minipage}
           \begin{minipage}{.4\textwidth}
               \centering
-              \begin{tabular}{cc}
-                    \toprule
+              \begin{tabular}{| c | c |}
+                    \hline
                     Hyperparameters & Ranges\\
-                    \midrule
-                    $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
-
+                    \hline
+                    $\sigma_2$ & $\left [0.1, 0.4 \right ]$ \\
+                    \hline
                     $\rho$ & $[0.0, 1.0]$ \\
-
-                    \midrule
+                    \hline
               \end{tabular}
             \end{minipage}
             \label{tab:hyper_monk}
@@ -130,31 +129,31 @@
                             Task & Topology & Activation & $\beta$ & $\sigma_{1}$ & $\sigma_{2}$ & $\rho$
                             & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
                             \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & MHS & 0.0001 & 0.27 & 0.67
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.27 & 0.67
                             & $9.84e^{-5}$ - 0.0021 & 100 \% - 100 \% \\
                             \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & MHS & 0.0001 & 0.12 & 0.73
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.12 & 0.73
                             & $9.62e^{-5}$ - 0.0026 & 100 \% - 99 \% \\
                             \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & MHS & 0.0001 & 0.24 & 0.27
+                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.24 & 0.27
                             & 0.0038 - 0.010 & 99 \% - 98 \% \\
                             \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & HS & 0.0001 & 0.28 & 0.0
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.28 & 0.0
                             & $9.94e^{-5}$ - 0.00059 & 100 \% - 100 \% \\
                             \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & HS & 0.0001 & 0.35 & 0.0
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.35 & 0.0
                             & $9.85e^{-5}$ - 0.0019 & 100 \% - 100 \% \\
                             \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & HS & 0.0001 & 0.14 & 0.0
+                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.14 & 0.0
                             & 0.0033 - 0.011 & 99 \% - 98 \% \\
                             \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & PR & 0.0001 & 0.11 & 0.0
+                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.11 & 0.0
                             & 0.014 - 0.030 & 97 \% - 94 \% \\
                             \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & PR & 0.0001 & 0.21 & 0.0
+                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.21 & 0.0
                             & 0.050 - 0.059 & 97 \% - 88 \% \\
                             \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & PR & 0.0001 & 0.12 & 0.0
+                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.12 & 0.0
                             & 0.040 - 0.048 & 97 \% - 90 \% \\
                             \hline
                         \end{tabular}
@@ -165,61 +164,65 @@
         \end{table}
 
         For what concernes the results for the Conjugate Gradient Methods, for all the configurations tested,
-        the direction has been set to the modified one, since it's the one who gave better results in the preliminary tests.
-
-        It's immediate to see the higher performances achieved by the modified $MHS^+$ method and by the $HS^+$ one, reaching an accuracy of 100\% in both
+        the direction has been set to the modified one, since it's the one who gave better results in the
+        preliminary tests. It's immediate to see the higher performances achieved by the modified $MHS^+$ method
+        and by the $HS^+$ one, reaching an accuracy of 100\% in both
         the training and test sets. On the contrary, the $PR^+$ method performes worse than the Stochastic
-        Gradient Descent, behaving as in presence of overfitting. Like in the results obtained from SGD, the third dataset tested (Monk 3) gets a little worse performances because of the presence of noise in it.
+        Gradient Descent, behaving as in presence of overfitting. Like in the results obtained from SGD, the third
+        dataset tested (Monk 3) gets a little worse performances because of the presence of noise in it.
         Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
-        ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the learning rate or the the momentum term.
-
-        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methodss reach the highest accuracy in the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge towards an optimum value.
+        ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the
+        learning rate or the the momentum term.
+        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in
+        Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methodss reach the highest accuracy in
+        the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge
+        towards an optimum value.
 
         % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)
 
     \section{CUP} % (fold)
         \label{sec:cup}
-    
+
         A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
         First of all, in this case, being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
-        Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16, 32]$.
+        Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to discover the best parameters for the network. As described in Sec.\ref{sec:monks}, it has been implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.  Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried out.
-
-        Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient Methods is the modified one.
-
+        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
+        discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
+        implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
+        Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
+        out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
+        Methods is the modified one.
 
         \begin{table}[H]
           \centering
           \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
           \begin{minipage}{.4\textwidth}
               \centering
-              \begin{tabular}{cc}
-                    \toprule
+              \begin{tabular}{| c | c |}
+                    \hline
                     Hyperparameters & Ranges\\
-                    \midrule
-                    $\eta$ & $\left [0.004, 0.2\right ]$\\
-
+                    \hline
+                    $\eta$ & $\left [0.004, 0.2\right ]$ \\
+                    \hline
                     $\alpha$ & $[0.5, 0.9]$ \\
-
+                    \hline
                     $\lambda$ & $[0.0003, 0.003]$ \\
-
-                    \midrule
+                    \hline
               \end{tabular}
           \end{minipage}
           \begin{minipage}{.4\textwidth}
               \centering
-              \begin{tabular}{cc}
-                    \toprule
+              \begin{tabular}{| c | c |}
+                    \hline
                     Hyperparameters & Ranges\\
-                    \midrule
+                    \hline
                     $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
-
+                    \hline
                     $\rho$ & $[0.0, 1.0]$ \\
-
-                    \midrule
+                    \hline
               \end{tabular}
             \end{minipage}
             \label{tab:hyper_cup}
