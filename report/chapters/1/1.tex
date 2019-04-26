@@ -278,8 +278,15 @@
 		    \text{MSE} = \frac{1}{m}\sum_{i = 1}^{m}\left ( \hat{\mathbf{y}} - \mathbf{y} \right )^{2}_{i},
 		\end{equation*}
 
-		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. Since this
-        formula is used for computing the performances of our models, our primary goal is to minimize its
+		where $m$ represents the number of samples for which we computed the output $\hat{\mathbf{y}}$. We can
+        represent this functions also as a composition of the square function and the Euclidean norm by writing
+        the latter formula as
+
+        \begin{equation*}
+            \text{MSE} = \frac{1}{m}|| \hat{\mathbf{y}} - \mathbf{y} ||^2_2 .
+        \end{equation*}
+
+        Since this formula is used for computing the performances of our models, our primary goal is to minimize its
 		output as much as possible by computing the gradient during the backward propagation step of the
 		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. Of course,
         in order to do so, it must be a \textit{differentiable} function. The gradient for the MSE with respect to
@@ -289,5 +296,26 @@
 		     \nabla_{\hat{\mathbf{y}}}\text{MSE}\left(\hat{\mathbf{y}},\ \mathbf{y}\right) =
 		     \hat{\mathbf{y}} - \mathbf{y}.
 		\end{equation*}
+
+        \subsection{Properties of the Loss function} % (fold)
+        \label{sub:properties_of_the_loss_function}
+            Here we discuss the relevant properties of the Loss function we have chosen for our model. We begin our
+            discussion by considering the \textit{continuity} of the MSE. As we introduced in this section, our
+            Loss function is a function in two variables, $\hat{\mathbf{y}}$ and $\mathbf{y}$, respectively. A
+            function $f$ in two variables is L-Lipschitz continuous if there exists a constant L such that
+
+            \begin{equation*}
+                || f(\mathbf{x}_1, \mathbf{y}_1) - f(\mathbf{x}_2, \mathbf{y}_2) || \le L(|| \mathbf{x}_1 -
+                \mathbf{x}_2|| + || \mathbf{y}_1 - \mathbf{y}_2||) \quad \forall (\mathbf{x}_1, \mathbf{y_1}),
+                (\mathbf{x}_2, \mathbf{y_2}) \ \in \ \mathbf{dom} \ f.
+            \end{equation*}
+
+            Being the MSE a composition of the square function and the Euclidean norm, because of the squaring, the
+            function is Lipschitx continuous only if we restrict its domain to a bounded set. Since, as described
+            in section \ref{sec:the_activation_functions}, each network's layer uses the sigmoid function, which is
+            a squashing function that bounds every layer's output in the range $\left ( 0,\ 1 \right )$, the MSE
+            can be considered as a continous function.
+
+        % subsection properties_of_the_loss_function (end)
 
 % chapter the_artificial_neural_network (end)
