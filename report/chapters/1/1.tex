@@ -321,6 +321,19 @@
                 and since the sigmoid function is continuously differentiable with bounded Lipschitz continuous
                 derivative, we can consider the MSE as a differentiable function, since the network is a
                 composition of continuously differentiable functions.
+                \item \textbf{Convexity}. We recall that, for $h \ : \ \mathbb{R}^k \to \mathbb{R}$, $g_i \ : \
+                \mathbb{R}^n \to \mathbb{R}$, the function:
+
+                \begin{equation*}
+                    f(\mathbf{x}) = h(g_1(\mathbf{x}), \ldots, g_k(\mathbf{x}))
+                \end{equation*}
+
+                is convex if $\mathbf{dom} \ h = \mathbb{R}^k$, $\mathbf{dom} \ g = \mathbb{R}^n$, $h$ is convex,
+                $h$ is non-decreasing in each argument and $g_i$ are convex. For the aforesaid result, the squared
+                Euclidean distance is convex, as any distance is non-negative and the square function is convex and
+                increasing for non-negative values; however, when composed with another function it may not be
+                convex. The functions that compose the network, that is, the sigmoid functions, are not convex
+                functions, hence we can conclude that, for our network, the MSE is a not convex function.
             \end{itemize}
 
         % subsection properties_of_the_loss_function (end)
