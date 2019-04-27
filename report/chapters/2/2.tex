@@ -59,13 +59,13 @@
 		Futhermore, if we assume that the Hessian matrix of the Loss function is strictly positive definite at the optimum, which means that the Loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
 		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016,Montavon:2012:NNT:2480981,Saad:1999:OLN:304710}.
 
-		Unfortunatly, as we showed in Sec.\ref{sub:properties_of_the_loss_function}, our objective function is not convex, so we can't rely on what has been written before. Anyway, this issue seems to be overcomed: as proved in \cite{1606.04838}, the SGD is convergent even in presence of nonconvex functions.
-		If the algorithm is run with a stepsize sequence satisfying Eq.\ref{delta} and the following assumptions holds:
+		Unfortunatly, as we showed in \S\ref{sub:properties_of_the_loss_function}, our objective function is not convex, so we can't rely on what has been written before. Anyway, this issue seems to be overcomed: as proved in \cite{1606.04838}, the SGD is convergent even in presence of nonconvex functions.
+		If the algorithm is run with a stepsize sequence satisfying Eq.\ref{delta} and the following assumptions hold:
 
-		\begin{asu} - \label{as:sgd_conv1}
-				The Loss function \textit{L} is continuously differentiable and the gradient function $\nabla\textit{L}$ is Lipschitz continuous with Lipschitz constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
-				%ensures that the gradient of F does not change arbitrarily quickly with respect to the parameter vector
+		\begin{asu} - \label{as:conv}
+  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
 		\end{asu}
+
 		\begin{asu} - \label{as:sgd_conv2}
 				The Loss function \textit{L} and SGD satisfy:
 
@@ -73,17 +73,17 @@
 					\item The sequence of weights ${\textbf{W}_k}$ is contained in an open set over which \textit{L} is bounded below by a scalar value $\textit{L}_{inf}$, that means the function is bounded below over the region explored by the algorithm;
 					\item There exist scalars $\mu_G \geq \mu > 0 $ s.t., $\forall k \in \mathbb{N}$,
 						\begin{equation}
-							\nabla\textit{L}(\textbf{W}_k)^T\mathbb{E}_{\xi_k}[g(\textbf{W}_k,\xi_k)] \geq \mu \|\nabla\textit{L}(\textbf{W}_k)\|^2 \text{ and }
+							\nabla\textit{L}(\textbf{W}_k)^T\mathbb{E}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)] \geq \mu \|\nabla\textit{L}(\textbf{W}_k)\|^2 \text{ and }
 						\end{equation}
 						\begin{equation}
-							\|\mathbb{E}_{\xi_k}[g(\textbf{W}_k,\xi_k)]\|\leq \mu_G \|\nabla\textit{L}(\textbf{W}_k)\|,
+							\|\mathbb{E}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq \mu_G \|\nabla\textit{L}(\textbf{W}_k)\|,
 						\end{equation}
 						that means the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of sufficient descent for \textit{L} with a norm comparable to the norm of the gradient;
 					\item There exist scalars $M \geq 0 $ and $M_G \geq 0 $ s.t.:
 						\begin{equation}
-							\|\mathbb{V}_{\xi_k}[g(\textbf{W}_k,\xi_k)]\|\leq M + M_G\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
+							\|\mathbb{V}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq M + M_G\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
 						\end{equation}
-						that restricts the variance of  \textbf{g}.
+						that restricts the variance of \textbf{g}.
 				\end{itemize}
 
 		\end{asu}
@@ -178,21 +178,22 @@
 
 			It basically modifies the objective Loss functions as follows:
 
-			\begin{equation}
-				\mathbf{W} \in \mathbb{R}^n \ \mathit{L}(\mathbf{W}) + \lambda\Omega(\mathbf{W})
+			\begin{mini}			
+				{\mathbf{W} \in \mathbb{R}^n} {\ \mathit{L}(\mathbf{W}) + \lambda\Omega(\mathbf{W})}{}{}
 				\label{eq:reg}
-			\end{equation}
-
+			\end{mini}
 			where $\Omega(\textbf{W})$ is a complexity penalty term based of the weights, and $\lambda$ is a parameter which tells how much importance must have the complexity penalty term.
 
-			Two kinds of regularization are implemented:
+			Two kinds of regularization are tipically used:
 
 			\begin{itemize}
 				\item \textit{L1}: also called Lasso Regression, which results in $\Omega(\textbf{W}) = \sum_{i=1}^{k} |w_i| = \|\textbf{W}\|_1$;
 				\item \textit{L2}: also known as Ridge Regression, which results in $\Omega(\textbf{W}) = \sum_{i=1}^{k}w_i^2 = \|\textbf{W}\|_2^2$.
 			\end{itemize}
 
-			The addition of squared terms (or of the sum of absolute values) to the Loss function of Eq.\ref{mse}, returns again a continous and differentiable function.%Stochastic Gradient Descent and Regularization - Stanford CS Theory.Tim Roughgarden  Gregory Valiant
+			The addition of squared terms to the Loss function of Eq.\ref{mse} in the Ridge Regression, returns again a smooth continous and differentiable function. %Stochastic Gradient Descent and Regularization - Stanford CS Theory.Tim Roughgarden  Gregory Valiant
+			
+			However, the Lasso penalty, which pushes several elements of \textbf{W} to be exactly zero, making the result a sparse parameter vector, is not differentiable. So, since when applied to the Loss function, it returns a non-smooth function, it hasn't been tested on SGD\cite{journals/jmlr/Shalev-ShwartzT11}.
 
 	\section{Nonlinear Conjugate Gradient}
 	\label{sec:nonlinear_conjugate_gradient}
@@ -292,7 +293,7 @@
 
 			One of the properties that must be garanteed, is the global convergence of the method. When the function to be minimized is convex and quadratic, indeed, the Conjugate Gradient algorithm ensures the convergence and the detection of the global minimum in at most N iterations, that is the number of dimensions. Often, expecially when N is very large, there are great chances that the algorithm terminates in less than N epochs.
 			\cite{DIXON-1975}.
-			However, since in our network we are dealing with a nonquadratic Loss function, as showed in Sec.\ref{sub:properties_of_the_loss_function}, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
+			However, since in our network we are dealing with a nonquadratic Loss function, as showed in \S\ref{sub:properties_of_the_loss_function}, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
 			\begin{equation}
 			\label{beta_max}
 				 \beta^+ = max\{\beta, 0\}.
@@ -313,13 +314,7 @@
 			Both the methods are formulated in such a way that, when occurring small steps, the search direction found is close to the negative gradient direction, getting a final step of decent size\cite{Gilbert-1992}.
 			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
 
-			If we assume the following:
-
-			\begin{asu} - \label{as:cg_conv}
-  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
-			\end{asu}
-
-			and we use a $\beta$ HS or PR, modified as in Eq.\ref{beta_max} and a Line Search as the one described in Sec.\ref{sub:line_search}, then it holds the convergence of the algorithm as follows\cite{Gilbert-1992}:
+			If we assume the Assumption \ref{as:conv} and we use a $\beta$ HS or PR, modified as in Eq.\ref{beta_max} and a Line Search as the one described in \S\ref{sub:line_search}, then it holds the convergence of the algorithm as follows\cite{Gilbert-1992}:
 
 			\begin{equation}
 			\label{conv_cg}
@@ -354,7 +349,7 @@
  			where $\textbf{y}_{k-1}$ is defined as $\textbf{g}_k - \textbf{g}_{k-1}$.
 %new quasi newton method for unconstrain-wei
 
- 			Wei et al. \ref{Zengxi-2006} derived a class of modified secant condition:
+ 			Wei et al. \cite{Zengxi-2006} derived a class of modified secant condition:
 
 			\begin{equation}
 			\label{secant_2}
