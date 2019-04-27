@@ -1,8 +1,8 @@
 import json
-import ipdb
 import nn
 import numpy as np
 import pandas as pd
+import utils
 import warnings
 
 from tqdm import tqdm
@@ -20,7 +20,8 @@ path_to_json = '../data/final_setup/'
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
                                    'MEAN_ACCURACY_TR', 'STD_ACCURACY_TR',
-                                   'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS'])
+                                   'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS',
+                                   'CONVERGENCE'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -68,14 +69,24 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
+convergence_ts = list()
 
-for ds in [0]:
+beta = None
+
+if opt == 'CGD':
+    beta = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
+    assert beta in ['hs', 'mhs', 'fr', 'pr']
+
+sample = None if raw_input('SAMPLE A LEARING CURVE?[Y/N] ') == 'N' else \
+        np.random.randint(0, ntrials)
+
+for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
             'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
     else:
         hps = path_to_json + \
-            'monks_{}_best_hyperparameters_cgd.json'.format(ds + 1)
+            'monks_{}_best_hyperparameters_cgd_{}.json'.format(ds + 1, beta)
 
     with open(hps) as json_file:
         params = json.load(json_file)
@@ -108,14 +119,38 @@ for ds in [0]:
         mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
-
+        convergence_ts.append(neural_net.optimizer.convergence)
         neural_net.restore_weights()
+
+        if sample is not None and sample == trial:
+            saving_str = 'monks_{}'.format(ds + 1) if opt == 'SGD' else \
+                '{}_monks_{}'.format(beta, ds + 1)
+
+            utils.plot_learning_curve_with_info(
+                neural_net.optimizer,
+                [neural_net.optimizer.error_per_epochs,
+                 neural_net.optimizer.error_per_epochs_va],
+                'TEST', 'MSE', neural_net.optimizer.params,
+                fname=saving_str)
+            utils.plot_learning_curve_with_info(
+                neural_net.optimizer,
+                [neural_net.optimizer.accuracy_per_epochs,
+                 neural_net.optimizer.accuracy_per_epochs_va],
+                'TEST', 'ACCURACY', neural_net.optimizer.params,
+                fname=saving_str)
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),
                                            np.mean(mse_ts), np.std(mse_ts),
                                            np.mean(acc_tr), np.std(acc_tr),
-                                           np.mean(acc_ts), np.std(acc_ts)]
+                                           np.mean(acc_ts), np.std(acc_ts),
+                                           np.mean(convergence_ts)]
 
-statistics.to_csv(path_or_buf=fpath + opt.lower() + '_monks_statistics.csv',
-                  index=False)
+file_name = None
+
+if opt == 'SGD':
+    file_name = fpath + opt.lower() + '_monks_statistics.csv'
+else:
+    file_name = fpath + opt.lower() + '_' + beta + '_monks_statistics.csv'
+
+statistics.to_csv(path_or_buf=file_name, index=False)

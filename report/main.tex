@@ -4,22 +4,27 @@
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[caption=false]{subfig}
+%\usepackage[caption=false]{subfig}
 
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 %% Useful packages
-\usepackage{amsmath,indentfirst,graphicx,setspace,listings,color,subfig,mathrsfs,algorithm,xfrac,verbatim,amssymb}
+\usepackage{amsmath,indentfirst,graphicx,setspace,listings,color,mathrsfs,algorithm,xfrac,verbatim,amssymb,booktabs}
+\usepackage[toc]{appendix}
+\usepackage{subcaption,tikz}
 \usepackage{tocbibind}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=false]{hyperref}
 \usepackage[noend]{algpseudocode}
 \usepackage[short]{optidef}
+\newtheorem{asu}{Assumption}
 \algnewcommand\algorithmicinput{\textbf{Input:}}
 \algnewcommand\algorithmicoutput{\textbf{Output:}}
 \algnewcommand\Input{\item[\algorithmicinput]}%
 \algnewcommand\Output{\item[\algorithmicoutput]}%
 \newcommand{\sectionbreak}{\clearpage}
+
+\usetikzlibrary{arrows.meta}
 
 \graphicspath{{img/}}
 
@@ -35,6 +40,7 @@
     \input{chapters/1/1}
 	\input{chapters/2/2}
 	\input{chapters/3/3}
+    \input{chapters/appendix/appendix}
 
     \bibliographystyle{plain}
     \bibliography{bibliography}

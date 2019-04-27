@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 # EXPERIMENTAL SETUP ##########################################################
 
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
-grid_size = 20
+grid_size = 30
 split_percentage = 0.8
 epochs = 500
 
@@ -70,7 +70,7 @@ else:
 neural_net, initial_W, initial_b = None, None, None
 
 if testing or testing_betas:
-    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[10],
+    neural_net = nn.NeuralNetwork(X_training, y_training, hidden_sizes=[4, 8],
                                   activation='sigmoid')
     initial_W, initial_b = neural_net.W, neural_net.b
 
@@ -78,7 +78,7 @@ if testing or testing_betas:
 # PRELIMINARY TRAINING ########################################################
 #
 pars = {}
-betas = ['hs', 'mhs', 'fr', 'pr']
+betas = ['hs', 'mhs', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
 
@@ -88,8 +88,8 @@ if testing:
     if opt == 'SGD':
         pars = {'epochs': epochs,
                 'batch_size': X_training.shape[0],
-                'eta': 0.5,
-                'momentum': {'type': 'nesterov', 'alpha': 0.9},
+                'eta': 0.61,
+                'momentum': {'type': 'nesterov', 'alpha': 0.83},
                 'reg_lambda': 0.0,
                 'reg_method': 'l2'}
 
@@ -99,7 +99,7 @@ if testing:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
                 'strong': True,
-                'rho': 0.5}
+                'rho': 0.67}
         if testing_betas:
             for beta in betas:
                 pars['beta_m'] = beta
@@ -110,6 +110,7 @@ if testing:
 
                     pars['plus'] = True
                     pars['d_m'] = d_m
+                    pars['sigma_2'] = 0.3
 
                     neural_net.train(X_training, y_training, opt,
                                      X_va=X_validation, y_va=y_validation,
@@ -152,8 +153,10 @@ if testing:
 
         print 'FINAL VALIDATION ERROR: {}'.format(neural_net.optimizer.
                                                   error_per_epochs_va[-1])
-        print 'EPOCHS OF TRAINING {}'.format(len(neural_net.optimizer.
-                                                 error_per_epochs))
+        print 'EPOCHS OF TRAINING: {}'.format(len(neural_net.optimizer.
+                                                  error_per_epochs))
+        print 'CONVERGENCE EPOCH: {}'.format(neural_net.optimizer.
+                                             convergence)
         print '\n'
 
         u.plot_learning_curve_with_info(
@@ -175,7 +178,7 @@ if validation:
     param_ranges = {}
 
     if opt == 'SGD':
-        param_ranges['eta'] = (0.3, 7.)
+        param_ranges['eta'] = (0.6, 0.8)
 
         type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
         assert type_m in ['standard', 'nesterov']
@@ -183,7 +186,7 @@ if validation:
 
         param_ranges['alpha'] = (0.5, 0.9)
         param_ranges['reg_method'] = 'l2'
-        param_ranges['reg_lambda'] = 0.0
+        param_ranges['reg_lambda'] = (0.001, 0.01)
         param_ranges['epochs'] = epochs
     else:
         beta_m = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
@@ -199,8 +202,10 @@ if validation:
         param_ranges['strong'] = True
         param_ranges['plus'] = True
         param_ranges['sigma_2'] = (0.1, 0.4)
-        param_ranges['rho'] = (0., 1.)
-
+        if beta_m == 'mhs':
+            param_ranges['rho'] = (0., 1.)
+        else:
+            param_ranges['rho'] = 0.0
     param_ranges['optimizer'] = opt
     param_ranges['hidden_sizes'] = [4, 8]
     param_ranges['activation'] = 'sigmoid'
@@ -214,7 +219,12 @@ if validation:
     selection.search(X_design, y_design, nfolds=nfolds)
     best_hyperparameters = selection.select_best_hyperparams()
 
-    with open('../data/final_setup/monks_{}_best_hyperparameters_{}.json'.
-              format(ds, opt.lower()),
-              'w') as json_file:
+    json_name = ''
+
+    if opt == 'SGD':
+        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}.json'.format(ds, opt.lower())
+    else:
+        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}_{}.json'.format(ds, opt.lower(), param_ranges['beta_m'])
+
+    with open(json_name, 'w') as json_file:
         json.dump(best_hyperparameters, json_file, indent=4)
