@@ -255,29 +255,49 @@
 
 			In fact, there has been proposed various choices for computing it, each one giving different efficiency and properties.
 
-			The formulas tested in our implementation are four: the Fletcher-Reeves (FR), the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
+			The formulas tested in our implementation are three: the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
 
-			One of the properties that must be garanteed, is the global convergence of the method. Since, in our network, we are dealing with a nonquadratic Loss function, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
+			One of the properties that must be garanteed, is the global convergence of the method. When the function to be minimized is convex and quadratic, indeed, the Conjugate Gradient algorithm ensures the convergence and the detection of the global minimum in at most N iterations, that is the number of dimensions. Often, expecially when N is very large, there are great chances that the algorithm terminates in less than N epochs.
+			\cite{DIXON-1975}. 
+			However, since in our network we are dealing with a nonquadratic Loss function, as showed in Sec.\ref{sub:properties_of_the_loss_function}, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
 			\begin{equation}
 			\label{beta_max}
 				 \beta^+ = max\{\beta, 0\}.
 			\end{equation}
 
-			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction. Furthermore, because of the nonquadratic nature of the error function, the algorithm will not necessarily converge in N steps, as it usually does when applied to quadratic functions. The use of $\beta$ in Eq. \ref{beta_max} is similar to adopt the strategy of restarting the algorithm after N steps, initializing $d_k$ to the current steepest descent direction
-			\cite{MOLLER1993525}.
+			This change provides a sort of restart of the algorithm, in case the $\beta$ found is negative. This is equivalent to forget the last search direction and start again the search from the steepest descent direction. The use of $\beta$ in Eq. \ref{beta_max} is similar to adopt the strategy of restarting the algorithm after N steps, initializing $d_k$ to the current steepest descent direction
+			\cite{MOLLER1993525,Gilbert-1992}.
 
 			\begin{equation}
 			\label{betas}
 				 \beta^{PR}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{\|\textbf{g}_{k-1}\|^2}, \text{ }
- 				 \beta^{FR}_k = \frac{\|\textbf{g}_{k}\|^2}{\|\textbf{g}_{k-1}\|^2}, \text{ }
+ 				 %\beta^{FR}_k = \frac{\|\textbf{g}_{k}\|^2}{\|\textbf{g}_{k-1}\|^2}, \text{ }
  				 \beta^{HS}_k = \frac{\textbf{g}_k^T(\textbf{g}_k-\textbf{g}_{k-1})}{(\textbf{g}_k-\textbf{g}_{k-1}^T\textbf{d}_{k-1})}.
 			\end{equation}
 
-			The HS and the PR methods in Eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlineat function. That's why the modification of Eq. \ref{beta_max} has been adopted.
+			%Powell [Griffiths-1984] was able to show that the Polak-Ribire method with exact line searches can cycle infinitely without approaching a solution point. The same result applies to the Hestenes-Stiefel method, since the two methods are identical when (gk,dk-1) 0, which holds when line searches are exact
+			The HS and the PR methods in Eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlinear function\cite{Griffiths-1984}. That's why the modification of Eq. \ref{beta_max} has been adopted\cite{Powell-1986}, since it enforces the descent property of the algorithm. 
+			Both the methods are formulated in such a way that, when occurring small steps, the search direction found is close to the negative gradient direction, getting a final step of decent size\cite{Gilbert-1992}.
 			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
 
-			For what concernes the FR method (also described in Eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods \cite{Boyd:2004:CO:993483}, chapter 5.
-			Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
+			If we assume the following:
+
+			\begin{asu} - \label{as:cg_conv}
+  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|g(\textbf{W})-g(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
+			\end{asu}
+
+			and we use a $\beta$ HS or PR, modified as in Eq.\ref{beta_max} and a Line Search as the one described in Sec.\ref{sub:line_search}, then it holds the convergence of the algorithm as follows\cite{Gilbert-1992}:
+
+			\begin{equation}
+			\label{conv_cg}
+			  \lim_{k \to \infty} \|\textbf{g}_k\| = 0,
+			\end{equation}
+			a weaker result with respect to the one involved with strongly convex functions, $\lim_{k \to \infty} \textbf{g}_k = 0.$
+			%SupposethatAssumptions2.1hold. Considerthemethod(1.2)- (1.3) with/3k max{/3R,0}, and with a line search satisfying the Wolfe conditions (2.4)-(2.5) and the sufficient descent condition (4.1). Then liminf Ilgkll O.
+
+
+			%For what concernes the FR method (also described in Eq.\ref{betas}), it requires a constrain on the parameters of the inexact line search procedure of section \ref{sub:line_search}, used to identify the right step length $\alpha$. In particular, it requires that $\sigma_1 < \sigma_2 < 0.5$ in order to garantee that the Armijo Wolfe conditions are satisfied, and it seems to be less efficient and robust than the other methods \cite{Boyd:2004:CO:993483}, chapter 5.
+			%Anyway, by imposing this condition, the FR method is globally convergent even when dealing with nonlinear functions.
 
 			The last method tested is the $MHS^+$, a modified version of the Hestenes-Stiefel one \cite{LIVIERIS2013491}.
 			It garantees sufficient descent with inexact line search and is based on a modified secant equation which approximates the second order information of the Loss function with high order accuracy. Moreover, it is globally convergent.
@@ -286,7 +306,7 @@
 
 			\begin{equation}
 			\label{mhs}
- 				 \beta^{MHS}_k = \frac{\mathbf{g}_k^T \widetilde{y}_{k-1}^*}{\mathbf{d}_{k-1}^T\widetilde{y}_{k-1}^*}.
+ 				 \beta^{MHS}_k = \frac{\mathbf{g}_k^T \widetilde{\textbf{y}}_{k-1}^*}{\mathbf{d}_{k-1}^T\widetilde{\textbf{y}}_{k-1}^*}.
 			\end{equation}
 
 			In order to better understand the formula \ref{mhs}, it's important to describe all the components involved in its definiton.
@@ -305,13 +325,13 @@
 
 			\begin{equation}
 			\label{secant_2}
- 				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{y}_{k-1},
+ 				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{\textbf{y}}_{k-1},
  			\end{equation}
 
 
 			\begin{equation}
 			\label{secant_2}
- 			 \widetilde{y}_{k-1} =  y_{k-1} + \frac{\theta_{k-1}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
+ 			 \widetilde{\textbf{y}}_{k-1} =  \textbf{y}_{k-1} + \frac{\theta_{k-1}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
  			\end{equation}
 
  			with \textbf{u} a vector satisying $(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u} \neq 0$ and $\theta_{k-1}$ defined as:
@@ -325,12 +345,12 @@
 
  			\begin{equation}
 			\label{secant_3}
- 				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{y}_{k-1}^*,
+ 				\textbf{B}_{k-1} (\textbf{W}_k - \textbf{W}_{k-1}) = \widetilde{\textbf{y}}_{k-1}^*,
  			\end{equation}
 
  			\begin{equation}
 			\label{y_3}
- 				\widetilde{y}_{k-1}^* = y_{k-1} + \rho_{k-1} \frac{max\{\theta_{k-1},0\}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
+ 				\widetilde{\textbf{y}}_{k-1}^* = \textbf{y}_{k-1} + \rho_{k-1} \frac{max\{\theta_{k-1},0\}}{(\textbf{W}_k - \textbf{W}_{k-1})^T\textbf{u}}\textbf{u},
  			\end{equation}
 
  			where $\rho_{k-1} \in \{0,1\}$ is a parameter that switch between the standard secant equation Eq.\ref{secant_1} and the modified one Eq.\ref{secant_3}, setting $\rho_{k-1}$ as:
