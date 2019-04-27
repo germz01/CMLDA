@@ -283,7 +283,7 @@
 			If we assume the following:
 
 			\begin{asu} - \label{as:cg_conv}
-  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|g(\textbf{W})-g(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
+  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
 			\end{asu}
 
 			and we use a $\beta$ HS or PR, modified as in Eq.\ref{beta_max} and a Line Search as the one described in Sec.\ref{sub:line_search}, then it holds the convergence of the algorithm as follows\cite{Gilbert-1992}:
@@ -363,7 +363,7 @@
 			  \end{cases}
 			\end{equation}
 
-			Since the following assumptions are satisfied by the Loss functions in Eq.\ref{mse}, \ref{mee}:
+			Since the following assumptions are satisfied by the Loss functions in Eq.\ref{mse}:
 
 			\begin{asu} - \label{as:1}
   				The level set $\mathcal{L} = \{w \in \mathbb{R}^n | \textit{L}(\textbf{W}) \leq L(\textbf{W}_0)\}$ is bounded, there exist a constant $B > 0$ s.t. $\|\textbf{W}\| \leq B, \forall \textbf{W} \in \mathcal{L}$;
