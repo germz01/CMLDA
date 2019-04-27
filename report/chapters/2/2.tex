@@ -178,10 +178,10 @@
 
 			It basically modifies the objective Loss functions as follows:
 
-			\begin{mini}
-			\label{eq:reg}
-			  {\textbf{W}\in \mathbb{R}^n}{\textit{L}(\textbf{W}) + \lambda\Omega(\textbf{W}),}{}{}
-			\end{mini}
+			\begin{equation}
+				\mathbf{W} \in \mathbb{R}^n \ \mathit{L}(\mathbf{W}) + \lambda\Omega(\mathbf{W})
+				\label{eq:reg}
+			\end{equation}
 
 			where $\Omega(\textbf{W})$ is a complexity penalty term based of the weights, and $\lambda$ is a parameter which tells how much importance must have the complexity penalty term.
 
@@ -291,7 +291,7 @@
 			The formulas tested in our implementation are three: the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
 
 			One of the properties that must be garanteed, is the global convergence of the method. When the function to be minimized is convex and quadratic, indeed, the Conjugate Gradient algorithm ensures the convergence and the detection of the global minimum in at most N iterations, that is the number of dimensions. Often, expecially when N is very large, there are great chances that the algorithm terminates in less than N epochs.
-			\cite{DIXON-1975}. 
+			\cite{DIXON-1975}.
 			However, since in our network we are dealing with a nonquadratic Loss function, as showed in Sec.\ref{sub:properties_of_the_loss_function}, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
 			\begin{equation}
 			\label{beta_max}
@@ -309,7 +309,7 @@
 			\end{equation}
 
 			%Powell [Griffiths-1984] was able to show that the Polak-Ribire method with exact line searches can cycle infinitely without approaching a solution point. The same result applies to the Hestenes-Stiefel method, since the two methods are identical when (gk,dk-1) 0, which holds when line searches are exact
-			The HS and the PR methods in Eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlinear function\cite{Griffiths-1984}. That's why the modification of Eq. \ref{beta_max} has been adopted\cite{Powell-1986}, since it enforces the descent property of the algorithm. 
+			The HS and the PR methods in Eq. \ref{betas} have very similar performances and they are two of the most efficient conjugate gradient methods, but they are not globally convergent for nonlinear function\cite{Griffiths-1984}. That's why the modification of Eq. \ref{beta_max} has been adopted\cite{Powell-1986}, since it enforces the descent property of the algorithm.
 			Both the methods are formulated in such a way that, when occurring small steps, the search direction found is close to the negative gradient direction, getting a final step of decent size\cite{Gilbert-1992}.
 			Moreover, the HS method is considered superior to other methods when applied to nonquadratic functions.
 

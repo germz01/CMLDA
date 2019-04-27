@@ -258,7 +258,16 @@
 		    &f'(x) = \sigma'(x) = f(x)(1 - f(x)),
 		\end{align*}
 
-		and is defined in the range $\left ( 0,\ 1 \right )$.
+		and is defined in the range $\left ( 0,\ 1 \right )$. As introduced in section
+        \ref{sec:the_back-propagation_algorithm}, we can think the ANN as a \textit{composition} of activation
+        functions, that is, representing it as
+
+        \begin{equation*}
+            \sigma_l \ \circ \ \sigma_{l - 1} \ \circ \ \cdots \ \circ \ \sigma_1
+        \end{equation*}
+
+        with $l$ representing the total number of layers in the network and $\sigma$ representing the logistic
+        function.
 
 	% section the_activation_functions (end)
 
