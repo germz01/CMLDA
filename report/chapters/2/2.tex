@@ -59,6 +59,39 @@
 		Futhermore, if we assume that the Hessian matrix of the Loss function is strictly positive definite at the optimum, which means that the Loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
 		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016,Montavon:2012:NNT:2480981,Saad:1999:OLN:304710}.
 
+		Unfortunatly, as we showed in Sec.\ref{sub:properties_of_the_loss_function}, our objective function is not convex, so we can't rely on what has been written before. Anyway, this issue seems to be overcomed: as proved in \cite{1606.04838}, the SGD is convergent even in presence of nonconvex functions.
+		If the algorithm is run with a stepsize sequence satisfying Eq.\ref{delta} and the following assumptions holds:
+
+		\begin{asu} - \label{as:sgd_conv1}
+				The Loss function \textit{L} is continuously differentiable and the gradient function $\nabla\textit{L}$ is Lipschitz continuous with Lipschitz constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
+				%ensures that the gradient of F does not change arbitrarily quickly with respect to the parameter vector
+		\end{asu}
+		\begin{asu} - \label{as:sgd_conv2}
+				The Loss function \textit{L} and SGD satisfy:
+
+				\begin{itemize}
+					\item The sequence of weights ${\textbf{W}_k}$ is contained in an open set over which \textit{L} is bounded below by a scalar value $\textit{L}_{inf}$, that means the function is bounded below over the region explored by the algorithm;
+					\item There exist scalars $\mu_G \geq \mu > 0 $ s.t., $\forall k \in \mathbb{N}$,
+						\begin{equation}
+							\nabla\textit{L}(\textbf{W}_k)^T\mathbb{E}_{\xi_k}[g(\textbf{W}_k,\xi_k)] \geq \mu \|\nabla\textit{L}(\textbf{W}_k)\|^2 \text{ and }
+						\end{equation}
+						\begin{equation}
+							\|\mathbb{E}_{\xi_k}[g(\textbf{W}_k,\xi_k)]\|\leq \mu_G \|\nabla\textit{L}(\textbf{W}_k)\|,
+						\end{equation}
+						that means the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of sufficient descent for \textit{L} with a norm comparable to the norm of the gradient;
+					\item There exist scalars $M \geq 0 $ and $M_G \geq 0 $ s.t.:
+						\begin{equation}
+							\|\mathbb{V}_{\xi_k}[g(\textbf{W}_k,\xi_k)]\|\leq M + M_G\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
+						\end{equation}
+						that restricts the variance of  \textbf{g}.
+				\end{itemize}
+
+		\end{asu}
+
+		then the following property is garanteed:
+			$\lim_{k\to\infty}\mathbb{E}[\|\nabla\textit{L}(\textbf{W}_k)\|^2] = 0$,
+		that is the convergence of the algorithm.
+
 		A property of SGD is that the computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
 
 		\begin{algorithm}[H]
@@ -146,6 +179,7 @@
 			It basically modifies the objective Loss functions as follows:
 
 			\begin{mini}
+			\label{eq:reg}
 			  {\textbf{W}\in \mathbb{R}^n}{\textit{L}(\textbf{W}) + \lambda\Omega(\textbf{W}),}{}{}
 			\end{mini}
 
@@ -158,8 +192,7 @@
 				\item \textit{L2}: also known as Ridge Regression, which results in $\Omega(\textbf{W}) = \sum_{i=1}^{k}w_i^2 = \|\textbf{W}\|_2^2$.
 			\end{itemize}
 
-
-
+			The addition of squared terms (or of the sum of absolute values) to the Loss function of Eq.\ref{mse}, returns again a continous and differentiable function.%Stochastic Gradient Descent and Regularization - Stanford CS Theory.Tim Roughgarden  Gregory Valiant
 
 	\section{Nonlinear Conjugate Gradient}
 	\label{sec:nonlinear_conjugate_gradient}
