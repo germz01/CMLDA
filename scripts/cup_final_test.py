@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 ###############################################################################
 # EXPERIMENTAL SETUP ##########################################################
 
-ntrials = 10
+ntrials = 2
 split_percentage = 0.8
 epochs = 500
 path_to_json = '../data/final_setup/'
@@ -20,6 +20,9 @@ path_to_json = '../data/final_setup/'
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS', 'CONVERGENCE',
                                    'LS'])
+statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
+                                        'DIRECTION', 'BACKWARD_P',
+                                        'LS_P', 'DIRECTION_P'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -65,6 +68,8 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 
 mse_tr, mse_ts = list(), list()
 convergence_ts, ls_ts = list(), list()   # mod
+tot, bw, ls, dr = list(), list(), list(), list()   # mod
+bw_p, ls_p, dr_p = list(), list(), list()   # mod
 
 beta = None
 
@@ -114,6 +119,13 @@ for trial in tqdm(range(ntrials),
     mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
     convergence_ts.append(neural_net.optimizer.statistics['epochs'])
     ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
+    tot.append(neural_net.optimizer.statistics['time_train'].total_seconds())
+    bw.append(neural_net.optimizer.statistics['time_bw'])
+    ls.append(neural_net.optimizer.statistics['time_ls'])
+    dr.append(neural_net.optimizer.statistics['time_dr'])
+    bw_p.append((bw[-1]/tot[-1])*100)
+    ls_p.append((ls[-1]/tot[-1])*100)
+    dr_p.append((dr[-1]/tot[-1])*100)
 
     neural_net.restore_weights()
 
@@ -133,11 +145,21 @@ statistics.loc[statistics.shape[0]] = ['CUP',
                                        np.mean(mse_ts), np.std(mse_ts),
                                        np.mean(convergence_ts),  # mod
                                        np.mean(ls_ts)]
+statistics_time.loc[statistics_time.shape[0]] = \
+        ['CUP', np.mean(tot), np.mean(bw), np.mean(ls),
+         np.mean(dr), np.round(np.mean(bw_p), 3), np.round(np.mean(ls_p), 3),
+         np.round(np.mean(dr_p), 3)]
+
+
 file_name = None
 
 if opt == 'SGD':
     file_name = fpath + opt.lower() + '_cup_statistics.csv'
+    file_name_time = fpath + opt.lower() + '_cup_time_statistics.csv'
 else:
     file_name = fpath + opt.lower() + '_' + beta + '_cup_statistics.csv'
+    file_name_time = fpath + opt.lower() + '_' + beta + \
+        '_cup_time_statistics.csv'
 
 statistics.to_csv(path_or_buf=file_name, index=False)
+statistics_time.to_csv(path_or_buf=file_name_time, index=False)

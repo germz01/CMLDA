@@ -612,7 +612,6 @@ class CGD(Optimizer):
         alpha_current = np.random.uniform(alpha_prev, alpha_max)
         error_prev = 0.
         max_iter, i = 10, 1
-
         while i <= max_iter:
             nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
@@ -621,6 +620,7 @@ class CGD(Optimizer):
             if (error_current >
                 (error_0 + (self.sigma_1 * alpha_current * g_d))) \
                or ((error_current >= error_prev) and (i > 1)):
+                self.ls_it += i
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
                                  g_d, error_0)
 
@@ -631,13 +631,17 @@ class CGD(Optimizer):
             if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                 self.statistics['time_ls'] += \
                     (dt.datetime.now() - start_time).total_seconds()
+                self.ls_it += i
                 return alpha_current
             elif n_g_d >= 0:
+                self.ls_it += i
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < threshold:
-
+                self.statistics['time_ls'] += \
+                    (dt.datetime.now() - start_time).total_seconds()
+                self.ls_it += i
                 return alpha_current
 
             alpha_prev = alpha_current
