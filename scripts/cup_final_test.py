@@ -18,7 +18,8 @@ epochs = 500
 path_to_json = '../data/final_setup/'
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
-                                   'MEAN_MSE_TS', 'STD_MSE_TS'])
+                                   'MEAN_MSE_TS', 'STD_MSE_TS', 'CONVERGENCE',
+                                   'LS'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -63,6 +64,7 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 # PARAMETERS SELECTION AND TESTING ############################################
 
 mse_tr, mse_ts = list(), list()
+convergence_ts, ls_ts = list(), list()   # mod
 
 beta = None
 
@@ -110,6 +112,9 @@ for trial in tqdm(range(ntrials),
 
     mse_tr.append(neural_net.optimizer.error_per_epochs[-1])
     mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
+    convergence_ts.append(neural_net.optimizer.statistics['epochs'])
+    ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
+
     neural_net.restore_weights()
 
     if sample is not None and sample == trial:
@@ -125,8 +130,9 @@ for trial in tqdm(range(ntrials),
 
 statistics.loc[statistics.shape[0]] = ['CUP',
                                        np.mean(mse_tr), np.std(mse_tr),
-                                       np.mean(mse_ts), np.std(mse_ts)]
-
+                                       np.mean(mse_ts), np.std(mse_ts),
+                                       np.mean(convergence_ts),  # mod
+                                       np.mean(ls_ts)]
 file_name = None
 
 if opt == 'SGD':
@@ -135,4 +141,3 @@ else:
     file_name = fpath + opt.lower() + '_' + beta + '_cup_statistics.csv'
 
 statistics.to_csv(path_or_buf=file_name, index=False)
-

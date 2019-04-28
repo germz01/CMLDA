@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import utils
 import warnings
-
 from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
@@ -21,7 +20,11 @@ statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
                                    'MEAN_ACCURACY_TR', 'STD_ACCURACY_TR',
                                    'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS',
-                                   'CONVERGENCE'])
+                                   'CONVERGENCE', 'ACC_EPOCHS', 'LS'])   # mod
+
+statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
+                                        'DIRECTION', 'BACKWARD_P',
+                                        'LS_P', 'DIRECTION_P'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -69,7 +72,10 @@ params, opt = None, raw_input('CHOOSE AN OPTIMIZER[SGD/CGD]: ')
 
 mse_tr, mse_ts = list(), list()
 acc_tr, acc_ts = list(), list()
-convergence_ts = list()
+convergence_ts, acc_epochs_ts, ls_ts = list(), list(), list()   # mod
+tot, bw, ls, dr = list(), list(), list(), list()   # mod
+bw_p, ls_p, dr_p = list(), list(), list()   # mod
+
 
 beta = None
 
@@ -77,7 +83,7 @@ if opt == 'CGD':
     beta = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
     assert beta in ['hs', 'mhs', 'fr', 'pr']
 
-sample = None if raw_input('SAMPLE A LEARING CURVE?[Y/N] ') == 'N' else \
+sample = None if raw_input('SAMPLE A LEARNING CURVE?[Y/N] ') == 'N' else \
         np.random.randint(0, ntrials)
 
 for ds in [0, 1, 2]:
@@ -119,7 +125,18 @@ for ds in [0, 1, 2]:
         mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
-        convergence_ts.append(neural_net.optimizer.convergence)
+        convergence_ts.append(neural_net.optimizer.statistics['epochs'])
+        acc_epochs_ts.append(neural_net.optimizer.statistics['acc_epoch'])
+        ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
+        tot.append(neural_net.optimizer.statistics['time_train']
+                   .total_seconds())
+        bw.append(neural_net.optimizer.statistics['time_bw'])
+        ls.append(neural_net.optimizer.statistics['time_ls'])
+        dr.append(neural_net.optimizer.statistics['time_dr'])
+        bw_p.append((bw[-1]/tot[-1])*100)
+        ls_p.append((ls[-1]/tot[-1])*100)
+        dr_p.append((dr[-1]/tot[-1])*100)
+
         neural_net.restore_weights()
 
         if sample is not None and sample == trial:
@@ -144,13 +161,25 @@ for ds in [0, 1, 2]:
                                            np.mean(mse_ts), np.std(mse_ts),
                                            np.mean(acc_tr), np.std(acc_tr),
                                            np.mean(acc_ts), np.std(acc_ts),
-                                           np.mean(convergence_ts)]
+                                           np.mean(convergence_ts),  # mod
+                                           np.mean(acc_epochs_ts),
+                                           np.mean(ls_ts)]
+
+    statistics_time.loc[statistics_time.shape[0]] = \
+        ['MONKS_{}'.format(ds + 1), np.mean(tot), np.mean(bw), np.mean(ls),
+         np.mean(dr), np.round(np.mean(bw_p), 3), np.round(np.mean(ls_p), 3),
+         np.round(np.mean(dr_p), 3)]
 
 file_name = None
 
 if opt == 'SGD':
     file_name = fpath + opt.lower() + '_monks_statistics.csv'
+    file_name_time = fpath + opt.lower() + '_monks_time_statistics.csv'
 else:
-    file_name = fpath + opt.lower() + '_' + beta + '_monks_statistics.csv'
+    file_name = fpath + opt.lower() + '_' + beta + \
+        '_monks_statistics.csv'
+    file_name_time = fpath + opt.lower() + '_' + beta + \
+        '_monks_time_statistics.csv'
 
 statistics.to_csv(path_or_buf=file_name, index=False)
+statistics_time.to_csv(path_or_buf=file_name_time, index=False)
