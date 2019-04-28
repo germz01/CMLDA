@@ -143,6 +143,17 @@ for ds in [0, 1, 2]:
             saving_str = 'monks_{}'.format(ds + 1) if opt == 'SGD' else \
                 '{}_monks_{}'.format(beta, ds + 1)
 
+            path = '../data/final_setup/' + str(opt)
+            if beta is not None:
+                path += '/' + str(beta)
+            with open(path + '/MONK{}_curves_{}.json'.
+                      format(ds + 1, opt.lower()), 'w') as json_file:
+                curves_data = {'error': neural_net.optimizer.error_per_epochs,
+                               'error_va': neural_net.optimizer.error_per_epochs_va,
+                               'accuracy': neural_net.optimizer.accuracy_per_epochs,
+                               'accuracy_va': neural_net.optimizer.accuracy_per_epochs_va}
+                json.dump(curves_data, json_file, indent=4)
+
             utils.plot_learning_curve_with_info(
                 neural_net.optimizer,
                 [neural_net.optimizer.error_per_epochs,
