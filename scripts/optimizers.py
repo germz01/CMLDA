@@ -7,6 +7,7 @@ import numpy as np
 import regularizers as reg
 import datetime as dt
 
+
 class Optimizer(object):
 
     """
@@ -35,11 +36,13 @@ class Optimizer(object):
         self.delta_b = [0 for i in range(nn.n_layers)]
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
+        self.g = None
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
         self.accuracy_per_epochs = []
         self.accuracy_per_epochs_va = []
+        self.gradient_norm_per_epochs = []
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
         self.convergence = 0
@@ -80,6 +83,8 @@ class Optimizer(object):
             g = nn.W[layer].T.dot(g)
         self.statistics['time_bw'] += \
             (dt.datetime.now() - start_time).total_seconds()
+
+        self.g = g
 
 
 class SGD(Optimizer):
@@ -205,6 +210,10 @@ class SGD(Optimizer):
                 if (bin_assess_va.accuracy > self.max_accuracy):
                     self.max_accuracy = bin_assess_va.accuracy
                     self.statistics['acc_epoch'] = e  # mod
+
+            # GRADIENT'S NORM STORING #########################################
+            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+
         self.statistics['epochs'] = e  # mod
         self.statistics['time_train'] = dt.datetime.now() - start_time
 
@@ -398,6 +407,8 @@ class CGD(Optimizer):
                     self.max_accuracy = bin_assess_va.accuracy
                     self.statistics['acc_epoch'] = k
 
+            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+
             if k > 0 and (np.linalg.norm(g) < 1e-5):
                 return 1
 
@@ -405,6 +416,7 @@ class CGD(Optimizer):
             self.statistics['ls'] = self.ls_it / (k + 1)
             self.statistics['time_train'] = dt.datetime.now() - start_time
             k += 1
+
         return 0
 
     def flat_weights(self, W, b):

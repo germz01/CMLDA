@@ -84,7 +84,9 @@ if opt == 'CGD':
     assert beta in ['hs', 'mhs', 'fr', 'pr']
 
 sample = None if raw_input('SAMPLE A LEARNING CURVE?[Y/N] ') == 'N' else \
-        np.random.randint(0, ntrials)
+        np.random.randint(1, ntrials)
+
+print 'SAMPLING ITERATION {}'.format(sample) if sample is not None else None
 
 for ds in [0, 1, 2]:
     if opt == 'SGD':
@@ -149,23 +151,32 @@ for ds in [0, 1, 2]:
             with open(path + '/MONK{}_curves_{}.json'.
                       format(ds + 1, opt.lower()), 'w') as json_file:
                 curves_data = {'error': neural_net.optimizer.error_per_epochs,
-                               'error_va': neural_net.optimizer.error_per_epochs_va,
-                               'accuracy': neural_net.optimizer.accuracy_per_epochs,
-                               'accuracy_va': neural_net.optimizer.accuracy_per_epochs_va}
+                               'error_va': neural_net.optimizer.
+                               error_per_epochs_va,
+                               'accuracy': neural_net.optimizer.
+                               accuracy_per_epochs,
+                               'accuracy_va': neural_net.optimizer.
+                               accuracy_per_epochs_va,
+                               'gradient_norm': neural_net.optimizer.
+                               gradient_norm_per_epochs}
                 json.dump(curves_data, json_file, indent=4)
 
-            utils.plot_learning_curve_with_info(
+            utils.plot_learning_curve(
                 neural_net.optimizer,
                 [neural_net.optimizer.error_per_epochs,
                  neural_net.optimizer.error_per_epochs_va],
                 'TEST', 'MSE', neural_net.optimizer.params,
                 fname=saving_str)
-            utils.plot_learning_curve_with_info(
+            utils.plot_learning_curve(
                 neural_net.optimizer,
                 [neural_net.optimizer.accuracy_per_epochs,
                  neural_net.optimizer.accuracy_per_epochs_va],
                 'TEST', 'ACCURACY', neural_net.optimizer.params,
                 fname=saving_str)
+            utils.plot_learning_curve(
+                neural_net.optimizer,
+                [neural_net.optimizer.gradient_norm_per_epochs],
+                'TEST', 'NORM', neural_net.optimizer.params, fname=saving_str)
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),

@@ -46,6 +46,38 @@ def compose_topology(X, hidden_sizes, y, task):
 # PLOTTING RELATED FUNCTIONS
 
 
+def plot_learning_curve(optimizer, data, test_type, metric, params,
+                        fname='../report/img/'):
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
+
+    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
+             len(data) > 1 else None)
+
+    if len(data) > 1:
+        plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+        plt.legend()
+
+    plt.grid()
+    plt.title('{} PER EPOCHS'.format(metric))
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+
+    plt.tight_layout()
+
+    saving_str = '../report/img/SGD/' \
+        if type(optimizer) is optimizers.SGD else \
+        '../report/img/CGD/{}/'.format(params['beta_m'].upper())
+    saving_str += 'sgd_' if type(optimizer) is optimizers.SGD else 'cgd_'
+    saving_str += metric.lower() + '_' + test_type.lower() + '.pdf'
+
+    if fname != '../report/img/':
+        saving_str = saving_str.replace('.pdf', '_{}.pdf'.format(fname))
+
+    plt.savefig(saving_str, bbox_inches='tight')
+    plt.close()
+
+
 def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
                                   fname='../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
