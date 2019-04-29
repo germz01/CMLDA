@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 # EXPERIMENTAL SETUP ##########################################################
 
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
-grid_size = 20
+grid_size = 30
 split_percentage = 0.8
 epochs = 1000
 
