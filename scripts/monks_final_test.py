@@ -91,10 +91,11 @@ print 'SAMPLING ITERATION {}'.format(sample) if sample is not None else None
 for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
-            'monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
+            'SGD/monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
     else:
         hps = path_to_json + \
-            'monks_{}_best_hyperparameters_cgd_{}.json'.format(ds + 1, beta)
+            'CGD/monks_{}_best_hyperparameters_cgd_{}.json'.\
+            format(ds + 1, beta)
 
     with open(hps) as json_file:
         params = json.load(json_file)
