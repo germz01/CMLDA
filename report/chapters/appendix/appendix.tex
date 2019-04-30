@@ -4,73 +4,192 @@
         Here we present the \textit{learning curves} for the three MONKS datasets. We have sampled these curves
         during the final tests on each dataset by plotting one of the 10 trails we used for building the
         statistics we presented in section \ref{sec:monks}, hence each plot presents a possible learning curve
-        for the best hyperparameters' selection for each dataset.
+        for the best hyperparameters' selection for each dataset. Alongside of the learning curves
+        we also provide the \textit{accuracy plots} in order to show how the accuracy score progresses
+        during the epochs, and the \textit{gradient's norm plots} in order to show the convergence
+        rate.
 
 
-        % \section{Stochastic Gradient Descent} % (fold)
-        % \label{sec:stochastic_gradient_descent}
-        % % section stochastic_gradient_descent (end)
+        \section{Stochastic Gradient Descent} % (fold)
+        \label{sec:stochastic_gradient_descent}
+        % section stochastic_gradient_descent (end)
+            \subsection{Standard momentum} % (fold)
+            \label{sub:standard_momentum}
 
-        %     \begin{figure}[H]
-        %         \centering
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_mse_test_monks_1.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_1_MSE_SGD}
-        %         \end{subfigure}
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_accuracy_test_monks_1.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_1_ACC_SGD}
-        %         \end{subfigure}
-        %         \caption{Example of a final learning curve on MONKS 1.}
-        %         \label{fig:monks_1_SGD}
-        %     \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_1_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_1_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_1_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 1 with standard momentum.}
+                \label{fig:monks_1_SGD}
+            \end{figure}
 
-        %     \begin{figure}[H]
-        %         \centering
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_mse_test_monks_2.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_2_MSE_SGD}
-        %         \end{subfigure}
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_accuracy_test_monks_2.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_2_ACC_SGD}
-        %         \end{subfigure}
-        %         \caption{Example of a final learning curve on MONKS 2.}
-        %         \label{fig:monks_2_SGD}
-        %     \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_2_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_2_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_2_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 2 with standard momentum.}
+                \label{fig:monks_2_SGD}
+            \end{figure}
 
-        %     \begin{figure}[H]
-        %         \centering
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_mse_test_monks_1.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_3_MSE_SGD}
-        %         \end{subfigure}
-        %         \begin{subfigure}{0.60\textwidth}
-        %             \resizebox{\textwidth}{!}{
-        %                 \includegraphics{img/SGD/sgd_accuracy_test_monks_1.pdf}
-        %             }
-        %             \caption{}
-        %             \label{fig:monks_3_ACC_SGD}
-        %         \end{subfigure}
-        %         \caption{Example of a final learning curve on MONKS 3.}
-        %         \label{fig:monks_3_SGD}
-        %     \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_3_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_3_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_3_standard.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 3 with standard momentum.}
+                \label{fig:monks_3_SGD}
+            \end{figure}
 
+            % subsection standard_momentum (end)
+
+            \subsection{Nesterov's momentum} % (fold)
+            \label{sub:nesterov_s_momentum}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_1_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_1_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_1_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 1 with Nesterov's momentum.}
+                \label{fig:monks_1_SGD}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_2_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_2_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_2_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 2 with Nesterov's momentum.}
+                \label{fig:monks_1_SGD}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_mse_test_monks_3_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_accuracy_test_monks_3_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/SGD/sgd_norm_test_monks_3_nesterov.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_NORM_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 3 with Nesterov's momentum.}
+                \label{fig:monks_1_SGD}
+            \end{figure}
+
+            % subsection nesterov_s_momentum (end)
 
         % \section{Conjugate Gradient Methods} % (fold)
         % \label{sec:conjugate_gradient_methods}
