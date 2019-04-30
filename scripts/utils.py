@@ -62,9 +62,7 @@ def plot_learning_curve(optimizer, data, test_type, metric, params,
     plt.title('{} PER EPOCHS'.format(metric))
     plt.xlabel('EPOCHS')
     plt.ylabel(metric)
-
     plt.tight_layout()
-    print params['beta_m']
 
     saving_str = '../report/img/SGD/' \
         if type(optimizer) is optimizers.SGD else \

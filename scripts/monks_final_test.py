@@ -1,3 +1,4 @@
+import ipdb
 import json
 import nn
 import numpy as np
@@ -13,7 +14,7 @@ warnings.filterwarnings("ignore")
 
 ntrials = 10
 split_percentage = 0.8
-epochs = 500
+epochs = 1000
 path_to_json = '../data/final_setup/'
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
@@ -77,11 +78,14 @@ tot, bw, ls, dr = list(), list(), list(), list()   # mod
 bw_p, ls_p, dr_p = list(), list(), list()   # mod
 
 
-beta = None
+beta, momentum = None, None
 
 if opt == 'CGD':
     beta = raw_input('CHOOSE A BETA[hs/mhs/fr/pr]: ')
     assert beta in ['hs', 'mhs', 'fr', 'pr']
+else:
+    momentum = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
+    assert momentum in ['standard', 'nesterov']
 
 sample = None if raw_input('SAMPLE A LEARNING CURVE?[Y/N] ') == 'N' else \
         np.random.randint(1, ntrials)
@@ -91,7 +95,8 @@ print 'SAMPLING ITERATION {}'.format(sample) if sample is not None else None
 for ds in [0, 1, 2]:
     if opt == 'SGD':
         hps = path_to_json + \
-            'SGD/monks_{}_best_hyperparameters_sgd.json'.format(ds + 1)
+            'SGD/{}/monks_{}_best_hyperparameters_sgd.json'.format(momentum,
+                                                                   ds + 1)
     else:
         hps = path_to_json + \
             'CGD/monks_{}_best_hyperparameters_cgd_{}.json'.\
@@ -143,8 +148,8 @@ for ds in [0, 1, 2]:
         neural_net.restore_weights()
 
         if sample is not None and sample == trial:
-            saving_str = 'monks_{}'.format(ds + 1) if opt == 'SGD' else \
-                '{}_monks_{}'.format(beta, ds + 1)
+            saving_str = 'monks_{}_{}'.format(ds + 1, momentum) \
+                if opt == 'SGD' else '{}_monks_{}'.format(beta, ds + 1)
 
             path = '../data/final_setup/' + str(opt)
             if beta is not None:
@@ -196,8 +201,10 @@ for ds in [0, 1, 2]:
 file_name = None
 
 if opt == 'SGD':
-    file_name = fpath + opt.lower() + '_monks_statistics.csv'
-    file_name_time = fpath + opt.lower() + '_monks_time_statistics.csv'
+    file_name = fpath + opt.lower() + \
+        '_{}_monks_statistics.csv'.format(momentum)
+    file_name_time = fpath + opt.lower() + \
+        '_{}_monks_time_statistics.csv'.format(momentum)
 else:
     file_name = fpath + opt.lower() + '_' + beta + \
         '_monks_statistics.csv'
