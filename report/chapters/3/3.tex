@@ -46,7 +46,8 @@
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
         MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
         the final configurations for the hyperparameters obtained during the validation phase.
-        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase.
+        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase. Tab \ref{tab:additional_monks_sgd} gives some additional statistics about the convergence for the
+        SGD.
 
         \begin{table}[H]
           \centering
@@ -124,6 +125,38 @@
             \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the validation and testing phases.
             The regularization constant $\lambda$ is used only in the third dataset, since Monk 3 is the only one among
             the three that has noisy samples.
+
+            \begin{table}[H]
+                \centering
+                \begin{subtable}{0.66\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c |}
+                            \hline
+                            Task & Momentum & Convergence on Epoch & Max Accuracy on Epoch \\
+                            \hline
+                            MONK 1 & standard & 1000 & 837 \\
+                            \hline
+                            MONK 2 & standard & 1000 & 607 \\
+                            \hline
+                            MONK 3 & standard & 1000 & 427 \\
+                            \hline
+                            MONK 1 & nesterov & 1000 & 641 \\
+                            \hline
+                            MONK 2 & nesterov & 1000 & 450 \\
+                            \hline
+                            MONK 3 & nesterov & 1000 & 317 \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{subtable}
+                \caption{Additional statistics for the Stochastic Gradient Descent.}
+                \label{tab:additional_monks_sgd}
+            \end{table}
+
+            As we can see from Tab. \ref{tab:additional_monks_sgd}, the Nesterov's momentum is, in general, faster
+            than the standard one in reaching the epoch in which the accuracy score reaches its maximal value. The
+            value of $1000$ for the convergence's epochs has to be interpreted as a non convergence for the task,
+            since $1000$ is the maximal number of epochs that we have used for the training and the testing phases.
 
 
         % subsection results_for_stochastic_gradient_descent (end)
