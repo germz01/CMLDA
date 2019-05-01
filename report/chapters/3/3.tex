@@ -46,8 +46,9 @@
         represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
         MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
         the final configurations for the hyperparameters obtained during the validation phase.
-        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation phase. Tab \ref{tab:additional_monks_sgd} gives some additional statistics about the convergence for the
-        SGD.
+        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation
+        phase, while Tab \ref{tab:additional_monks_sgd} and Tab \ref{tab:additional_monks_cgd} provide some
+        additional statistics about the convergence for, respectively, the SGD and the CG.
 
         \begin{table}[H]
           \centering
@@ -154,12 +155,12 @@
             \end{table}
 
             As we can see from Tab. \ref{tab:additional_monks_sgd}, the Nesterov's momentum is, in general, faster
-            than the standard one in reaching the epoch in which the accuracy score reaches its maximal value. The
-            value of $1000$ for the convergence's epochs has to be interpreted as a non convergence for the task,
-            since $1000$ is the maximal number of epochs that we have used for the training and the testing phases.
-
-            The average time of execution of the train and backpropagation phases are computed in seconds. Both the momentum choices produce similar results.
-
+            than the standard one in reaching the epoch in which the accuracy score reaches its maximal value, as
+            described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}. The value of $1000$ for
+            the convergence's epochs has to be interpreted as a non convergence for the task, since $1000$ is the
+            maximal number of epochs that we have used for the training and the testing phases. The average time of
+            execution of the train and backpropagation phases are computed in seconds. Both the momentum choices
+            produce similar results.
 
         % subsection results_for_stochastic_gradient_descent (end)
 
@@ -227,23 +228,23 @@
                             \hline
                             Task & $\beta$ & Convergence Epoch & Max Accuracy Epoch & LS Iterations & Elapsed Time & BP Time & LS Time & Dir Time \\
                             \hline
-                            MONK 1 & MHS & 348 & 216 & 6 & 5.97 & 0.61 & 2.65 & 0.017\\
+                            MONK 1 & $MHS^{+}$ & 348 & 216 & 6 & 5.97 & 0.61 & 2.65 & 0.017\\
                             \hline
-                            MONK 2 & MHS & 258 & 176 & 5 & 4.32 & 0.42 & 1.92 & 0.012\\
+                            MONK 2 & $MHS^{+}$ & 258 & 176 & 5 & 4.32 & 0.42 & 1.92 & 0.012\\
                             \hline
-                            MONK 3 & MHS & 428 & 136 & 5 & 6.88 & 0.69 & 3.0 & 0.020 \\
+                            MONK 3 & $MHS^{+}$ & 428 & 136 & 5 & 6.88 & 0.69 & 3.0 & 0.020 \\
                             \hline
-                            MONK 1 & HS & 260 & 135 & 6 & 5.01 & 2.94 & 1.59 & 0.111\\
+                            MONK 1 & $HS^{+}$ & 260 & 135 & 6 & 5.01 & 2.94 & 1.59 & 0.111\\
                             \hline
-                            MONK 2 & HS & 260 & 117 & 5 & 5.27 & 2.99 & 1.72 & 0.113\\
+                            MONK 2 & $HS^{+}$ & 260 & 117 & 5 & 5.27 & 2.99 & 1.72 & 0.113\\
                             \hline
-                            MONK 3 & HS & 432 & 94 & 5 & 5.18 & 2.97 & 2.81 & 0.194\\
+                            MONK 3 & $HS^{+}$ & 432 & 94 & 5 & 5.18 & 2.97 & 2.81 & 0.194\\
                             \hline
-                            MONK 1 & PR & 151 & 95 & 6 & 2.16 & 0.21 & 0.95 & 0.006\\
+                            MONK 1 & $PR^{+}$ & 151 & 95 & 6 & 2.16 & 0.21 & 0.95 & 0.006\\
                             \hline
-                            MONK 2 & PR & 117 & 75 & 5 & 1.73 & 0.17 & 0.77 & 0.004\\
+                            MONK 2 & $PR^{+}$ & 117 & 75 & 5 & 1.73 & 0.17 & 0.77 & 0.004\\
                             \hline
-                            MONK 3 & PR & 189 & 53 & 5 & 2.84 & 0.28 & 1.24 & 0.008\\
+                            MONK 3 & $PR^{+}$ & 189 & 53 & 5 & 2.84 & 0.28 & 1.24 & 0.008\\
                             \hline
                         \end{tabular}
                     }
