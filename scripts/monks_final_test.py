@@ -152,6 +152,8 @@ for ds in [0, 1, 2]:
                 if opt == 'SGD' else '{}_monks_{}'.format(beta, ds + 1)
 
             path = '../data/final_setup/' + str(opt)
+            if momentum is not None:
+                path += '/' + str(momentum)
             if beta is not None:
                 path += '/' + str(beta)
             with open(path + '/MONK{}_curves_{}.json'.

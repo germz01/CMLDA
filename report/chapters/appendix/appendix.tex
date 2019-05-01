@@ -9,10 +9,76 @@
         during the epochs, and the \textit{gradient's norm plots} in order to show the convergence
         rate.
 
+        In the first subsections of both the SGD and the CG sections, we attach some plots in order to show the differences between the various models and to better compare their behaviour.
+        Again, the plot are relative to one sampled execution between the 10 trails done.
 
         \section{Stochastic Gradient Descent} % (fold)
         \label{sec:stochastic_gradient_descent}
         % section stochastic_gradient_descent (end)
+
+            \subsection{Comparisons} % (fold)
+            \label{sub:comparisons}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/1_mse_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/1_accuracy_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 1 with standard and nesterov momentum.}
+                \label{fig:monks_1_SGD}
+            \end{figure}
+
+             \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/2_mse_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/2_accuracy_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 2 with standard and nesterov momentum.}
+                \label{fig:monks_2_SGD}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/3_mse_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_SGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/3_accuracy_momentum.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_SGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 3 with standard and nesterov momentum.}
+                \label{fig:monks_3_SGD}
+            \end{figure}
+
             \subsection{Standard momentum} % (fold)
             \label{sub:standard_momentum}
 
@@ -191,201 +257,337 @@
 
             % subsection nesterov_s_momentum (end)
 
-        % \section{Conjugate Gradient Methods} % (fold)
-        % \label{sec:conjugate_gradient_methods}
+         \section{Conjugate Gradient Methods} % (fold)
+         \label{sec:conjugate_gradient_methods}
+            \subsection{Comparisons} % (fold)
+            \label{sub:comparisons}
 
-        %     \subsection{$MHS^+$} % (fold)
-        %     \label{sub:mhs}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.4\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/1_mse_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.4\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/1_accuracy_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 1 with different beta methods.}
+                \label{fig:monks_1_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_MSE_CGD_MHS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_ACC_CGD_MHS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 1.}
-        %             \label{fig:monks_1_CGD_MHS}
-        %         \end{figure}
+             \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/2_mse_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/2_accuracy_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 2 with different beta methods.}
+                \label{fig:monks_2_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_MSE_CGD_MHS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_ACC_CGD_MHS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 2.}
-        %             \label{fig:monks_2_CGD_MHS}
-        %         \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/3_mse_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/3_accuracy_beta.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve on MONKS 3 with different beta methods.}
+                \label{fig:monks_3_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_MSE_CGD_MHS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_ACC_CGD_MHS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 3.}
-        %             \label{fig:monks_3_CGD_MHS}
-        %         \end{figure}
+            \subsection{$MHS^+$} % (fold)
+            \label{sub:mhs}
 
-        %     % subsection mhs (end)
+                \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_norm_test_mhs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 1 with $MHS^+$ method.}
+                \label{fig:monks_1_CGD}
+            \end{figure}
 
-        %     \subsection{$HS^+$} % (fold)
-        %     \label{sub:hs}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_norm_test_mhs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 2  with $MHS^+$ method.}
+                \label{fig:monks_2_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_MSE_CGD_HS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_ACC_CGD_HS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 1.}
-        %             \label{fig:monks_1_CGD_HS}
-        %         \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_accuracy_test_mhs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/MHS/cgd_norm_test_mhs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 3 with $MHS^+$ method.}
+                \label{fig:monks_3_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_MSE_CGD_HS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_ACC_CGD_HS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 2.}
-        %             \label{fig:monks_2_CGD_HS}
-        %         \end{figure}
+          
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_MSE_CGD_HS}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_ACC_CGD_HS}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 3.}
-        %             \label{fig:monks_3_CGD_HS}
-        %         \end{figure}
+            % subsection mhs (end)
 
-        %     % subsection hs (end)
+            \subsection{$HS^+$} % (fold)
+            \label{sub:hs}
 
-        %     \subsection{$PR^+$} % (fold)
-        %     \label{sub:pr}
+                \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_norm_test_hs_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 1 with $HS^+$ method.}
+                \label{fig:monks_1_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_MSE_CGD_PR}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_1.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_1_ACC_CGD_PR}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 1.}
-        %             \label{fig:monks_1_CGD_PR}
-        %         \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_norm_test_hs_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 2  with $HS^+$ method.}
+                \label{fig:monks_2_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_MSE_CGD_PR}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_2.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_2_ACC_CGD_PR}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 2.}
-        %             \label{fig:monks_2_CGD_PR}
-        %         \end{figure}
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_mse_test_hs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_accuracy_test_hs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/HS/cgd_norm_test_hs_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 3 with $HS^+$ method.}
+                \label{fig:monks_3_CGD}
+            \end{figure}
 
-        %         \begin{figure}[H]
-        %             \centering
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_MSE_CGD_PR}
-        %             \end{subfigure}
-        %             \begin{subfigure}{0.60\textwidth}
-        %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_3.pdf}
-        %                 }
-        %                 \caption{}
-        %                 \label{fig:monks_3_ACC_CGD_PR}
-        %             \end{subfigure}
-        %             \caption{Example of a final learning curve on MONKS 3.}
-        %             \label{fig:monks_3_CGD_PR}
-        %         \end{figure}
+            % subsection hs (end)
+
+            \subsection{$PR^+$} % (fold)
+            \label{sub:pr}
+
+                \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_norm_test_pr_monks_1.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 1 with $PR^+$ method.}
+                \label{fig:monks_1_CGD}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_norm_test_pr_monks_2.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 2  with $PR^+$ method.}
+                \label{fig:monks_2_CGD}
+            \end{figure}
+
+            \begin{figure}[H]
+                \centering
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_mse_test_pr_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_accuracy_test_pr_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_ACC_CGD}
+                \end{subfigure}
+                \begin{subfigure}{0.40\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/CGD/PR/cgd_norm_test_pr_monks_3.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_NORM_CGD}
+                \end{subfigure}
+                \caption{Example of a final learning, accuracy score curve and
+                convergence rate curve on MONKS 3 with $PR^+$ method.}
+                \label{fig:monks_3_CGD}
+            \end{figure}
 
             % subsection pr (end)
 
@@ -417,7 +619,7 @@
         %         \begin{figure}[H]
         %             \centering
         %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/cgd_mse_test_mhs_cup.pdf}
+        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_mhs_cup.pdf}
         %                 }
         %                 \label{fig:cup_mhs}
         %             \caption{Example of a final learning curve on CUP.}
@@ -429,7 +631,7 @@
         %         \begin{figure}[H]
         %             \centering
         %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/cgd_mse_test_hs_cup.pdf}
+        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_hs_cup.pdf}
         %                 }
         %                 \label{fig:cup_hs}
         %             \caption{Example of a final learning curve on CUP.}
@@ -441,7 +643,7 @@
         %         \begin{figure}[H]
         %             \centering
         %                 \resizebox{\textwidth}{!}{
-        %                     \includegraphics{img/CGD/cgd_mse_test_pr_cup.pdf}
+        %                     \includegraphics{img/CGD/MHS/cgd_mse_test_pr_cup.pdf}
         %                 }
         %                 \label{fig:cup_pr}
         %             \caption{Example of a final learning curve on CUP.}

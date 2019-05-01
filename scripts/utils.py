@@ -193,6 +193,56 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
     plt.close()
 
 
+def plot_all_learning_curves(monk, label, data, title, metric,
+                             fname='../report/img/', type='beta'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+
+    for i in range(len(data[0])):
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
+                     alpha=.65)
+    plt.grid()
+    plt.title(title)
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_' + str(type)
+                + '.pdf', bbox_inches='tight')
+    plt.close()
+
+
+def plot_momentum_learning_curves(monk, momentum, data, title, metric,
+                                  fname='../report/img/'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    plt.subplot(211)
+
+    for i in range(len(data[0])):
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=momentum[i],
+                     alpha=.65)
+    plt.grid()
+    plt.title(title + ' WITH STANDARD MOMENTUM')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.subplot(212)
+
+    for i in range(len(data[1])):
+        plt.semilogy(range(len(data[1][i])), data[1][i], label=momentum[i],
+                     alpha=.65)
+
+    plt.grid()
+    plt.title(title + ' WITH NESTEROV MOMENTUM')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.tight_layout()
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_momentum.pdf',
+                bbox_inches='tight')
+    plt.close()
+
+
 def binarize_attribute(attribute, n_categories):
     """
     Binarize a vector of categorical values
