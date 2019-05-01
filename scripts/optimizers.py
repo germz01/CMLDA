@@ -5,6 +5,7 @@ import losses as lss
 import metrics
 import numpy as np
 import regularizers as reg
+import datetime as dt
 
 
 class Optimizer(object):
@@ -35,15 +36,21 @@ class Optimizer(object):
         self.delta_b = [0 for i in range(nn.n_layers)]
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
+        self.g = None
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
         self.accuracy_per_epochs = []
         self.accuracy_per_epochs_va = []
+        self.gradient_norm_per_epochs = []
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
         self.convergence = 0
         self.max_accuracy = 0
+        self.statistics = {'time_train': 0,
+                           'time_bw': 0,
+                           'time_ls': 0,
+                           'time_dr': 0}  # mod
 
     def forward_propagation(self, nn, x, y):
         for i in range(nn.n_layers):
@@ -56,6 +63,7 @@ class Optimizer(object):
         return lss.mean_squared_error(self.h[-1].T, y)  # mee
 
     def back_propagation(self, nn, x, y):
+        start_time = dt.datetime.now()
         g = 0
 
         if nn.task == 'classifier':
@@ -73,6 +81,10 @@ class Optimizer(object):
                                         else x)
             # summing over previous layer units
             g = nn.W[layer].T.dot(g)
+        self.statistics['time_bw'] += \
+            (dt.datetime.now() - start_time).total_seconds()
+
+        self.g = g
 
 
 class SGD(Optimizer):
@@ -98,6 +110,9 @@ class SGD(Optimizer):
         self.reg_method = reg_method
         self.velocity_W = [0 for i in range(nn.n_layers)]
         self.velocity_b = [0 for i in range(nn.n_layers)]
+        self.statistics['ls'] = 1
+        self.statistics['time_ls'] = 1
+        self.statistics['time_dr'] = 1
 
         self.params = self.get_params(nn)
 
@@ -115,7 +130,7 @@ class SGD(Optimizer):
 
     def optimize(self, nn, X, y, X_va, y_va, epochs):
         bin_assess, bin_assess_va = None, None
-
+        start_time = dt.datetime.now()
         for e in range(epochs):
             error_per_batch = []
             y_pred, y_pred_va = None, None
@@ -194,7 +209,13 @@ class SGD(Optimizer):
 
                 if (bin_assess_va.accuracy > self.max_accuracy):
                     self.max_accuracy = bin_assess_va.accuracy
-                    self.convergence = e
+                    self.statistics['acc_epoch'] = e  # mod
+
+            # GRADIENT'S NORM STORING #########################################
+            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+
+        self.statistics['epochs'] = e  # mod
+        self.statistics['time_train'] = dt.datetime.now() - start_time
 
 
 class CGD(Optimizer):
@@ -237,6 +258,9 @@ class CGD(Optimizer):
         self.max_epochs = max_epochs
         self.error_goal = error_goal
         self.params = self.get_params(nn)
+        self.ls_it = 0  # mod
+        self.zoom_it = 0
+        self.int_it = 0
 
     def get_params(self, nn):
         self.params = dict()
@@ -293,7 +317,7 @@ class CGD(Optimizer):
         Returns
         -------
         """
-
+        start_time = dt.datetime.now()
         k = 0
         g_prev = 0
 
@@ -381,12 +405,18 @@ class CGD(Optimizer):
 
                 if (bin_assess_va.accuracy > self.max_accuracy):
                     self.max_accuracy = bin_assess_va.accuracy
-                    self.convergence = k
+                    self.statistics['acc_epoch'] = k
+
+            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
 
             if k > 0 and (np.linalg.norm(g) < 1e-5):
                 return 1
 
+            self.statistics['epochs'] = (k + 1)  # mod
+            self.statistics['ls'] = self.ls_it / (k + 1)
+            self.statistics['time_train'] = dt.datetime.now() - start_time
             k += 1
+
         return 0
 
     def flat_weights(self, W, b):
@@ -572,25 +602,28 @@ class CGD(Optimizer):
         -------
         The gradient descent for epoch k.
         """
-
+        start_time = dt.datetime.now()
+        d = 0
         if k == 0:
             return -g
         if method == 'standard':
-            return (-g + (beta * d_prev))
-
-        return (-(1 + beta * (np.asscalar(g.T.dot(d_prev)) /
-                              np.linalg.norm(g))) * g) \
-            + (beta * d_prev)
+            d = (-g + (beta * d_prev))
+        else:
+            d = (-(1 + beta * (np.asscalar(g.T.dot(d_prev)) /
+                               np.linalg.norm(g))) * g) \
+                 + (beta * d_prev)
+        self.statistics['time_dr'] += \
+            (dt.datetime.now() - start_time).total_seconds()
+        return d
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
         """
         """
-
+        start_time = dt.datetime.now()
         alpha_prev, alpha_max = 0., 1.
         alpha_current = np.random.uniform(alpha_prev, alpha_max)
         error_prev = 0.
         max_iter, i = 10, 1
-
         while i <= max_iter:
             nn.W, nn.b = self.unflat_weights(W + (alpha_current * d),
                                              nn.n_layers, nn.topology)
@@ -599,6 +632,7 @@ class CGD(Optimizer):
             if (error_current >
                 (error_0 + (self.sigma_1 * alpha_current * g_d))) \
                or ((error_current >= error_prev) and (i > 1)):
+                self.ls_it += i
                 return self.zoom(alpha_prev, alpha_current, nn, X, y, W, d,
                                  g_d, error_0)
 
@@ -607,13 +641,19 @@ class CGD(Optimizer):
                                                   self.delta_b).T.dot(d))
 
             if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
+                self.statistics['time_ls'] += \
+                    (dt.datetime.now() - start_time).total_seconds()
+                self.ls_it += i
                 return alpha_current
             elif n_g_d >= 0:
+                self.ls_it += i
                 return self.zoom(alpha_current, alpha_prev, nn, X, y, W, d,
                                  g_d, error_0)
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < threshold:
-
+                self.statistics['time_ls'] += \
+                    (dt.datetime.now() - start_time).total_seconds()
+                self.ls_it += i
                 return alpha_current
 
             alpha_prev = alpha_current
@@ -623,12 +663,16 @@ class CGD(Optimizer):
                 if alpha_prev * 1.1 <= alpha_max else alpha_max
 
             i += 1
+        self.ls_it += i  # mod
+        self.statistics['time_ls'] += \
+            (dt.datetime.now() - start_time).total_seconds()
         return alpha_current
 
     def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0,
              max_iter=10, tolerance=1e-4):
         """
         """
+        start_time = dt.datetime.now()
         i = 0
         alpha_j = np.random.uniform(alpha_lo, alpha_hi)
 
@@ -660,14 +704,20 @@ class CGD(Optimizer):
                                                       self.delta_b).T.dot(d))
 
                 if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
+                    self.statistics['time_ls'] += \
+                      (dt.datetime.now() - start_time).total_seconds()
                     return alpha_j
                 elif n_g_d * (alpha_hi - alpha_lo) >= 0:
                     alpha_hi = alpha_lo
                 elif (error_j - error_0) < tolerance:
+                    self.statistics['time_ls'] += \
+                     (dt.datetime.now() - start_time).total_seconds()
                     return alpha_j
 
                 alpha_lo = alpha_j
             i += 1
+        self.statistics['time_ls'] += \
+            (dt.datetime.now() - start_time).total_seconds()
         return alpha_j
 
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X, y, d,

@@ -46,6 +46,37 @@ def compose_topology(X, hidden_sizes, y, task):
 # PLOTTING RELATED FUNCTIONS
 
 
+def plot_learning_curve(optimizer, data, test_type, metric, params,
+                        fname='../report/img/'):
+    assert test_type in ['VALIDATION', 'TEST'] and \
+        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
+
+    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
+             len(data) > 1 else None)
+
+    if len(data) > 1:
+        plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+        plt.legend()
+
+    plt.grid()
+    plt.title('{} PER EPOCHS'.format(metric))
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.tight_layout()
+
+    saving_str = '../report/img/SGD/' \
+        if type(optimizer) is optimizers.SGD else \
+        '../report/img/CGD/{}/'.format(params['beta_m'].upper())
+    saving_str += 'sgd_' if type(optimizer) is optimizers.SGD else 'cgd_'
+    saving_str += metric.lower() + '_' + test_type.lower() + '.pdf'
+
+    if fname != '../report/img/':
+        saving_str = saving_str.replace('.pdf', '_{}.pdf'.format(fname))
+
+    plt.savefig(saving_str, bbox_inches='tight')
+    plt.close()
+
+
 def plot_learning_curve_with_info(optimizer, data, test_type, metric, params,
                                   fname='../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
@@ -158,6 +189,56 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
 
     plt.tight_layout()
     plt.savefig(fname + str(monk) + '_' + metric.lower() + '_betas.pdf',
+                bbox_inches='tight')
+    plt.close()
+
+
+def plot_all_learning_curves(monk, label, data, title, metric,
+                             fname='../report/img/', type='beta'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+
+    for i in range(len(data[0])):
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
+                     alpha=.65)
+    plt.grid()
+    plt.title(title)
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_' + str(type)
+                + '.pdf', bbox_inches='tight')
+    plt.close()
+
+
+def plot_momentum_learning_curves(monk, momentum, data, title, metric,
+                                  fname='../report/img/'):
+    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    plt.subplot(211)
+
+    for i in range(len(data[0])):
+        plt.semilogy(range(len(data[0][i])), data[0][i], label=momentum[i],
+                     alpha=.65)
+    plt.grid()
+    plt.title(title + ' WITH STANDARD MOMENTUM')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.subplot(212)
+
+    for i in range(len(data[1])):
+        plt.semilogy(range(len(data[1][i])), data[1][i], label=momentum[i],
+                     alpha=.65)
+
+    plt.grid()
+    plt.title(title + ' WITH NESTEROV MOMENTUM')
+    plt.xlabel('EPOCHS')
+    plt.ylabel(metric)
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+    plt.tight_layout()
+    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_momentum.pdf',
                 bbox_inches='tight')
     plt.close()
 

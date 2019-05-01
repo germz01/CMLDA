@@ -1,6 +1,6 @@
 \chapter{The Artificial Neural Network} % (fold)
 \label{cha:the_artificial_neural_network}
-	In this first chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
+	In this first Chapter, we provide some informations about the Artificial Neural Network, i.e. a fully
 	connected Multilayer Perceptron, we implemented from scratch. We'll describe both the network's structure and
 	the algorithm we used in order to make our network \textit{learn} from the data used during the testing and
 	validation phases. Finally we'll present the loss function we have chosen for our network, and we'll provide
@@ -139,7 +139,7 @@
 		and the goal of initializing all layers to have the same gradient variance. The formula is derived using
 		the assumption that the network consists only of a chain of matrix multiplications, with no
 		nonlinearities. Other than this kind of initialization, we also make available the standard
-		\textit{random initialization} for creating a network, described at the beginning of this section, which
+		\textit{random initialization} for creating a network, described at the beginning of this \S, which
 		initialize the weights and the biases for each layer in the uniform distribution taken in the range
 
 		\begin{equation*}
@@ -158,7 +158,7 @@
             algorithm \ref{alg:forward_propagation} and \ref{alg:backward_propagation};
 			\item optimize the information gathered during the first phase using a distinct optimizer, chosen
 			among the \textit{Stochastic Gradient Descent} and the \textit{Conjugate Gradient Method}, as
-			described in chapter \ref{cha:optimizers};
+			described in Chapter \ref{cha:optimizers};
 		\end{enumerate}
 
 		For computing the gradient we have chosen to use
@@ -175,7 +175,7 @@
 			\caption{Forward propagation through a typical (deep) neural network and the computation of the cost
 			function. Here $L(\hat{\mathbf{y}}, \mathbf{y})$ represents the loss function evaluated using both
 			$\mathbf{y}$ and $\hat{\mathbf{y}}$ as inputs, more details about that will be provided in
-			section \ref{sec:the_loss_function}. The function $f$ applied on line $5$ represents
+			\S \ref{sec:the_loss_function}. The function $f$ applied on line $5$ represents
 			the layer's \textit{activation function}, while $\lambda \Omega(\theta)$ represents the
 			network's regularization term, with $\theta$ representing the ANN's hyperparameters.}
 			\label{alg:forward_propagation}
@@ -234,7 +234,7 @@
 
 	\section{The activation functions} % (fold)
 	\label{sec:the_activation_functions}
-		As we have mentioned in section \ref{sec:the_back-propagation_algorithm}, each one of the ANN's layers
+		As we have mentioned in \S \ref{sec:the_back-propagation_algorithm}, each one of the ANN's layers
 		has an \textit{activation function}, that is, a function that is applied to $\mathbf{a}_{k}$ in order to
 		obtain $\mathbf{h}_k$, with $k \in \{1,\ldots,l\}$. We can say that an activation function of a node
 		defines the output of that node, and maps $\mathbf{a}_{k}$ into the desired range. For being chosen as
@@ -258,13 +258,23 @@
 		    &f'(x) = \sigma'(x) = f(x)(1 - f(x)),
 		\end{align*}
 
-		and is defined in the range $\left ( 0,\ 1 \right )$.
+		and is defined in the range $\left ( 0,\ 1 \right )$. As introduced in \S
+        \ref{sec:the_back-propagation_algorithm}, we can think the ANN as a \textit{composition} of activation
+        functions, and, since we have stated that each one of the network's layers uses the logistic function as
+        activation function, we can represent the ANN as
+
+        \begin{equation*}
+            \sigma_l \ \circ \ \sigma_{l - 1} \ \circ \ \cdots \ \circ \ \sigma_1
+        \end{equation*}
+
+        with $l$ representing the total number of layers in the network and $\sigma$ representing the logistic
+        function.
 
 	% section the_activation_functions (end)
 
 	\section{The Loss function} % (fold)
 	\label{sec:the_loss_function}
-		It section \ref{sec:the_back-propagation_algorithm} we have referred to the \textit{Loss function} as to a
+		It \S \ref{sec:the_back-propagation_algorithm} we have referred to the \textit{Loss function} as to a
 		function that takes as input the ANN's output vector $\hat{\mathbf{y}}$ and the \textit{ground truth}
 		vector $\mathbf{y}$, that is, the vector containing the desired output for the network. But what
         essentially is a Loss function? As a matter of fact, the Loss function can be considered like
@@ -288,7 +298,7 @@
 
         Since this formula is used for computing the performances of our models, our primary goal is to minimize its
 		output as much as possible by computing the gradient during the backward propagation step of the
-		back-propagation algorithm, as described in section \ref{sec:the_back-propagation_algorithm}. Of course,
+		back-propagation algorithm, as described in \S \ref{sec:the_back-propagation_algorithm}. Of course,
         in order to do so, it must be a \textit{differentiable} function. The gradient for the MSE with respect to
 		$\hat{\mathbf{y}}$ is defined as:
 
@@ -314,7 +324,7 @@
 
                 Being the MSE a composition of the square function and the Euclidean norm, because of the squaring,
                 the function is Lipschitz continuous only if we restrict its domain to a bounded set. Since, as
-                described in section \ref{sec:the_activation_functions}, each network's layer uses the sigmoid
+                described in \S \ref{sec:the_activation_functions}, each network's layer uses the sigmoid
                 function, which is a squashing function that bounds every layer's output in the range
                 $\left ( 0,\ 1 \right )$, the MSE can be considered as a continous function.
                 \item \textbf{Differentiability}. Again, being the sigmoid function the one used by the ANN,

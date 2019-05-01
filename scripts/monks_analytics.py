@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
 grid_size = 30
 split_percentage = 0.8
-epochs = 500
+epochs = 1000
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -222,9 +222,9 @@ if validation:
     json_name = ''
 
     if opt == 'SGD':
-        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}.json'.format(ds, opt.lower())
+        json_name = '../data/final_setup/{}/{}/monks_{}_best_hyperparameters_{}.json'.format(opt, type_m, ds, opt.lower())
     else:
-        json_name = '../data/final_setup/monks_{}_best_hyperparameters_{}_{}.json'.format(ds, opt.lower(), param_ranges['beta_m'])
+        json_name = '../data/final_setup/{}/monks_{}_best_hyperparameters_{}_{}.json'.format(opt, ds, opt.lower(), param_ranges['beta_m'])
 
     with open(json_name, 'w') as json_file:
         json.dump(best_hyperparameters, json_file, indent=4)
