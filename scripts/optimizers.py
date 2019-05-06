@@ -37,6 +37,7 @@ class Optimizer(object):
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
         self.g = None
+        self.convergence_goal = 1e-2
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
@@ -45,6 +46,7 @@ class Optimizer(object):
         self.gradient_norm_per_epochs = []
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
+        self.time_per_epochs = []
         self.convergence = 0
         self.max_accuracy = 0
         self.statistics = {'time_train': 0,
@@ -131,7 +133,9 @@ class SGD(Optimizer):
     def optimize(self, nn, X, y, X_va, y_va, epochs):
         bin_assess, bin_assess_va = None, None
         start_time = dt.datetime.now()
-        for e in range(epochs):
+        e = 0
+        while True:
+            start_iteration = dt.datetime.now()
             error_per_batch = []
             y_pred, y_pred_va = None, None
 
@@ -212,9 +216,22 @@ class SGD(Optimizer):
                     self.statistics['acc_epoch'] = e  # mod
 
             # GRADIENT'S NORM STORING #########################################
-            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+            norm_gradient = np.linalg.norm(self.g)
+            self.gradient_norm_per_epochs.append(norm_gradient)
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_iteration).total_seconds())
+            e += 1
 
-        self.statistics['epochs'] = e  # mod
+            if (norm_gradient <= self.convergence_goal) or \
+                    (epochs is not None and e == epochs):
+                self.statistics['epochs'] = e
+                self.time_per_epochs.append((dt.datetime.now() -
+                                            start_iteration).total_seconds())
+
+                self.statistics['time_train'] = dt.datetime.now() - start_time
+                return 0
+
+        self.statistics['epochs'] = e
         self.statistics['time_train'] = dt.datetime.now() - start_time
 
 
@@ -261,6 +278,7 @@ class CGD(Optimizer):
         self.ls_it = 0  # mod
         self.zoom_it = 0
         self.int_it = 0
+        self.statistics['time_train'] = dt.datetime.now()
 
     def get_params(self, nn):
         self.params = dict()
@@ -295,7 +313,7 @@ class CGD(Optimizer):
         y: numpy.ndarray
             the target column vector
 
-        max_epochs: int
+        max_iter: int
             the maximum number of iterations for optimizing the network
 
         error_goal: float
@@ -324,7 +342,8 @@ class CGD(Optimizer):
         y_pred, y_pred_va = None, None
         bin_assess, bin_assess_va = None, None
 
-        while k != max_epochs:
+        while True:
+            start_iteration = dt.datetime.now()
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
@@ -407,14 +426,26 @@ class CGD(Optimizer):
                     self.max_accuracy = bin_assess_va.accuracy
                     self.statistics['acc_epoch'] = k
 
-            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+            norm_gradient = np.linalg.norm(self.g)
+            self.gradient_norm_per_epochs.append(norm_gradient)
 
-            if k > 0 and (np.linalg.norm(g) < 1e-5):
+            if (k > 0 and (norm_gradient <= self.convergence_goal)) or\
+                    (max_epochs is not None and k == max_epochs):
+                self.statistics['epochs'] = (k + 1)  # mod
+                self.statistics['ls'] = self.ls_it / (k + 1)
+                self.time_per_epochs.append((dt.datetime.now() -
+                                             start_iteration).total_seconds()
+                                            )
+                self.statistics['time_train'] = dt.datetime.now() - start_time
                 return 1
 
             self.statistics['epochs'] = (k + 1)  # mod
             self.statistics['ls'] = self.ls_it / (k + 1)
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_iteration).total_seconds()
+                                        )
             self.statistics['time_train'] = dt.datetime.now() - start_time
+
             k += 1
 
         return 0

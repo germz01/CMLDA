@@ -57,3 +57,7 @@ for ds in [0, 1, 2]:
 
     u.plot_all_learning_curves(ds + 1, betas, [[acc_h, acc_m, acc_p]],
                                'ACCURACY', 'ACCURACY')
+
+    u.plot_all_learning_curves(ds + 1, momentum, [[errors_n, errors_s,
+                               errors_h, errors_m, errors_p]],
+                               'ERRORS', 'MSE', type='all')
