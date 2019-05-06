@@ -16,6 +16,8 @@ ntrials = 10
 split_percentage = 0.8
 epochs = 1000
 path_to_json = '../data/final_setup/'
+save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y' else False
+plot_mse, plot_acc, plot_norm, plot_time = False, False, False, True
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
@@ -169,22 +171,32 @@ for ds in [0, 1, 2]:
                                gradient_norm_per_epochs}
                 json.dump(curves_data, json_file, indent=4)
 
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.error_per_epochs,
-                 neural_net.optimizer.error_per_epochs_va],
-                'TEST', 'MSE', neural_net.optimizer.params,
-                fname=saving_str)
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.accuracy_per_epochs,
-                 neural_net.optimizer.accuracy_per_epochs_va],
-                'TEST', 'ACCURACY', neural_net.optimizer.params,
-                fname=saving_str)
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.gradient_norm_per_epochs],
-                'TEST', 'NORM', neural_net.optimizer.params, fname=saving_str)
+            if plot_mse:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.error_per_epochs,
+                     neural_net.optimizer.error_per_epochs_va],
+                    'TEST', 'MSE', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_acc:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.accuracy_per_epochs,
+                     neural_net.optimizer.accuracy_per_epochs_va],
+                    'TEST', 'ACCURACY', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_norm:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.gradient_norm_per_epochs],
+                    'TEST', 'NORM', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_time:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.time_per_epochs],
+                    'TEST', 'TIME', neural_net.optimizer.params,
+                    fname=saving_str)
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),
@@ -213,5 +225,6 @@ else:
     file_name_time = fpath + opt.lower() + '_' + beta + \
         '_monks_time_statistics.csv'
 
-statistics.to_csv(path_or_buf=file_name, index=False)
-statistics_time.to_csv(path_or_buf=file_name_time, index=False)
+if save_statistics:
+    statistics.to_csv(path_or_buf=file_name, index=False)
+    statistics_time.to_csv(path_or_buf=file_name_time, index=False)

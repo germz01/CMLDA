@@ -49,10 +49,14 @@ def compose_topology(X, hidden_sizes, y, task):
 def plot_learning_curve(optimizer, data, test_type, metric, params,
                         fname='../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
-        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
+        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM', 'TIME']
 
-    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
-             len(data) > 1 else None)
+    if metric == 'TIME':
+        plt.semilogy(range(len(data[0])), data[0], alpha=0.65,
+                     label='TRAIN' if len(data) > 1 else None)
+    else:
+        plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
+                 len(data) > 1 else None)
 
     if len(data) > 1:
         plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
