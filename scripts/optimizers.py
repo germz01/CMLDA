@@ -37,7 +37,7 @@ class Optimizer(object):
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
         self.g = None
-        self.convergence_goal = 1e-3
+        self.convergence_goal = 1e-2
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
@@ -47,7 +47,6 @@ class Optimizer(object):
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
         self.time_per_epochs = []
-        self.time_per_epochs_va = []
         self.convergence = 0
         self.max_accuracy = 0
         self.statistics = {'time_train': 0,
@@ -136,6 +135,7 @@ class SGD(Optimizer):
         start_time = dt.datetime.now()
         e = 0
         while True:
+            start_iteration = dt.datetime.now()
             error_per_batch = []
             y_pred, y_pred_va = None, None
 
@@ -184,16 +184,12 @@ class SGD(Optimizer):
                     nn.W[layer] += self.velocity_W[layer] - weight_decay
 
             self.error_per_epochs.append(np.sum(error_per_batch))
-            self.time_per_epochs.append((dt.datetime.now() - start_time)
-                                        .total_seconds())
 
             # IN LOCO VALIDATION ##############################################
 
             if X_va is not None:
                 error_va = self.forward_propagation(nn, X_va, y_va)
                 self.error_per_epochs_va.append(error_va)
-                self.time_per_epochs_va.append((dt.datetime.now() - start_time)
-                                               .total_seconds())
                 y_pred_va = self.h[-1].reshape(-1, 1)
 
             # PERFORMANCE ESTIMATION ##########################################
@@ -222,11 +218,16 @@ class SGD(Optimizer):
             # GRADIENT'S NORM STORING #########################################
             norm_gradient = np.linalg.norm(self.g)
             self.gradient_norm_per_epochs.append(norm_gradient)
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_iteration).total_seconds())
             e += 1
 
             if (norm_gradient <= self.convergence_goal) or \
                     (epochs is not None and e == epochs):
                 self.statistics['epochs'] = e
+                self.time_per_epochs.append((dt.datetime.now() -
+                                            start_iteration).total_seconds())
+
                 self.statistics['time_train'] = dt.datetime.now() - start_time
                 return 0
 
@@ -277,6 +278,7 @@ class CGD(Optimizer):
         self.ls_it = 0  # mod
         self.zoom_it = 0
         self.int_it = 0
+        self.statistics['time_train'] = dt.datetime.now()
 
     def get_params(self, nn):
         self.params = dict()
@@ -341,6 +343,7 @@ class CGD(Optimizer):
         bin_assess, bin_assess_va = None, None
 
         while True:
+            start_iteration = dt.datetime.now()
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
@@ -350,8 +353,6 @@ class CGD(Optimizer):
             self.error = self.forward_propagation(nn, X, y)
             self.back_propagation(nn, X, y)
             self.error_per_epochs.append(self.error)
-            self.time_per_epochs.append((dt.datetime.now() - start_time)
-                                        .total_seconds())
 
             y_pred = self.h[-1].reshape(-1, 1)
 
@@ -400,8 +401,6 @@ class CGD(Optimizer):
             if X_va is not None:
                 error_va = self.forward_propagation(nn, X_va, y_va)
                 self.error_per_epochs_va.append(error_va)
-                self.time_per_epochs_va.append((dt.datetime.now() - start_time)
-                                               .total_seconds())
                 y_pred_va = self.h[-1].reshape(-1, 1)
 
             # ACCURACY ESTIMATION #############################################
@@ -434,12 +433,19 @@ class CGD(Optimizer):
                     (max_epochs is not None and k == max_epochs):
                 self.statistics['epochs'] = (k + 1)  # mod
                 self.statistics['ls'] = self.ls_it / (k + 1)
+                self.time_per_epochs.append((dt.datetime.now() -
+                                             start_iteration).total_seconds()
+                                            )
                 self.statistics['time_train'] = dt.datetime.now() - start_time
                 return 1
 
             self.statistics['epochs'] = (k + 1)  # mod
             self.statistics['ls'] = self.ls_it / (k + 1)
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_iteration).total_seconds()
+                                        )
             self.statistics['time_train'] = dt.datetime.now() - start_time
+
             k += 1
 
         return 0

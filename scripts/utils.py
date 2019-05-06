@@ -198,23 +198,20 @@ def plot_all_learning_curves(monk, label, data, title, metric,
                              semilogy=True):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
     for i in range(len(data[0])):
-        if time is None:
-            time = range(len(data[0][i]))
         if semilogy:
-            plt.semilogy(time, data[0][i], label=label[i],
+            plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
                          alpha=.65)
         else:
-            plt.plot(time, data[0][i], label=label[i],
+            plt.plot(range(len(data[0][i])), (data[0][i]), label=label[i],
                      alpha=.65)
     plt.grid()
     plt.title(title)
 
+    plt.xlabel('EPOCHS')
     if time is not None:
-        plt.xlabel('SECONDS')
+        plt.ylabel('SECONDS')
     else:
-        plt.xlabel('EPOCHS')
-
-    plt.ylabel(metric)
+        plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
     fname = fname + str(monk) + '_' + metric.lower() + '_' + str(type)

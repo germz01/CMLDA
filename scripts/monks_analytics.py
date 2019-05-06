@@ -174,9 +174,8 @@ if testing:
             [neural_net.optimizer.gradient_norm_per_epochs],
             'TEST', 'NORM', neural_net.optimizer.params)
         u.plot_all_learning_curves(ds + 1, betas, [[neural_net.optimizer.
-                                   error_per_epochs]], 'ERRORS', 'MSE',
-                                   time=neural_net.optimizer.time_per_epochs,
-                                   semilogy=False)
+                                   time_per_epochs]], 'ERRORS', 'MSE',
+                                   time=True, semilogy=False)
 
 ###############################################################################
 # VALIDATION ##################################################################
