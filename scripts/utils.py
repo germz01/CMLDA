@@ -194,20 +194,34 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
 
 
 def plot_all_learning_curves(monk, label, data, title, metric,
-                             fname='../report/img/', type='beta'):
+                             time=None, fname='../report/img/', type='beta',
+                             semilogy=True):
     assert metric in ['MSE', 'MEE', 'ACCURACY']
-
     for i in range(len(data[0])):
-        plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
+        if time is None:
+            time = range(len(data[0][i]))
+        if semilogy:
+            plt.semilogy(time, data[0][i], label=label[i],
+                         alpha=.65)
+        else:
+            plt.plot(time, data[0][i], label=label[i],
                      alpha=.65)
     plt.grid()
     plt.title(title)
-    plt.xlabel('EPOCHS')
+
+    if time is not None:
+        plt.xlabel('SECONDS')
+    else:
+        plt.xlabel('EPOCHS')
+
     plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
-    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_' + str(type)
-                + '.pdf', bbox_inches='tight')
+    fname = fname + str(monk) + '_' + metric.lower() + '_' + str(type)
+    if time is not None:
+        fname += '_time'
+    fname += '.pdf'
+    plt.savefig(fname, bbox_inches='tight')
     plt.close()
 
 

@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
 grid_size = 30
 split_percentage = 0.8
-epochs = 1000
+epochs = None
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -156,7 +156,7 @@ if testing:
         print 'EPOCHS OF TRAINING: {}'.format(len(neural_net.optimizer.
                                                   error_per_epochs))
         print 'CONVERGENCE EPOCH: {}'.format(neural_net.optimizer.
-                                             convergence)
+                                             statistics['epochs'])
         print '\n'
 
         u.plot_learning_curve_with_info(
@@ -169,6 +169,14 @@ if testing:
             [neural_net.optimizer.accuracy_per_epochs,
              neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
             'ACCURACY', neural_net.optimizer.params)
+        u.plot_learning_curve(
+            neural_net.optimizer,
+            [neural_net.optimizer.gradient_norm_per_epochs],
+            'TEST', 'NORM', neural_net.optimizer.params)
+        u.plot_all_learning_curves(ds + 1, betas, [[neural_net.optimizer.
+                                   error_per_epochs]], 'ERRORS', 'MSE',
+                                   time=neural_net.optimizer.time_per_epochs,
+                                   semilogy=False)
 
 ###############################################################################
 # VALIDATION ##################################################################
