@@ -17,7 +17,8 @@ split_percentage = 0.8
 epochs = 1000
 path_to_json = '../data/final_setup/'
 save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y' else False
-plot_mse, plot_acc, plot_norm, plot_time = False, False, False, True
+saving_curve_stats = True if raw_input('SAVE CURVE STATS?[Y/N] ') == 'Y' \
+    else False
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
@@ -89,10 +90,16 @@ else:
     momentum = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
     assert momentum in ['standard', 'nesterov']
 
-sample = None if raw_input('SAMPLE A LEARNING CURVE?[Y/N] ') == 'N' else \
-        np.random.randint(1, ntrials)
+sample = raw_input('WHICH CURVE DO YOU WANT TO SAMPLE?[1/2/3/4] ')
+sample = sample.split(',')
+plot_mse = True if '1' in sample else False
+plot_acc = True if '2' in sample else False
+plot_norm = True if '3' in sample else False
+plot_time = True if '4' in sample else False
+sample = None if sample == [''] else np.random.randint(0, ntrials)
 
-print 'SAMPLING ITERATION {}'.format(sample) if sample is not None else None
+print 'SAMPLING ITERATION {}'.format(sample + 1) if sample is not None \
+    else None
 
 for ds in [0, 1, 2]:
     if opt == 'SGD':
@@ -154,22 +161,26 @@ for ds in [0, 1, 2]:
                 if opt == 'SGD' else '{}_monks_{}'.format(beta, ds + 1)
 
             path = '../data/final_setup/' + str(opt)
+
             if momentum is not None:
                 path += '/' + str(momentum)
             if beta is not None:
                 path += '/' + str(beta)
-            with open(path + '/MONK{}_curves_{}.json'.
-                      format(ds + 1, opt.lower()), 'w') as json_file:
-                curves_data = {'error': neural_net.optimizer.error_per_epochs,
-                               'error_va': neural_net.optimizer.
-                               error_per_epochs_va,
-                               'accuracy': neural_net.optimizer.
-                               accuracy_per_epochs,
-                               'accuracy_va': neural_net.optimizer.
-                               accuracy_per_epochs_va,
-                               'gradient_norm': neural_net.optimizer.
-                               gradient_norm_per_epochs}
-                json.dump(curves_data, json_file, indent=4)
+
+            if saving_curve_stats:
+                with open(path + '/MONK{}_curves_{}.json'.
+                          format(ds + 1, opt.lower()), 'w') as json_file:
+                    curves_data = {'error': neural_net.optimizer.
+                                   error_per_epochs,
+                                   'error_va': neural_net.optimizer.
+                                   error_per_epochs_va,
+                                   'accuracy': neural_net.optimizer.
+                                   accuracy_per_epochs,
+                                   'accuracy_va': neural_net.optimizer.
+                                   accuracy_per_epochs_va,
+                                   'gradient_norm': neural_net.optimizer.
+                                   gradient_norm_per_epochs}
+                    json.dump(curves_data, json_file, indent=4)
 
             if plot_mse:
                 utils.plot_learning_curve(
