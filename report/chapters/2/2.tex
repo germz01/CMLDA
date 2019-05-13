@@ -103,7 +103,7 @@
 		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses the
 		sigmoid function as activation function. This function bounds every layer's output in the range $(0, 1)$.
 		In section \ref{sec:the_loss_function}, we have proved that our loss function is both Lipschitz continuous
-		and differentiable. We can clude that assumption \ref{as:conv} is respected. The first clause of
+		and differentiable. We can conclude that assumption \ref{as:conv} is respected. The first requirement of
 		assumption \ref{as:sgd_conv2} is respected, being $L$ bounded in the interval $(0, 1)$, that is, having
 		$L_{\mathit{inf}}$ eguals to $0$.
 
@@ -428,6 +428,9 @@
 			\end{equation}
 
 			that is the convergence of the algorithm.
+
+			Assumption \ref{as:1} is satisfied, since, as we have said before, our loss function is bounded in the
+			interval $(0, 1)$, and hence the level set is also bounded.
 
 
 		\subsection{Line Search}
