@@ -63,8 +63,17 @@
 		If the algorithm is run with a stepsize sequence satisfying Eq.\ref{delta} and the following assumptions hold:
 
 		\begin{asu} - \label{as:conv}
-  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded, in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B > 0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
+  				If the level set $\mathcal{L} = \{w : \textit{L}(\textbf{W}) \leq L(\textbf{W}_1)\}$ is bounded,
+  				in some neighborhood $\mathcal{N}$ of $\mathcal{L}$ the objective function \textit{L} is
+  				continuously differentiable, and its gradient is Lipschitz continuous, there exist a constant $B >
+  				0$ s.t. $\|\nabla\textit{L}(\textbf{W})-\nabla\textit{L}(\widetilde{\textbf{W}})\| \leq B\|
+  				\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
 		\end{asu}
+
+		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses the
+		sigmoid function as activation function. This function bounds every layer's output in the range $(0, 1)$.
+		In section \ref{sec:the_loss_function}, we have proved that our loss function is both Lipschitz continuous
+		and differentiable. We can clude that assumption \ref{as:conv} is respected.
 
 		\begin{asu} - \label{as:sgd_conv2}
 				The Loss function \textit{L} and SGD satisfy:
@@ -178,7 +187,7 @@
 
 			It basically modifies the objective Loss functions as follows:
 
-			\begin{mini}			
+			\begin{mini}
 				{\mathbf{W} \in \mathbb{R}^n} {\ \mathit{L}(\mathbf{W}) + \lambda\Omega(\mathbf{W})}{}{}
 				\label{eq:reg}
 			\end{mini}
@@ -192,7 +201,7 @@
 			\end{itemize}
 
 			The addition of squared terms to the Loss function of Eq.\ref{mse} in the Ridge Regression, returns again a smooth continous and differentiable function. %Stochastic Gradient Descent and Regularization - Stanford CS Theory.Tim Roughgarden  Gregory Valiant
-			
+
 			However, the Lasso penalty, which pushes several elements of \textbf{W} to be exactly zero, making the result a sparse parameter vector, is not differentiable. So, since when applied to the Loss function, it returns a non-smooth function, it hasn't been tested on SGD\cite{journals/jmlr/Shalev-ShwartzT11}.
 
 	\section{Nonlinear Conjugate Gradient}
