@@ -70,11 +70,6 @@
   				\textbf{W}-\widetilde{\textbf{W}}\| , \forall \textbf{W},\widetilde{\textbf{W}} \in \mathcal{N}$ ;
 		\end{asu}
 
-		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses the
-		sigmoid function as activation function. This function bounds every layer's output in the range $(0, 1)$.
-		In section \ref{sec:the_loss_function}, we have proved that our loss function is both Lipschitz continuous
-		and differentiable. We can clude that assumption \ref{as:conv} is respected.
-
 		\begin{asu} - \label{as:sgd_conv2}
 				The Loss function \textit{L} and SGD satisfy:
 
@@ -98,10 +93,22 @@
 		\end{asu}
 
 		then the following property is garanteed:
-			$\lim_{k\to\infty}\mathbb{E}[\|\nabla\textit{L}(\textbf{W}_k)\|^2] = 0$,
+
+			\begin{equation*}
+			     \lim_{k\to\infty}\mathbb{E}[\|\nabla\textit{L}(\textbf{W}_k)\|^2] = 0
+			\end{equation*}
+
 		that is the convergence of the algorithm.
 
-		A property of SGD is that the computation time per update does not grow with the number of training examples, allowing convergence even in presence of a large dataset.
+		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses the
+		sigmoid function as activation function. This function bounds every layer's output in the range $(0, 1)$.
+		In section \ref{sec:the_loss_function}, we have proved that our loss function is both Lipschitz continuous
+		and differentiable. We can clude that assumption \ref{as:conv} is respected. The first clause of
+		assumption \ref{as:sgd_conv2} is respected, being $L$ bounded in the interval $(0, 1)$, that is, having
+		$L_{\mathit{inf}}$ eguals to $0$.
+
+		A property of SGD is that the computation time per update does not grow with the number of training
+		examples, allowing convergence even in presence of a large dataset.
 
 		\begin{algorithm}[H]
 			\caption{Stochastic Gradient Descent Algorithm. The learning rate $\eta$, the $\alpha$ term and the maximum number of epochs are given.}
