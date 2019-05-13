@@ -168,6 +168,42 @@
 
 			The variant respect Eq. \ref{classical_momentum}, shown in Fig.\ref{fig:momentum}, is given by the fact that the gradient $\nabla\textit{L}$ is evaluated after the current velocity is applied: NAG first update the $\textbf{W}_k$, making a jump in the direction of the previous accumulated gradient, and then evaluate the gradient in that point and makes a correction. This procedure allows it to change velocity vector $\textbf{v}_{k}$ in a faster way.
 
+			We now discuss the convergence of a SGD using both classic momentum or Nesterov's accelerated
+			gradient by providing some of the results illustrated in \cite{unified_convergence}, in particular
+			the ones describing the case of the optimization of a non-convex function, that is, our case.
+			We denote by $\mathbb{E}[\cdot]$ the expected value taken with respect to the distribution of the
+			random variable whose observed value represents the choice of a particular minibatch at step $k$ and by
+			$\mathbf{g}^{(k)}$ the estimate of the true full-batch gradient $\nabla F(\theta^{(k)})$ .
+
+			\begin{theorem}[Convergence of Gradient Methods for Non-Convex Functions]
+				Suppose $F$ is a function with $L$-Lipschitz continuous gradient,
+				$\mathbb{E} \left [ || \mathbf{g}^{(i)} - \nabla F(\theta^{(i)}) ||^2 \right ] \le \delta^2$, and
+				$|| \nabla F(\theta^{(i)}) || \le G$ for any $\theta^{(i)} \in \Theta$. Then, for any constant
+				$C > 0$, running for k iteration the stochastic gradient method
+
+				\begin{enumerate}
+					\item with step size $\eta = \text{min} \left \{ 1\slash(2L),\ C\slash\sqrt{k + 1} \right \}$
+					yields
+					\begin{equation*}
+					    \text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla F(\theta^{(i)}) ||^2 \right ]
+					    \le \frac{2(F(\theta^{(0)})) - F^{*}}{k + 1} \text{max} \left\{ 2L,\
+					    \frac{\sqrt{k + 1}}{C} \right\} + \frac{CL\delta^2}{\sqrt{k + 1}} \ and
+					\end{equation*}
+					\item with step size $\eta = \text{min} \left \{ (1 - \alpha)\slash(2L),\
+					C\slash\sqrt{k + 1} \right \}$ and a momentum $\alpha \in [0, 1)$ yelds
+					\begin{align*}
+						&\text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla F(\theta^{(i)}) ||^2 \right ]
+						\le \frac{2(F(\theta^{(0)}) - F^{*})(1 - \alpha)}{k + 1}
+						\text{max} \left\{ \frac{2L}{1 - \alpha},\ \frac{\sqrt{k + 1}}{C} \right\} + \\
+						&\frac{C}{sqrt{k + 1}}\frac{L\alpha^2 + L\delta^2(1 - \alpha)^2}{(1 - \alpha)^3}
+					\end{align*}
+				\end{enumerate}
+				\label{theorem_1}
+			\end{theorem}
+
+			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for
+			non-convex functions.
+
 			It's worth to underline that, in case of batch mode and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$\cite{10029946121}. % Nesterov, Y. (1983) A Method for Solving a Convex Programming Problem with Convergence Rate O(1/K2) . Soviet Mathematics Doklady, 27, 372-367.
 			\begin{figure}
 			\centering
