@@ -80,7 +80,6 @@ convergence_ts, acc_epochs_ts, ls_ts = list(), list(), list()   # mod
 tot, bw, ls, dr = list(), list(), list(), list()   # mod
 bw_p, ls_p, dr_p = list(), list(), list()   # mod
 
-
 beta, momentum = None, None
 
 if opt == 'CGD':

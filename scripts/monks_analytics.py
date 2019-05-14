@@ -50,11 +50,12 @@ test_set = np.hstack((y_test, X_test))
 
 np.random.shuffle(design_set)
 
-training_set = design_set[:int(design_set.shape[0]*split_percentage), :]
-validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
+# training_set = design_set[:int(design_set.shape[0]*split_percentage), :]
+# validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
 
-y_training, X_training = np.hsplit(training_set, [1])
-y_validation, X_validation = np.hsplit(validation_set, [1])
+y_training, X_training = np.hsplit(design_set, [1])
+# y_validation, X_validation = np.hsplit(validation_set, [1])
+y_test, X_test = np.hsplit(test_set, [1])
 
 ###############################################################################
 # NETWORK INITIALIZATION ######################################################
@@ -93,8 +94,8 @@ if testing:
                 'reg_lambda': 0.0,
                 'reg_method': 'l2'}
 
-        neural_net.train(X_training, y_training, opt, X_va=X_validation,
-                         y_va=y_validation, **pars)
+        neural_net.train(X_training, y_training, opt, X_va=X_test,
+                         y_va=y_test, **pars)
     else:
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
