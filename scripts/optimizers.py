@@ -130,7 +130,7 @@ class SGD(Optimizer):
 
         return self.params
 
-    def optimize(self, nn, X, y, X_va, y_va, epochs):
+    def optimize(self, nn, X, y, X_va, y_va, epochs=None):
         bin_assess, bin_assess_va = None, None
         start_time = dt.datetime.now()
         e = 0
@@ -219,14 +219,12 @@ class SGD(Optimizer):
             norm_gradient = np.linalg.norm(self.g)
             self.gradient_norm_per_epochs.append(norm_gradient)
             self.time_per_epochs.append((dt.datetime.now() -
-                                        start_iteration).total_seconds())
+                                        start_time).total_seconds() * 1000)
             e += 1
 
             if (norm_gradient <= self.convergence_goal) or \
                     (epochs is not None and e == epochs):
                 self.statistics['epochs'] = e
-                self.time_per_epochs.append((dt.datetime.now() -
-                                            start_iteration).total_seconds())
 
                 self.statistics['time_train'] = dt.datetime.now() - start_time
                 return 0

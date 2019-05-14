@@ -12,9 +12,9 @@ warnings.filterwarnings("ignore")
 ###############################################################################
 # EXPERIMENTAL SETUP ##########################################################
 
-ntrials = 10
+ntrials = None
 split_percentage = 0.8
-epochs = 1000
+epochs = None
 path_to_json = '../data/final_setup/'
 save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y' else False
 saving_curve_stats = True if raw_input('SAVE CURVE STATS?[Y/N] ') == 'Y' \
@@ -96,6 +96,11 @@ plot_mse = True if '1' in sample else False
 plot_acc = True if '2' in sample else False
 plot_norm = True if '3' in sample else False
 plot_time = True if '4' in sample else False
+
+if plot_time:
+    epochs = None if raw_input('MAX EPOCHS?[Y/N] ') == 'N' else 1000
+    ntrials = 1 if epochs is None else 10
+
 sample = None if sample == [''] else np.random.randint(0, ntrials)
 
 print 'SAMPLING ITERATION {}'.format(sample + 1) if sample is not None \
@@ -179,7 +184,9 @@ for ds in [0, 1, 2]:
                                    'accuracy_va': neural_net.optimizer.
                                    accuracy_per_epochs_va,
                                    'gradient_norm': neural_net.optimizer.
-                                   gradient_norm_per_epochs}
+                                   gradient_norm_per_epochs,
+                                   'time': neural_net.optimizer.
+                                   time_per_epochs}
                     json.dump(curves_data, json_file, indent=4)
 
             if plot_mse:
@@ -205,7 +212,9 @@ for ds in [0, 1, 2]:
             if plot_time:
                 utils.plot_learning_curve(
                     neural_net.optimizer,
-                    [neural_net.optimizer.time_per_epochs],
+                    [neural_net.optimizer.time_per_epochs,
+                     neural_net.optimizer.error_per_epochs,
+                     neural_net.optimizer.error_per_epochs_va],
                     'TEST', 'TIME', neural_net.optimizer.params,
                     fname=saving_str)
 

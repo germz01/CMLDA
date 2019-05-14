@@ -52,20 +52,23 @@ def plot_learning_curve(optimizer, data, test_type, metric, params,
         metric in ['MSE', 'MEE', 'ACCURACY', 'NORM', 'TIME']
 
     if metric == 'TIME':
-        plt.semilogy(range(len(data[0])), data[0], alpha=0.65,
+        plt.semilogy(data[0], data[1], alpha=0.65,
                      label='TRAIN' if len(data) > 1 else None)
     else:
         plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
                  len(data) > 1 else None)
 
-    if len(data) > 1:
+    if len(data) > 1 and metric != 'TIME':
         plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+        plt.legend()
+    elif metric == 'TIME':
+        plt.semilogy(data[0], data[2], alpha=0.65, label=test_type)
         plt.legend()
 
     plt.grid()
     plt.title('{} PER EPOCHS'.format(metric))
-    plt.xlabel('EPOCHS')
-    plt.ylabel(metric)
+    plt.xlabel('EPOCHS' if metric != 'TIME' else 'TIME(MILLISECONDS)')
+    plt.ylabel(metric if metric != 'TIME' else 'MSE')
     plt.tight_layout()
 
     saving_str = '../report/img/SGD/' \
