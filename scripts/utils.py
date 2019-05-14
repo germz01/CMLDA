@@ -66,7 +66,8 @@ def plot_learning_curve(optimizer, data, test_type, metric, params,
         plt.legend()
 
     plt.grid()
-    plt.title('{} PER EPOCHS'.format(metric))
+    plt.title('{} PER EPOCHS'.format(metric) if metric != 'TIME'
+              else 'MSE PER TIME')
     plt.xlabel('EPOCHS' if metric != 'TIME' else 'TIME(MILLISECONDS)')
     plt.ylabel(metric if metric != 'TIME' else 'MSE')
     plt.tight_layout()

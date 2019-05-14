@@ -222,6 +222,8 @@ class SGD(Optimizer):
                                         start_time).total_seconds() * 1000)
             e += 1
 
+            print norm_gradient
+
             if (norm_gradient <= self.convergence_goal) or \
                     (epochs is not None and e == epochs):
                 self.statistics['epochs'] = e
@@ -356,10 +358,10 @@ class CGD(Optimizer):
 
             g = self.flat_weights(self.delta_W, self.delta_b)
 
-            if self.error < error_goal:
-                return 1
-            elif np.all(g == 0):
-                return None
+            # if self.error < error_goal:
+            #     return 1
+            # elif np.all(g == 0):
+            #     return None
 
             flatted_weights = self.flat_weights(nn.W, nn.b)
             flatted_copies = self.flat_weights(nn.W_copy, nn.b_copy)
@@ -431,17 +433,15 @@ class CGD(Optimizer):
                     (max_epochs is not None and k == max_epochs):
                 self.statistics['epochs'] = (k + 1)  # mod
                 self.statistics['ls'] = self.ls_it / (k + 1)
-                self.time_per_epochs.append((dt.datetime.now() -
-                                             start_iteration).total_seconds()
-                                            )
                 self.statistics['time_train'] = dt.datetime.now() - start_time
+                self.time_per_epochs.append((dt.datetime.now() -
+                                        start_time).total_seconds() * 1000)
                 return 1
 
             self.statistics['epochs'] = (k + 1)  # mod
             self.statistics['ls'] = self.ls_it / (k + 1)
             self.time_per_epochs.append((dt.datetime.now() -
-                                        start_iteration).total_seconds()
-                                        )
+                                        start_time).total_seconds() * 1000)
             self.statistics['time_train'] = dt.datetime.now() - start_time
 
             k += 1

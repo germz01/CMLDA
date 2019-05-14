@@ -129,6 +129,9 @@ for ds in [0, 1, 2]:
              'alpha': params['hyperparameters']['alpha']}
         params['hyperparameters'].pop('momentum_type')
         params['hyperparameters'].pop('alpha')
+    else:
+        if plot_time and epochs is None:
+            params['hyperparameters']['max_epochs'] = None
 
     params['hyperparameters'].pop('activation')
     params['hyperparameters'].pop('topology')
@@ -139,6 +142,9 @@ for ds in [0, 1, 2]:
         neural_net = nn.NeuralNetwork(X_designs[ds], y_designs[ds],
                                       hidden_sizes=hidden_sizes,
                                       activation='sigmoid', task='classifier')
+
+        # ipdb.set_trace()
+
         neural_net.train(X_designs[ds], y_designs[ds], opt, epochs=epochs,
                          X_va=X_tests[ds],
                          y_va=y_tests[ds], **params['hyperparameters'])
