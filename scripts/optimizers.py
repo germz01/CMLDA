@@ -355,10 +355,10 @@ class CGD(Optimizer):
 
             g = self.flat_weights(self.delta_W, self.delta_b)
 
-            # if self.error < error_goal:
-            #     return 1
-            # elif np.all(g == 0):
-            #     return None
+            if self.error < error_goal:
+                return 1
+            elif np.all(g <= 1e-10):
+                return None
 
             flatted_weights = self.flat_weights(nn.W, nn.b)
             flatted_copies = self.flat_weights(nn.W_copy, nn.b_copy)

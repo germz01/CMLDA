@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 # EXPERIMENTAL SETUP ##########################################################
 
 ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
-grid_size = 30
+grid_size = 10
 split_percentage = 0.8
 epochs = None
 momentum = None
@@ -255,8 +255,6 @@ if validation:
     param_ranges['activation'] = 'sigmoid'
     param_ranges['task'] = 'classifier'
 
-    ipdb.set_trace()
-
     grid = val.HyperGrid(param_ranges, grid_size, random=True)
     selection = val.ModelSelectionCV(grid,
                                      fname=fpath +
@@ -268,9 +266,16 @@ if validation:
     json_name = ''
 
     if opt == 'SGD':
-        json_name = '../data/final_setup/{}/{}/monks_{}_best_hyperparameters_{}.json'.format(opt, type_m, ds, opt.lower())
+        json_name = '../data/final_setup/{}/{}/'.format(opt, type_m) + \
+            'monks_{}_best_hyperparameters_{}.json'.format(ds, opt.lower())
     else:
-        json_name = '../data/final_setup/{}/monks_{}_best_hyperparameters_{}_{}.json'.format(opt, ds, opt.lower(), param_ranges['beta_m'])
+        json_name = '../data/final_setup/{}/'.format(opt) + \
+            'monks_{}_best_hyperparameters_{}_{}.json'.format(ds, opt.lower(),
+                                                              param_ranges
+                                                              ['beta_m'])
+
+    if epochs is None:
+        json_name = json_name.replace('.json', '_no_max_epochs.json')
 
     with open(json_name, 'w') as json_file:
         json.dump(best_hyperparameters, json_file, indent=4)
