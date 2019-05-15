@@ -511,7 +511,8 @@ class HyperGrid():
             if (type(interval) is int) or \
                (type(interval) is float) or \
                (type(interval) is str) or \
-               (type(interval) is bool):
+               (type(interval) is bool) or \
+               (interval is None):
                 types[par] = 'constant'
             elif type(interval) is list:
                 types[par] = list

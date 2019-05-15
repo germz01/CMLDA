@@ -1,3 +1,4 @@
+import ipdb
 import json
 import nn
 import numpy as np
@@ -17,11 +18,12 @@ split_percentage = 0.8
 epochs = None
 momentum = None
 beta_choice = None
-###############################################################################
-# LOADING DATASET #############################################################
 
 fpath = '../data/monks/'
 preliminary_path = '../images/monks_preliminary_trials/'
+
+###############################################################################
+# LOADING DATASET #############################################################
 
 names = ['monks-1_train',
          'monks-1_test',
@@ -30,7 +32,7 @@ names = ['monks-1_train',
          'monks-3_train',
          'monks-3_test']
 
-datasets = {name: pd.read_csv(fpath+name+'_bin.csv').values
+datasets = {name: pd.read_csv(fpath + name + '_bin.csv').values
             for name in names}
 
 design_set = datasets['monks-{}_train'.format(ds)]
@@ -242,14 +244,18 @@ if validation:
         param_ranges['strong'] = True
         param_ranges['plus'] = True
         param_ranges['sigma_2'] = (0.1, 0.4)
+
         if beta_m == 'mhs':
             param_ranges['rho'] = (0., 1.)
         else:
             param_ranges['rho'] = 0.0
+
     param_ranges['optimizer'] = opt
     param_ranges['hidden_sizes'] = [4, 8]
     param_ranges['activation'] = 'sigmoid'
     param_ranges['task'] = 'classifier'
+
+    ipdb.set_trace()
 
     grid = val.HyperGrid(param_ranges, grid_size, random=True)
     selection = val.ModelSelectionCV(grid,
