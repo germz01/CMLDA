@@ -18,6 +18,7 @@ split_percentage = 0.8
 epochs = None
 momentum = None
 beta_choice = None
+save_statistics = False
 
 fpath = '../data/monks/'
 preliminary_path = '../images/monks_preliminary_trials/'
@@ -67,6 +68,8 @@ testing, testing_betas, validation = False, False, False
 if raw_input('TESTING OR VALIDATION[testing/validation]? ') == 'validation':
     validation = True
 else:
+    save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y'\
+     else False
     testing = True
 
 neural_net, initial_W, initial_b = None, None, None
@@ -83,6 +86,21 @@ pars = {}
 betas = ['hs', 'mhs', 'pr']
 errors, errors_std = [], []
 acc, acc_std = [], []
+mse_tr, mse_ts = list(), list()
+acc_tr, acc_ts = list(), list()
+convergence_ts, acc_epochs_ts, ls_ts = list(), list(), list()   # mod
+tot, bw, ls, dr = list(), list(), list(), list()   # mod
+bw_p, ls_p, dr_p = list(), list(), list()   # mod
+
+statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
+                                   'MEAN_MSE_TS', 'STD_MSE_TS',
+                                   'MEAN_ACCURACY_TR', 'STD_ACCURACY_TR',
+                                   'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS',
+                                   'CONVERGENCE', 'LS'])   # mod
+
+statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
+                                        'DIRECTION'])
+
 
 opt = raw_input("OPTIMIZER[SGD/CGD]: ")
 
@@ -193,6 +211,46 @@ if testing:
                            'time': neural_net.optimizer.
                            time_per_epochs}
             json.dump(curves_data, json_file, indent=4)
+
+        mse_tr.append(neural_net.optimizer.error_per_epochs[-1])
+        mse_ts.append(neural_net.optimizer.error_per_epochs_va[-1])
+        acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
+        acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
+        convergence_ts.append(neural_net.optimizer.statistics['epochs'])
+        ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
+        tot.append(neural_net.optimizer.statistics['time_train'])
+        bw.append(neural_net.optimizer.statistics['time_bw'])
+        ls.append(neural_net.optimizer.statistics['time_ls'])
+        dr.append(neural_net.optimizer.statistics['time_dr'])
+
+        statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds),
+                                               np.mean(mse_tr), np.std(mse_tr),
+                                               np.mean(mse_ts), np.std(mse_ts),
+                                               np.mean(acc_tr), np.std(acc_tr),
+                                               np.mean(acc_ts), np.std(acc_ts),
+                                               np.mean(convergence_ts),  # mod
+                                               np.mean(ls_ts)]
+
+        statistics_time.loc[statistics_time.shape[0]] = \
+            ['MONKS_{}'.format(ds), np.mean(tot), np.mean(bw), np.mean(ls),
+                np.mean(dr)]
+
+        file_name = None
+
+        if opt == 'SGD':
+            file_name = path + \
+                '/{}_{}_monks_statistics.csv'.format(ds, momentum)
+            file_name_time = path + \
+                '/{}_{}_monks_time_statistics.csv'.format(ds, momentum)
+        else:
+            file_name = path + \
+                '/{}_monks_statistics.csv'.format(ds)
+            file_name_time = path + \
+                '/{}_monks_time_statistics.csv'.format(ds)
+
+        if save_statistics:
+            statistics.to_csv(path_or_buf=file_name, index=False)
+            statistics_time.to_csv(path_or_buf=file_name_time, index=False)
 
         # u.plot_learning_curve_with_info(
         #     neural_net.optimizer,

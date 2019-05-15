@@ -27,8 +27,7 @@ statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'CONVERGENCE', 'LS'])   # mod
 
 statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
-                                        'DIRECTION', 'BACKWARD_P',
-                                        'LS_P', 'DIRECTION_P'])
+                                        'DIRECTION'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -153,16 +152,14 @@ for ds in [0, 1, 2]:
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
         convergence_ts.append(neural_net.optimizer.statistics['epochs'])
-        acc_epochs_ts.append(neural_net.optimizer.statistics['acc_epoch'])
         ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
-        tot.append(neural_net.optimizer.statistics['time_train']
-                   .total_seconds())
+        tot.append(neural_net.optimizer.statistics['time_train'])
         bw.append(neural_net.optimizer.statistics['time_bw'])
         ls.append(neural_net.optimizer.statistics['time_ls'])
         dr.append(neural_net.optimizer.statistics['time_dr'])
-        bw_p.append((bw[-1]/tot[-1])*100)
-        ls_p.append((ls[-1]/tot[-1])*100)
-        dr_p.append((dr[-1]/tot[-1])*100)
+        #bw_p.append((bw[-1]/tot[-1])*100)
+        #ls_p.append((ls[-1]/tot[-1])*100)
+        #dr_p.append((dr[-1]/tot[-1])*100)
 
         neural_net.restore_weights()
 
@@ -230,11 +227,9 @@ for ds in [0, 1, 2]:
                                            np.mean(acc_ts), np.std(acc_ts),
                                            np.mean(convergence_ts),  # mod
                                            np.mean(ls_ts)]
-
     statistics_time.loc[statistics_time.shape[0]] = \
         ['MONKS_{}'.format(ds + 1), np.mean(tot), np.mean(bw), np.mean(ls),
-         np.mean(dr), np.round(np.mean(bw_p), 3), np.round(np.mean(ls_p), 3),
-         np.round(np.mean(dr_p), 3)]
+         np.mean(dr)]
 
 file_name = None
 

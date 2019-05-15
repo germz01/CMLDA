@@ -208,7 +208,6 @@ def plot_all_learning_curves(monk, label, data, title, metric,
 
     for i in range(len(data[0])):
         if time is True:
-            metric = 'time'
             if semilogy:
                 plt.semilogy((data[1][i]), (data[0][i]), label=label[i],
                              alpha=.65)
