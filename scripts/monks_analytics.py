@@ -1,4 +1,3 @@
-import ipdb
 import json
 import nn
 import numpy as np
@@ -16,7 +15,8 @@ ds, nfolds = int(raw_input('CHOOSE A MONK DATASET[1/2/3]: ')), 5
 grid_size = 30
 split_percentage = 0.8
 epochs = None
-
+momentum = None
+beta_choice = None
 ###############################################################################
 # LOADING DATASET #############################################################
 
@@ -50,11 +50,11 @@ test_set = np.hstack((y_test, X_test))
 
 np.random.shuffle(design_set)
 
-# training_set = design_set[:int(design_set.shape[0]*split_percentage), :]
-# validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
+training_set = design_set[:int(design_set.shape[0]*split_percentage), :]
+validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
 
 y_training, X_training = np.hsplit(design_set, [1])
-# y_validation, X_validation = np.hsplit(validation_set, [1])
+y_validation, X_validation = np.hsplit(validation_set, [1])
 y_test, X_test = np.hsplit(test_set, [1])
 
 ###############################################################################
@@ -65,8 +65,7 @@ testing, testing_betas, validation = False, False, False
 if raw_input('TESTING OR VALIDATION[testing/validation]? ') == 'validation':
     validation = True
 else:
-    testing, testing_betas = True, True \
-        if raw_input('TESTING BETAS[Y/N]? ') == 'Y' else False
+    testing = True
 
 neural_net, initial_W, initial_b = None, None, None
 
@@ -87,20 +86,28 @@ opt = raw_input("OPTIMIZER[SGD/CGD]: ")
 
 if testing:
     if opt == 'SGD':
+        momentum = raw_input("MOMENTUM[nesterov/standard]: ")
+
         pars = {'epochs': epochs,
                 'batch_size': X_training.shape[0],
                 'eta': 0.61,
-                'momentum': {'type': 'nesterov', 'alpha': 0.83},
+                'momentum': {'type': momentum, 'alpha': 0.83},
                 'reg_lambda': 0.0,
                 'reg_method': 'l2'}
 
-        neural_net.train(X_training, y_training, opt, X_va=X_test,
-                         y_va=y_test, **pars)
+        # if ds == 3:
+        #     pars['reg_lambda'] = 0.002
+        neural_net.train(X_training, y_training, opt, X_va=X_validation,
+                         y_va=y_validation, **pars)
     else:
+        testing_betas = True \
+            if raw_input('TESTING BETAS[Y/N]? ') == 'Y' else False
+        if testing_betas is False:
+            beta_choice = raw_input("BETA[mhs/hs/pr]: ")
         pars = {'max_epochs': epochs,
                 'error_goal': 1e-4,
                 'strong': True,
-                'rho': 0.67}
+                'rho': 0.0}
         if testing_betas:
             for beta in betas:
                 pars['beta_m'] = beta
@@ -134,7 +141,9 @@ if testing:
 
         else:
             pars['plus'] = True
-            pars['beta_m'] = 'mhs'
+            pars['beta_m'] = beta_choice
+            if beta_choice == 'mhs':
+                pars['rho'] = 0.67
             neural_net.train(X_training, y_training, opt, X_va=X_validation,
                              y_va=y_validation, **pars)
 
@@ -160,23 +169,46 @@ if testing:
                                              statistics['epochs'])
         print '\n'
 
-        u.plot_learning_curve_with_info(
-            neural_net.optimizer,
-            [neural_net.optimizer.error_per_epochs,
-             neural_net.optimizer.error_per_epochs_va], 'VALIDATION',
-            'MSE', neural_net.optimizer.params)
-        u.plot_learning_curve_with_info(
-            neural_net.optimizer,
-            [neural_net.optimizer.accuracy_per_epochs,
-             neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
-            'ACCURACY', neural_net.optimizer.params)
-        u.plot_learning_curve(
-            neural_net.optimizer,
-            [neural_net.optimizer.gradient_norm_per_epochs],
-            'TEST', 'NORM', neural_net.optimizer.params)
-        u.plot_all_learning_curves(ds + 1, betas, [[neural_net.optimizer.
-                                   time_per_epochs]], 'ERRORS', 'MSE',
-                                   time=True, semilogy=False)
+        path = '../data/final_setup/analytics/' + str(opt)
+
+        if momentum is not None:
+            path += '/' + str(momentum)
+        if opt == 'CGD':
+            path += '/' + str(beta_choice)
+
+        with open(path + '/MONK{}_curves_{}.json'.
+                  format(ds, opt.lower()), 'w') as json_file:
+            curves_data = {'error': neural_net.optimizer.
+                           error_per_epochs,
+                           'error_va': neural_net.optimizer.
+                           error_per_epochs_va,
+                           'accuracy': neural_net.optimizer.
+                           accuracy_per_epochs,
+                           'accuracy_va': neural_net.optimizer.
+                           accuracy_per_epochs_va,
+                           'gradient_norm': neural_net.optimizer.
+                           gradient_norm_per_epochs,
+                           'time': neural_net.optimizer.
+                           time_per_epochs}
+            json.dump(curves_data, json_file, indent=4)
+
+        # u.plot_learning_curve_with_info(
+        #     neural_net.optimizer,
+        #     [neural_net.optimizer.error_per_epochs,
+        #      neural_net.optimizer.error_per_epochs_va], 'VALIDATION',
+        #     'MSE', neural_net.optimizer.params)
+        # u.plot_learning_curve_with_info(
+        #     neural_net.optimizer,
+        #     [neural_net.optimizer.accuracy_per_epochs,
+        #      neural_net.optimizer.accuracy_per_epochs_va], 'VALIDATION',
+        #     'ACCURACY', neural_net.optimizer.params)
+        # u.plot_learning_curve(
+        #     neural_net.optimizer,
+        #     [neural_net.optimizer.gradient_norm_per_epochs],
+        #     'TEST', 'NORM', neural_net.optimizer.params)
+        # u.plot_all_learning_curves(ds + 1, betas, [[neural_net.optimizer.
+        #                            time_per_epochs]], 'ERRORS', 'MSE',
+        #                            time=True, semilogy=False)
 
 ###############################################################################
 # VALIDATION ##################################################################

@@ -1,6 +1,5 @@
 from __future__ import division
 
-import ipdb
 import losses as lss
 import metrics
 import numpy as np
@@ -37,7 +36,7 @@ class Optimizer(object):
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
         self.g = None
-        self.convergence_goal = 1e-2
+        self.convergence_goal = 1e-3
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
@@ -221,8 +220,6 @@ class SGD(Optimizer):
             self.time_per_epochs.append((dt.datetime.now() -
                                         start_time).total_seconds() * 1000)
             e += 1
-
-            print norm_gradient
 
             if (norm_gradient <= self.convergence_goal) or \
                     (epochs is not None and e == epochs):

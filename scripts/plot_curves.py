@@ -4,18 +4,21 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-path_to_json = '../data/final_setup/'
+time = raw_input("PLOT TIME/EPOCHS? ")
+path_to_json = '../data/final_setup/analytics/' if time == 'EPOCHS'  \
+                else '../data/final_setup/analytics/'
 
 fpath = '../data/monks/'
 
-betas, momentum = ['hs', 'mhs', 'pr'], ['standard', 'nesterov']
+betas, momentum = ['hs', 'mhs', 'pr'], ['nesterov', 'standard']
+all_methods = ['nesterov', 'standard', 'hs', 'mhs', 'pr']
 
 for ds in [0, 1, 2]:
 
     hpsn = path_to_json + \
-        'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[1], ds + 1)
-    hpss = path_to_json + \
         'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[0], ds + 1)
+    hpss = path_to_json + \
+        'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[1], ds + 1)
     hpsh = path_to_json + \
         'CGD/{}/MONK{}_curves_cgd.json'.format(betas[0].upper(), ds + 1)
     hpsm = path_to_json + \
@@ -46,18 +49,45 @@ for ds in [0, 1, 2]:
     acc_m = CGD_mhs['accuracy']
     acc_p = CGD_pr['accuracy']
 
-    u.plot_all_learning_curves(ds + 1, momentum, [[errors_n, errors_s]],
-                               'ERRORS', 'MSE', type='momentum')
+    time_n = SGD_nesterov['time']
+    time_s = SGD_standard['time']
+    time_h = CGD_hs['time']
+    time_m = CGD_mhs['time']
+    time_p = CGD_pr['time']
 
-    u.plot_all_learning_curves(ds + 1, momentum, [[acc_n, acc_s]],
-                               'ACCURACY', 'ACCURACY', type='momentum')
+    norm_n = SGD_nesterov['gradient_norm']
+    norm_s = SGD_standard['gradient_norm']
+    norm_h = CGD_hs['gradient_norm']
+    norm_m = CGD_mhs['gradient_norm']
+    norm_p = CGD_pr['gradient_norm']
 
-    u.plot_all_learning_curves(ds + 1, betas, [[errors_h, errors_m, errors_p]],
-                               'ERRORS', 'MSE')
+    if time == 'TIME':
+        u.plot_all_learning_curves(ds + 1, all_methods, [[errors_n, errors_s,
+                                   errors_h, errors_m, errors_p],
+                                   [time_n, time_s, time_h, time_m, time_p]],
+                                   'TIME', 'MSE', type='all', time=True)
+    else:
 
-    u.plot_all_learning_curves(ds + 1, betas, [[acc_h, acc_m, acc_p]],
-                               'ACCURACY', 'ACCURACY')
+        u.plot_all_learning_curves(ds + 1, momentum, [[errors_n, errors_s]],
+                                   'ERRORS', 'MSE', type='momentum')
 
-    u.plot_all_learning_curves(ds + 1, momentum, [[errors_n, errors_s,
-                               errors_h, errors_m, errors_p]],
-                               'ERRORS', 'MSE', type='all')
+        u.plot_all_learning_curves(ds + 1, momentum, [[acc_n, acc_s]],
+                                   'ACCURACY', 'ACCURACY', type='momentum')
+
+        u.plot_all_learning_curves(ds + 1, momentum, [[norm_n, norm_s]],
+                                   'NORM', 'NORM', type='momentum')
+
+        u.plot_all_learning_curves(ds + 1, betas,
+                                   [[errors_h, errors_m, errors_p]],
+                                   'ERRORS', 'MSE', type='beta')
+
+        u.plot_all_learning_curves(ds + 1, betas, [[acc_h, acc_m, acc_p]],
+                                   'ACCURACY', 'ACCURACY', type='beta')
+
+        u.plot_all_learning_curves(ds + 1, betas, [[norm_h, norm_m, norm_p]],
+                                   'NORM', 'NORM', type='beta')
+
+        u.plot_all_learning_curves(ds + 1, all_methods, [[errors_n, errors_s,
+                                   errors_h, errors_m, errors_p]],
+                                   'ERRORS', 'MSE', type='all')
+

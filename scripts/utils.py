@@ -202,28 +202,40 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
 
 
 def plot_all_learning_curves(monk, label, data, title, metric,
-                             time=None, fname='../report/img/', type='beta',
+                             time=False, fname='../report/img/', type='beta',
                              semilogy=True):
-    assert metric in ['MSE', 'MEE', 'ACCURACY']
+    assert metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
+
     for i in range(len(data[0])):
-        if semilogy:
-            plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
+        if time is True:
+            metric = 'time'
+            if semilogy:
+                plt.semilogy((data[1][i]), (data[0][i]), label=label[i],
+                             alpha=.65)
+            else:
+                plt.plot((data[1][i]), (data[0][i]), label=label[i],
                          alpha=.65)
         else:
-            plt.plot(range(len(data[0][i])), (data[0][i]), label=label[i],
-                     alpha=.65)
+            if semilogy:
+                plt.semilogy(range(len(data[0][i])), data[0][i],
+                             label=label[i],
+                             alpha=.65)
+            else:
+                plt.plot(range(len(data[0][i])), (data[0][i]), label=label[i],
+                         alpha=.65)
     plt.grid()
     plt.title(title)
 
-    plt.xlabel('EPOCHS')
-    if time is not None:
-        plt.ylabel('SECONDS')
+    if time is True:
+        plt.xlabel('TIME(MILLISECONDS)')
     else:
-        plt.ylabel(metric)
+        plt.xlabel('EPOCHS')
+
+    plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
     fname = fname + str(monk) + '_' + metric.lower() + '_' + str(type)
-    if time is not None:
+    if time is True:
         fname += '_time'
     fname += '.pdf'
     plt.savefig(fname, bbox_inches='tight')

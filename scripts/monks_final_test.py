@@ -24,7 +24,7 @@ statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
                                    'MEAN_ACCURACY_TR', 'STD_ACCURACY_TR',
                                    'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS',
-                                   'CONVERGENCE', 'ACC_EPOCHS', 'LS'])   # mod
+                                   'CONVERGENCE', 'LS'])   # mod
 
 statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
                                         'DIRECTION', 'BACKWARD_P',
@@ -229,7 +229,6 @@ for ds in [0, 1, 2]:
                                            np.mean(acc_tr), np.std(acc_tr),
                                            np.mean(acc_ts), np.std(acc_ts),
                                            np.mean(convergence_ts),  # mod
-                                           np.mean(acc_epochs_ts),
                                            np.mean(ls_ts)]
 
     statistics_time.loc[statistics_time.shape[0]] = \
