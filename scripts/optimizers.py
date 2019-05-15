@@ -36,7 +36,7 @@ class Optimizer(object):
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
         self.g = None
-        self.convergence_goal = 1e-3
+        self.convergence_goal = 1e-2
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
@@ -159,6 +159,9 @@ class SGD(Optimizer):
                 self.error_per_batch.append(error)
                 error_per_batch.append(error)
                 y_pred = self.h[-1].reshape(-1, 1)
+
+                if error < self.convergence_goal or e >= 10000:
+                    return 1
 
                 self.back_propagation(nn, x_batch, y_batch)
 
