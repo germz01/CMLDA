@@ -55,11 +55,11 @@ def plot_learning_curve(optimizer, data, test_type, metric, params,
         plt.semilogy(data[0], data[1], alpha=0.65,
                      label='TRAIN' if len(data) > 1 else None)
     else:
-        plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
+        plt.semilogy(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
                  len(data) > 1 else None)
 
     if len(data) > 1 and metric != 'TIME':
-        plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+        plt.semilogy(range(len(data[1])), data[1], alpha=0.65, label=test_type)
         plt.legend()
     elif metric == 'TIME':
         plt.semilogy(data[0], data[2], alpha=0.65, label=test_type)
