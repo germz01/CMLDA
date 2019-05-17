@@ -85,5 +85,9 @@ for monk in [1, 2, 3]:
                 ['MONK {}'.format(monk), opt_name, sigma_1, sigma_2, rho,
                  eta, alpha, lamb, mse, acc]
 
-table.to_latex(buf='../table.txt', index=False, na_rep='-', index_names=False,
+table_name = 'table.txt' if epochs is None \
+    else 'table_max_epochs_{}.txt'.format(epochs)
+
+table.to_latex(buf=data + table_name, index=False, na_rep='-',
+               index_names=False,
                column_format=(('| c ' * len(table.columns)) + '|'))
