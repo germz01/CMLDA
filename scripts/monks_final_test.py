@@ -12,9 +12,14 @@ warnings.filterwarnings("ignore")
 ###############################################################################
 # EXPERIMENTAL SETUP ##########################################################
 
-ntrials = None
+ntrials = raw_input('TRIALS[N/None]: ')
+ntrials = int(ntrials) if ntrials != 'None' else None
+
 split_percentage = 0.8
-epochs = None
+
+epochs = raw_input('MAX EPOCHS[N/None]: ')
+epochs = int(epochs) if epochs != 'None' else None
+
 path_to_json = '../data/final_setup/'
 save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y' else False
 saving_curve_stats = True if raw_input('SAVE CURVE STATS?[Y/N] ') == 'Y' \
@@ -88,7 +93,7 @@ else:
     momentum = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
     assert momentum in ['standard', 'nesterov']
 
-sample = raw_input('WHICH CURVE DO YOU WANT TO SAMPLE?[1/2/3/4] ')
+sample = raw_input('WHICH CURVE DO YOU WANT TO SAMPLE?[1/2/3/4/5] ')
 sample = sample.split(',')
 plot_mse = True if '1' in sample else False
 plot_acc = True if '2' in sample else False
@@ -113,6 +118,9 @@ for ds in [0, 1, 2]:
         hps = path_to_json + \
             'CGD/monks_{}_best_hyperparameters_cgd_{}.json'.\
             format(ds + 1, beta)
+
+    if epochs is None:
+        hps = hps.replace('.json', '_no_max_epochs.json')
 
     with open(hps) as json_file:
         params = json.load(json_file)
@@ -175,8 +183,12 @@ for ds in [0, 1, 2]:
                 path += '/' + str(beta)
 
             if saving_curve_stats:
-                with open(path + '/MONK{}_curves_{}.json'.
-                          format(ds + 1, opt.lower()), 'w') as json_file:
+                curves_fn = path + \
+                    '/MONK{}_curves_{}_max_epochs_{}.json'.format(ds + 1,
+                                                                  opt.lower(),
+                                                                  epochs)
+
+                with open(curves_fn, 'w') as json_file:
                     curves_data = {'error': neural_net.optimizer.
                                    error_per_epochs,
                                    'error_va': neural_net.optimizer.
@@ -243,6 +255,14 @@ else:
         '_monks_statistics.csv'
     file_name_time = fpath + opt.lower() + '_' + beta + \
         '_monks_time_statistics.csv'
+
+if epochs is None:
+    file_name = file_name.replace('.csv', '_no_max_epochs.csv')
+    file_name_time = file_name_time.replace('.csv', '_no_max_epochs.csv')
+else:
+    file_name = file_name.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+    file_name_time = file_name_time. \
+        replace('.csv', '_max_epochs_{}.csv'.format(epochs))
 
 if save_statistics:
     statistics.to_csv(path_or_buf=file_name, index=False)
