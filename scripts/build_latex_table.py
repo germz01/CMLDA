@@ -3,21 +3,39 @@ import json
 import numpy as np
 import pandas as pd
 
+epochs = raw_input('MAX EPOCHS[N/None]: ')
+epochs = int(epochs) if epochs != 'None' else None
+
 tab_columns = ['Task', 'Optimizer', 'sigma_1', 'sigma_2', 'rho', 'eta',
                'alpha', 'lambda', 'MSE (TR - TS)', 'Accuracy (TR - TS) (%)']
 
 path_to_json = '../data/final_setup/'
+data = '../data/monks/'
 
-datasets = {'cm':
-            pd.read_csv('../data/monks/sgd_standard_monks_statistics.csv'),
-            'nag':
-            pd.read_csv('../data/monks/sgd_nesterov_monks_statistics.csv'),
-            'pr':
-            pd.read_csv('../data/monks/cgd_pr_monks_statistics.csv'),
-            'hs':
-            pd.read_csv('../data/monks/cgd_hs_monks_statistics.csv'),
-            'mhs':
-            pd.read_csv('../data/monks/cgd_mhs_monks_statistics.csv')}
+paths = []
+
+for opt in ['sgd', 'cgd']:
+    if opt == 'sgd':
+        for m in ['standard', 'nesterov']:
+            p = '{}_{}_monks_statistics.csv'.format(opt, m)
+
+            if epochs is not None:
+                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+
+            paths.append(data + p)
+    else:
+        for b in ['pr', 'hs', 'mhs']:
+            p = '{}_{}_monks_statistics.csv'.format(opt, b)
+
+            if epochs is not None:
+                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+
+            paths.append(data + p)
+
+
+datasets = {'cm': pd.read_csv(paths[0]), 'nag': pd.read_csv(paths[1]),
+            'pr': pd.read_csv(paths[2]), 'hs': pd.read_csv(paths[3]),
+            'mhs': pd.read_csv(paths[4])}
 
 table = pd.DataFrame(columns=tab_columns)
 
