@@ -1,0 +1,21 @@
+\begin{tabular}{| c | c | c | c | c | c | c | c |}
+\toprule
+   Task &  Optimizer & Convergence Epoch &  Elapsed Time &  LS Iterations &  BP Time &  LS Time &  Dir Time \\
+\midrule
+ MONK 1 &   SGD (CM) &              1000 &       5163.25 &              - &        - &        - &         - \\
+ MONK 1 &  SGD (NAG) &              1000 &       5214.20 &              - &        - &        - &         - \\
+ MONK 1 &   CGD (PR) &               445 &       5055.85 &            6.0 &   514.70 &  2233.17 &     14.00 \\
+ MONK 1 &   CGD (HS) &               240 &       2665.58 &            6.0 &   267.58 &  1164.87 &      7.95 \\
+ MONK 1 &  CGD (MHS) &               298 &       3278.08 &            7.0 &   328.36 &  1436.53 &      9.57 \\
+ MONK 2 &   SGD (CM) &              1000 &       5385.27 &              - &        - &        - &         - \\
+ MONK 2 &  SGD (NAG) &              1000 &       5437.32 &              - &        - &        - &         - \\
+ MONK 2 &   CGD (PR) &               326 &       3648.71 &            5.0 &   362.99 &  1603.26 &     10.17 \\
+ MONK 2 &   CGD (HS) &               149 &       1695.45 &            5.0 &   169.52 &   760.82 &      4.90 \\
+ MONK 2 &  CGD (MHS) &               183 &       2023.54 &            5.0 &   198.10 &   892.13 &      5.83 \\
+ MONK 3 &   SGD (CM) &              1000 &       5304.07 &              - &        - &        - &         - \\
+ MONK 3 &  SGD (NAG) &              1000 &       5353.35 &              - &        - &        - &         - \\
+ MONK 3 &   CGD (PR) &               371 &       4149.39 &            5.0 &   418.39 &  1821.40 &     11.66 \\
+ MONK 3 &   CGD (HS) &               377 &       4319.66 &            6.0 &   439.25 &  1891.85 &     12.75 \\
+ MONK 3 &  CGD (MHS) &               389 &       4361.18 &            6.0 &   438.78 &  1906.62 &     12.70 \\
+\bottomrule
+\end{tabular}
