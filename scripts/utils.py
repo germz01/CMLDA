@@ -203,7 +203,7 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
 
 def plot_all_learning_curves(monk, label, data, title, metric,
                              time=False, fname='../report/img/', type='beta',
-                             semilogy=True):
+                             semilogy=True, epochs=None):
     assert metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
 
     for i in range(len(data[0])):
@@ -236,6 +236,10 @@ def plot_all_learning_curves(monk, label, data, title, metric,
     fname = fname + str(monk) + '_' + metric.lower() + '_' + str(type)
     if time is True:
         fname += '_time'
+
+    if epochs is not None:
+        fname += '_max_epochs_{}'.format(epochs)
+
     fname += '.pdf'
     plt.savefig(fname, bbox_inches='tight')
     plt.close()
