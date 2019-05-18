@@ -191,7 +191,8 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Additional statistics.}
+                \caption{Additional time-related statistics. The unit of time that has been used is the
+                millisecond.}
                 \label{tab:monks_additional_no_max_epochs}
             \end{table}
 
@@ -344,7 +345,8 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Additional statistics.}
+                \caption{Additional time-related statistics. The unit of time that has been used is the
+                millisecond.}
                 \label{tab:monks_additional_max_epochs}
             \end{table}
 
@@ -388,190 +390,6 @@
             \end{figure}
 
         % subsection results_ (end)
-
-        \subsection{Results for Stochastic Gradient Descent} % (fold)
-        \label{sub:results_for_stochastic_gradient_descent}
-
-            \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            Task & Topology & Momentum & $\eta$ & $\alpha$ & $\lambda$
-                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & standard & 0.65 & 0.75 & 0.0 & 0.010 - 0.016 &
-                            100 \% - 99 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & standard & 0.71 & 0.89 & 0.0 & 0.0072 - 0.010 &
-                            100 \% - 100 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & standard & 0.67 & 0.85 & 0.0027
-                            & 0.012 - 0.014 & 98 \% - 98 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & nesterov & 0.63 & 0.73 & 0.0 & 0.016 - 0.024 &
-                            98 \% - 98 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & nesterov & 0.64 & 0.85 & 0.0 & 0.010 - 0.014 &
-                            99 \% - 99 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & nesterov & 0.61 & 0.76 & 0.0036
-                            & 0.014 - 0.016 & 98 \% - 98 \% \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Stochastic Gradient Descent.}
-                \label{tab:monks_sgd}
-            \end{table}
-
-            In order to compare the results in a similar configuration between the SGD and the CG, we have decided to
-            adopt only the \textit{batch} mode for training the ANN.
-            Futhermore, for investigate more about the SGD's performances, we have decided to use both the
-            \textit{Nesterov momentum} and the \textit{Standard momentum}, as described in
-            \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the validation and testing phases.
-            The regularization constant $\lambda$ is used only in the third dataset, since Monk 3 is the only one among
-            the three that has noisy samples.
-
-            \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c |}
-                            \hline
-                            Task & Momentum & Convergence on Epoch & Max Accuracy on Epoch & Elapsed Time & Backpropagation time \\
-                            \hline
-                            MONK 1 & standard & 1000 & 837 & 5.01 & 2.94\\
-                            \hline
-                            MONK 2 & standard & 1000 & 607 & 5.27 & 2.99\\
-                            \hline
-                            MONK 3 & standard & 1000 & 427 & 5.18 & 2.97\\
-                            \hline
-                            MONK 1 & nesterov & 1000 & 641 & 5.24 & 2.94\\
-                            \hline
-                            MONK 2 & nesterov & 1000 & 450 & 5.37 & 3.02\\
-                            \hline
-                            MONK 3 & nesterov & 1000 & 317 & 5.26 & 2.99\\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Additional statistics for the Stochastic Gradient Descent.}
-                \label{tab:additional_monks_sgd}
-            \end{table}
-
-            As we can see from Tab. \ref{tab:additional_monks_sgd}, the Nesterov's momentum is, in general, faster
-            than the standard one in reaching the epoch in which the accuracy score reaches its maximal value, as
-            described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}. The value of $1000$ for
-            the convergence's epochs has to be interpreted as a non convergence for the task, since $1000$ is the
-            maximal number of epochs that we have used for the training and the testing phases. The average time of
-            execution of the train and backpropagation phases are computed in seconds. Both the momentum choices
-            produce similar results.
-
-        % subsection results_for_stochastic_gradient_descent (end)
-
-        \subsection{Results for Conjugate Gradient Methods} % (fold)
-        \label{sub:results_for_conjugate_gradient_method}
-
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
-                            \hline
-                            Task & Topology & Activation & $\beta$ & $\sigma_{1}$ & $\sigma_{2}$ & $\rho$
-                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.12 & 0.85
-                            & 0.0059 - 0.0125 & 99 \% - 97 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.33 & 0.42
-                            & 0.0039 - 0.0113 & 99 \% - 97 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.24 & 0.27
-                            & 0.0052 - 0.0169 & 99 \% - 96 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.21 & 0.0
-                            & 0.0029 - 0.0057 & 99 \% - 99 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.16 & 0.0
-                            & 0.0032 - 0.0078 & 99 \% - 98 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.35 & 0.0
-                            & 0.0045 - 0.0151 & 99 \% - 96 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 &  0.17 & 0.0
-                            & $9.89e-05$ - 0.0069 & 100 \% - 98 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.34 & 0.0
-                            & $9.35e-05$ - 0.0048 & 100 \% - 99 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.12 & 0.0
-                            & 0.0088 - 0.0118 & 98 \% - 97 \% \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Conjugate Gradient Methods.}
-                \label{tab:monks_cgd}
-        \end{table}
-
-        For what concernes the results for the Conjugate Gradient Methods, for all the configurations tested,
-        the direction has been set to the modified one, since it's the one who gave better results in the
-        preliminary tests. It's immediate to see high performances achieved by the all the methods. In this case, the $PR^+$ method performes better than the other methods, getting an higher accuracy and converging before the other ones. On the contrary, the $MHS^+$ method needs more epochs than the others to get to the convergence and to the highest accuracy rate.
-
-        Like in the results obtained from SGD, the third
-        dataset tested (Monk 3) gets a little worse performances because of the presence of noise in it.
-        Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
-        ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the
-        learning rate or the the momentum term.
-
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c | c | c |}
-                            \hline
-                            Task & $\beta$ & Convergence Epoch & Max Accuracy Epoch & LS Iterations & Elapsed Time & BP Time & LS Time & Dir Time \\
-                            \hline
-                            MONK 1 & $MHS^{+}$ & 348 & 216 & 6 & 5.97 & 0.61 & 2.65 & 0.017\\
-                            \hline
-                            MONK 2 & $MHS^{+}$ & 258 & 176 & 5 & 4.32 & 0.42 & 1.92 & 0.012\\
-                            \hline
-                            MONK 3 & $MHS^{+}$ & 428 & 136 & 5 & 6.88 & 0.69 & 3.0 & 0.020 \\
-                            \hline
-                            MONK 1 & $HS^{+}$ & 260 & 135 & 6 & 5.01 & 2.94 & 1.59 & 0.111\\
-                            \hline
-                            MONK 2 & $HS^{+}$ & 260 & 117 & 5 & 5.27 & 2.99 & 1.72 & 0.113\\
-                            \hline
-                            MONK 3 & $HS^{+}$ & 432 & 94 & 5 & 5.18 & 2.97 & 2.81 & 0.194\\
-                            \hline
-                            MONK 1 & $PR^{+}$ & 151 & 95 & 6 & 2.16 & 0.21 & 0.95 & 0.006\\
-                            \hline
-                            MONK 2 & $PR^{+}$ & 117 & 75 & 5 & 1.73 & 0.17 & 0.77 & 0.004\\
-                            \hline
-                            MONK 3 & $PR^{+}$ & 189 & 53 & 5 & 2.84 & 0.28 & 1.24 & 0.008\\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Additional statistics for the Conjugate Gradient Methods.}
-                \label{tab:additional_monks_cgd}
-            \end{table}
-
-        From Tab.\ref{tab:additional_monks_cgd}, it's interesting to notice that, in all these configurations, the majority of the execution time is spent performing the Line Search: of course, it's an expensive computation because of the frequent evaluation of the Loss function. Futhermore, the average number of iteration per epochs of the LS is included in a range from 5 to 6 times.
-
-        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in
-        Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methods reach the highest accuracy in
-        the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge
-        towards an optimum value.
-
-        This is also evident in the plots of the norm of the gradient, where the SGD get a very smooth curve, but far from the minimum (at least at iteration 1000), meaning there could be still room to an improving. The CG, instead, deals with a very good convergence rate, but with an unregular and nonsmooth behaviour in the curve.
-
-        In the case of CG, the methods have been declared to converge when the norm of the gradient gets a value less than $1e-5$.
-
-        % subsection results_for_conjugate_gradient_method (end)
     % section monks (end)
 
     \section{CUP} % (fold)
