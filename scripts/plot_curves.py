@@ -4,7 +4,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-analytics = raw_input("ANALYTICS or FINAL TEST? a/f ")
+analytics = raw_input("ANALYTICS or FINAL TEST[a/f]?  ")
 
 path_to_json = '../data/final_setup/analytics/' if analytics == 'a'  \
                 else '../data/final_setup/'
