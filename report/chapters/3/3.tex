@@ -353,7 +353,39 @@
             can find the details regarding the optimizers' performances, while in Table
             \ref{tab:monks_additional_max_epochs} there are the details regarding the time-related
             performances. The considerations done for the iterations with no maximal number of epochs are
-            valid also for this specific case.
+            valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_epochs} we can see a
+            comparison betweeen the various optimizers.
+
+            \begin{figure}[t!]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/1_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_max_epochs}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/2_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_all_max_epochs}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/3_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_all_max_epochs}
+                \end{subfigure}
+                \caption{Comparisons between the diffent optimizers with the constrain of setting a
+                maximal number of epochs egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_epochs}
+                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_epochs}
+                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_epochs} we
+                can see the one for MONKS 3.}
+                \label{fig:monks_MSE_all_max_epochs}
+            \end{figure}
 
         % subsection results_ (end)
 
