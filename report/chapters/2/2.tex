@@ -82,12 +82,10 @@
 						\begin{equation}
 							\|\mathbb{E}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq \mu_G \|\nabla\textit{L}(\textbf{W}_k)\|,
 						\end{equation}
-						that means the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of sufficient descent for \textit{L} with a norm comparable to the norm of the gradient;
 					\item There exist scalars $M \geq 0 $ and $M_G \geq 0 $ s.t.:
 						\begin{equation}
 							\|\mathbb{V}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq M + M_G\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
 						\end{equation}
-						that restricts the variance of \textbf{g}.
 				\end{itemize}
 
 		\end{asu}
@@ -100,12 +98,15 @@
 
 		that is the convergence of the algorithm.
 
-		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses the
-		sigmoid function as activation function. This function bounds every layer's output in the range $(0, 1)$.
-		In section \ref{sec:the_loss_function}, we have proved that our loss function is both Lipschitz continuous
-		and differentiable. We can conclude that assumption \ref{as:conv} is respected. The first requirement of
-		assumption \ref{as:sgd_conv2} is respected, being $L$ bounded in the interval $(0, 1)$, that is, having
-		$L_{\mathit{inf}}$ eguals to $0$.
+		As we introduced in section \ref{sec:the_activation_functions}, each one of the units of our ANN uses
+		the sigmoid function as activation function. This function bounds every layer's output in the range
+		$(0, 1)$. In section \ref{sec:the_loss_function}, we have proved that our loss function is both
+		Lipschitz continuous and differentiable. We can conclude that assumption \ref{as:conv} is respected.
+		The first requirement of assumption \ref{as:sgd_conv2} is respected, being $L$ bounded in the
+		interval $(0, 1)$, that is, having $L_{\mathit{inf}}$ eguals to $0$. The second requirement
+		means that the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of
+		sufficient descent for \textit{L} with a norm comparable to the norm of the gradient, while the
+		third requirement restricts the variance of \textbf{g}.
 
 		A property of SGD is that the computation time per update does not grow with the number of training
 		examples, allowing convergence even in presence of a large dataset.
