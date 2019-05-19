@@ -133,43 +133,42 @@
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c |}
                             \hline
-                            Task & Optimizer & Convergence Epoch & Elapsed Time & LS
-                            Iterations & BP Time & LS Time & Dir Time \\
+                            Task &  Optimizer & Convergence Epoch &  Elapsed Time &  LS Iterations &   BP Time &   LS Time &  Dir Time \\
                             \hline
-                            MONK 1 & SGD (CM) & 32624 & 96794.43 & - & 7268.37 & - & - \\
+                            MONK 1 &   SGD (CM) &             25829 &      80835.78 &              - &         - &         - &         - \\
                             \hline
-                            MONK 1 & SGD (NAG) & 7626 & 24000.93 & - & 1747.60 & - & - \\
+                            MONK 1 &  SGD (NAG) &             14382 &      44410.24 &              - &         - &         - &         - \\
                             \hline
-                            \rowcolor[gray]{.9}
-                            MONK 1 & CGD ($PR^{+}$) & 733 & 9992.86 & 7 & 1322.85 & 5980.31 & 14.73 \\
+                            MONK 1 &   CGD (PR) &               806 &       9728.46 &            8.0 &   1364.61 &   5750.07 &     15.10 \\
                             \hline
-                            MONK 1 & CGD ($HS^{+}$) & 1045 & 14121.16 & 8 & 1961.03 & 8330.85 & 22.46 \\
-                            \hline
-                            MONK 1 & CGD ($MHS^{+}$) & 449 & 5799.25 & 8 & 812.15 & 3441.85 & 7.94 \\
-                            \hline
-                            \hline
-                            MONK 2 & SGD (CM) & 14406 & 52401 & - & 3630.76 & - & - \\
-                            \hline
-                            MONK 2 & SGD (NAG) & 7555 & 28465.88 & - & 1935.95 & - & - \\
-                            \hline
-                            MONK 2 & CGD ($PR^{+}$) & 677 & 9657.37 & 7 & 1386.48 & 5573.81 & 14.59 \\
+                            MONK 1 &   CGD (HS) &               770 &       9468.09 &            8.0 &   1324.35 &   5595.54 &     14.52 \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 2 & CGD ($HS^{+}$) & 265 & 4364.99 & 8 & 656.74 & 2432.64 & 5.46 \\
-                            \hline
-                            MONK 2 & CGD ($MHS^{+}$) & 611 & 8729.49 & 8 & 1921.90 & 5011.61 & 10.82 \\
+                            MONK 1 &  CGD (MHS) &               472 &       5307.14 &            8.0 &    749.90 &   3151.04 &      7.26 \\
                             \hline
                             \hline
-                            MONK 3 & SGD (CM) & 70059 & 206788.14 & - & 15704.64 & - & - \\
+                            MONK 2 &   SGD (CM) &             14586 &      56437.37 &              - &         - &         - &         - \\
                             \hline
-                            MONK 3 & SGD (NAG) & 35890 & 100356.26 & - & 7579.01 & - & - \\
-                            \hline
-                            MONK 3 & CGD ($PR^{+}$) & 5366 & 78435.54 & 8 & 10988.20 & 46321.27 & 119.78 \\
-                            \hline
-                            MONK 3 & CGD ($HS^{+}$) & 6479 & 86644.81 & 8 & 12181.34 & 50102.83 & 128.91 \\
+                            MONK 2 &  SGD (NAG) &              7743 &      28037.07 &              - &         - &         - &         - \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 3 & CGD ($MHS^{+}$) & 2786 & 31860.66 & 8 & 4568.08 & 18768.19 & 44.48 \\
+                            MONK 2 &   CGD (PR) &               292 &       3944.34 &            8.0 &    579.52 &   2236.75 &      5.01 \\
+                            \hline
+                            MONK 2 &   CGD (HS) &               340 &       4385.45 &            8.0 &    650.30 &   2479.65 &      5.45 \\
+                            \hline
+                            MONK 2 &  CGD (MHS) &               513 &       6567.70 &            8.0 &    967.88 &   3769.13 &      8.12 \\
+                            \hline
+                            \hline
+                            MONK 3 &   SGD (CM) &             65306 &     175429.15 &              - &         - &         - &         - \\
+                            \hline
+                            MONK 3 &  SGD (NAG) &             50918 &     163439.49 &              - &         - &         - &         - \\
+                            \hline
+                            MONK 3 &   CGD (PR) &              6540 &      74283.88 &            8.0 &  10581.14 &  44239.27 &    109.15 \\
+                            \hline
+                            MONK 3 &   CGD (HS) &              4056 &      50295.56 &            8.0 &   7223.92 &  29842.22 &     75.06 \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 3 &  CGD (MHS) &              2209 &      23903.49 &            8.0 &   3417.29 &  14174.89 &     32.84 \\
                             \hline
                         \end{tabular}
                     }
