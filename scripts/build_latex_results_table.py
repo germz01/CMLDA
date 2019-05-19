@@ -10,7 +10,9 @@ tab_columns = ['Task', 'Optimizer', 'sigma_1', 'sigma_2', 'rho', 'eta',
                'alpha', 'lambda', 'MSE (TR - TS)', 'Accuracy (TR - TS) (%)']
 
 path_to_json = '../data/final_setup/'
-data = '../data/monks/'
+from_analytics = True if raw_input('RETRIEVE FROM ANALYTICS[Y/N]? ') == 'Y' \
+    else False
+data = '../data/final_setup/analytics/' if from_analytics else '../data/monks/'
 
 paths = []
 
@@ -21,16 +23,24 @@ for opt in ['sgd', 'cgd']:
 
             if epochs is not None:
                 p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+            else:
+                if from_analytics:
+                    p = p.replace('.csv', '_no_max_epochs.csv')
 
-            paths.append(data + p)
+            paths.append(data + opt.upper() + '/' + m + '/' + p if
+                         from_analytics else data + p)
     else:
         for b in ['pr', 'hs', 'mhs']:
             p = '{}_{}_monks_statistics.csv'.format(opt, b)
 
             if epochs is not None:
                 p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+            else:
+                if from_analytics:
+                    p = p.replace('.csv', '_no_max_epochs.csv')
 
-            paths.append(data + p)
+            paths.append(data + opt.upper() + '/' + b + '/' + p if
+                         from_analytics else data + p)
 
 
 datasets = {'cm': pd.read_csv(paths[0]), 'nag': pd.read_csv(paths[1]),
