@@ -177,26 +177,26 @@
 			$\mathbf{g}^{(k)}$ the estimate of the true full-batch gradient $\nabla F(\theta^{(k)})$ .
 
 			\begin{theorem}[Convergence of Gradient Methods for Non-Convex Functions]
-				Suppose $F$ is a function with $L$-Lipschitz continuous gradient,
-				$\mathbb{E} \left [ || \mathbf{g}^{(i)} - \nabla F(\theta^{(i)}) ||^2 \right ] \le \delta^2$, and
-				$|| \nabla F(\theta^{(i)}) || \le G$ for any $\theta^{(i)} \in \Theta$. Then, for any constant
+				Suppose $L$ is a function with B-Lipschitz continuous gradient,
+				$\mathbb{E} \left [ || \mathbf{g}_{i} - \nabla L(\textbf{w}_{i}) ||^2 \right ] \le \delta^2$, and
+				$|| \nabla L(\textbf{w}_{i}) || \le G$ for any $\textbf{w}_{i} \in \textbf{W}$. Then, for any constant
 				$C > 0$, running for k iteration the stochastic gradient method
 
 				\begin{enumerate}
-					\item with step size $\eta = \text{min} \left \{ 1\slash(2L),\ C\slash\sqrt{k + 1} \right \}$
+					\item with step size $\eta = \text{min} \left \{ 1\slash(2B),\ C\slash\sqrt{k + 1} \right \}$
 					yields
 					\begin{equation*}
-					    \text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla F(\theta^{(i)}) ||^2 \right ]
-					    \le \frac{2(F(\theta^{(0)})) - F^{*}}{k + 1} \text{max} \left\{ 2L,\
-					    \frac{\sqrt{k + 1}}{C} \right\} + \frac{CL\delta^2}{\sqrt{k + 1}} \ and
+					    \text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla L(\textbf{w}_i) ||^2 \right ]
+					    \le \frac{2(L(\textbf{w}_{0})) - L_{*}}{k + 1} \text{max} \left\{ 2B,\
+					    \frac{\sqrt{k + 1}}{C} \right\} + \frac{CB\delta^2}{\sqrt{k + 1}} \ and
 					\end{equation*}
-					\item with step size $\eta = \text{min} \left \{ (1 - \alpha)\slash(2L),\
+					\item with step size $\eta = \text{min} \left \{ (1 - \alpha)\slash(2B),\
 					C\slash\sqrt{k + 1} \right \}$ and a momentum $\alpha \in [0, 1)$ yelds
 					\begin{align*}
-						&\text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla F(\theta^{(i)}) ||^2 \right ]
-						\le \frac{2(F(\theta^{(0)}) - F^{*})(1 - \alpha)}{k + 1}
-						\text{max} \left\{ \frac{2L}{1 - \alpha},\ \frac{\sqrt{k + 1}}{C} \right\} + \\
-						&\frac{C}{sqrt{k + 1}}\frac{L\alpha^2 + L\delta^2(1 - \alpha)^2}{(1 - \alpha)^3}
+						&\text{min}_{i = 0, \ldots, k} \mathbb{E} \left [ || \nabla F(\textbf{w}_{i}) ||^2 \right ]
+						\le \frac{2(L(\textbf{w}_{0}) - L_{*})(1 - \alpha)}{k + 1}
+						\text{max} \left\{ \frac{2B}{1 - \alpha},\ \frac{\sqrt{k + 1}}{C} \right\} + \\
+						&\frac{C}{\sqrt{k + 1}}\frac{B\alpha^2 + B\delta^2(1 - \alpha)^2}{(1 - \alpha)^3}
 					\end{align*}
 				\end{enumerate}
 				\label{theorem_1}
