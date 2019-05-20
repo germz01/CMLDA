@@ -91,7 +91,7 @@
         \subsection{Results (no max epochs)} % (fold)
         \label{sub:results_}
 
-            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of convergence goal of the norm of the gradient, has been set to $10^{-3}$. 
+            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of the final value taken by norm of the gradient, has been set to $10^{-3}$. 
 
             All the methods have been trained with the same hyperparameters, and the only stopping criteria that has been chosen is the decreasing of the norm.
 
@@ -151,45 +151,46 @@
                 \begin{subtable}{\textwidth}
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                            \toprule
+                               Task &  Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &   BP Time &   LS Time &  Dir Time \\
                             \hline
-                            Task &  Optimizer & Convergence Epoch &  Elapsed Time &  LS Iterations &   BP Time &   LS Time &  Dir Time \\
+                             MONK 1 &   SGD (CM) &             25829 &              - &      80835.78 &   6097.73 &         - &         - \\
                             \hline
-                            MONK 1 &   SGD (CM) &             25829 &      80835.78 &              - &         6097.73 &         - &         - \\
+                             MONK 1 &  SGD (NAG) &             14382 &              - &      44410.24 &   3271.03 &         - &         - \\
                             \hline
-                            MONK 1 &  SGD (NAG) &             14382 &      44410.24 &              - &         3271.03 &         - &         - \\
+                             MONK 1 &   CGD (PR) &               806 &            8.0 &       9728.46 &   1364.61 &   5750.07 &     15.10 \\
                             \hline
-                            MONK 1 &   CGD (PR) &               806 &       9728.46 &            8.0 &   1364.61 &   5750.07 &     15.10 \\
-                            \hline
-                            MONK 1 &   CGD (HS) &               770 &       9468.09 &            8.0 &   1324.35 &   5595.54 &     14.52 \\
-                            \hline
-                            \rowcolor[gray]{.9}
-                            MONK 1 &  CGD (MHS) &               472 &       5307.14 &            8.0 &    749.90 &   3151.04 &      7.26 \\
-                            \hline
-                            \hline
-                            MONK 2 &   SGD (CM) &             14586 &      56437.37 &              - &         3906.62 &         - &         - \\
-                            \hline
-                            MONK 2 &  SGD (NAG) &              7743 &      28037.07 &              - &         1887.81 &         - &         - \\
+                             MONK 1 &   CGD (HS) &               770 &            8.0 &       9468.09 &   1324.35 &   5595.54 &     14.52 \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 2 &   CGD (PR) &               292 &       3944.34 &            8.0 &    579.52 &   2236.75 &      5.01 \\
-                            \hline
-                            MONK 2 &   CGD (HS) &               340 &       4385.45 &            8.0 &    650.30 &   2479.65 &      5.45 \\
-                            \hline
-                            MONK 2 &  CGD (MHS) &               513 &       6567.70 &            8.0 &    967.88 &   3769.13 &      8.12 \\
+                             MONK 1 &  CGD (MHS) &               472 &            8.0 &       5307.14 &    749.90 &   3151.04 &      7.26 \\
                             \hline
                             \hline
-                            MONK 3 &   SGD (CM) &             65306 &     175429.15 &              - &         13298.60 &         - &         - \\
+                             MONK 2 &   SGD (CM) &             14586 &              - &      56437.37 &   3906.62 &         - &         - \\
                             \hline
-                            MONK 3 &  SGD (NAG) &             50918 &     163439.49 &              - &         12167.22 &         - &         - \\
-                            \hline
-                            MONK 3 &   CGD (PR) &              6540 &      74283.88 &            8.0 &  10581.14 &  44239.27 &    109.15 \\
-                            \hline
-                            MONK 3 &   CGD (HS) &              4056 &      50295.56 &            8.0 &   7223.92 &  29842.22 &     75.06 \\
+                             MONK 2 &  SGD (NAG) &              7743 &              - &      28037.07 &   1887.81 &         - &         - \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 3 &  CGD (MHS) &              2209 &      23903.49 &            8.0 &   3417.29 &  14174.89 &     32.84 \\
+                             MONK 2 &   CGD (PR) &               292 &            8.0 &       3944.34 &    579.52 &   2236.75 &      5.01 \\
                             \hline
-                        \end{tabular}
+                             MONK 2 &   CGD (HS) &               340 &            8.0 &       4385.45 &    650.30 &   2479.65 &      5.45 \\
+                            \hline
+                             MONK 2 &  CGD (MHS) &               513 &            8.0 &       6567.70 &    967.88 &   3769.13 &      8.12 \\
+                            \hline
+                            \hline
+                             MONK 3 &   SGD (CM) &             65306 &              - &     175429.15 &  13298.60 &         - &         - \\
+                            \hline
+                             MONK 3 &  SGD (NAG) &             50918 &              - &     163439.49 &  12167.22 &         - &         - \\
+                            \hline
+                             MONK 3 &   CGD (PR) &              6540 &            8.0 &      74283.88 &  10581.14 &  44239.27 &    109.15 \\
+                            \hline
+                             MONK 3 &   CGD (HS) &              4056 &            8.0 &      50295.56 &   7223.92 &  29842.22 &     75.06 \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                             MONK 3 &  CGD (MHS) &              2209 &            8.0 &      23903.49 &   3417.29 &  14174.89 &     32.84 \\
+                            \hline
+                            \end{tabular}
+
                     }
                 \end{subtable}
                 \caption{Additional time-related statistics. The unit of time that has been used is the
@@ -327,45 +328,45 @@
                 \begin{subtable}{\textwidth}
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                            \toprule
+                               Task &  Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &  BP Time &  LS Time &  Dir Time \\
                             \hline
-                            Task &  Optimizer & Convergence Epoch &  Elapsed Time &  LS Iterations &  BP Time &  LS Time &  Dir Time \\
+                             MONK 1 &   SGD (CM) &              1000 &              - &       5163.25 &   149.95 &        - &         - \\
+                             \hline
+                             MONK 1 &  SGD (NAG) &              1000 &              - &       5214.20 &   147.68 &        - &         - \\
+                             \hline
+                             MONK 1 &   CGD (PR) &               445 &            6.0 &       5055.85 &   514.70 &  2233.17 &     14.00 \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 1 &   CGD (HS) &               240 &            6.0 &       2665.58 &   267.58 &  1164.87 &      7.95 \\
+                             \hline
+                             MONK 1 &  CGD (MHS) &               298 &            7.0 &       3278.08 &   328.36 &  1436.53 &      9.57 \\
+                             \hline
+                             \hline
+                             MONK 2 &   SGD (CM) &              1000 &              - &       5385.27 &   159.47 &        - &         - \\
+                             \hline
+                             MONK 2 &  SGD (NAG) &              1000 &              - &       5437.32 &   157.63 &        - &         - \\
+                             \hline
+                             MONK 2 &   CGD (PR) &               326 &            5.0 &       3648.71 &   362.99 &  1603.26 &     10.17 \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 2 &   CGD (HS) &               149 &            5.0 &       1695.45 &   169.52 &   760.82 &      4.90 \\
+                             \hline
+                             MONK 2 &  CGD (MHS) &               183 &            5.0 &       2023.54 &   198.10 &   892.13 &      5.83 \\
+                             \hline
+                             \hline
+                             MONK 3 &   SGD (CM) &              1000 &              - &       5304.07 &   155.96 &        - &         - \\
+                             \hline
+                             MONK 3 &  SGD (NAG) &              1000 &              - &       5353.35 &   154.01 &        - &         - \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 3 &   CGD (PR) &               371 &            5.0 &       4149.39 &   418.39 &  1821.40 &     11.66 \\
+                             \hline
+                             MONK 3 &   CGD (HS) &               377 &            6.0 &       4319.66 &   439.25 &  1891.85 &     12.75 \\
+                             \hline
+                             MONK 3 &  CGD (MHS) &               389 &            6.0 &       4361.18 &   438.78 &  1906.62 &     12.70 \\
                             \hline
-                            MONK 1 &   SGD (CM) &              1000 &       5163.25 &              - &        149.95 &        - &         - \\
-                            \hline
-                            MONK 1 &  SGD (NAG) &              1000 &       5214.20 &              - &        147.68 &        - &         - \\
-                            \hline
-                            MONK 1 &   CGD (PR) &               445 &       5055.85 &            6.0 &   514.70 &  2233.17 &     14.00 \\
-                            \hline
-                            \rowcolor[gray]{.9}
-                            MONK 1 &   CGD (HS) &               240 &       2665.58 &            6.0 &   267.58 &  1164.87 &      7.95 \\
-                            \hline
-                            MONK 1 &  CGD (MHS) &               298 &       3278.08 &            7.0 &   328.36 &  1436.53 &      9.57 \\
-                            \hline
-                            \hline
-                            MONK 2 &   SGD (CM) &              1000 &       5385.27 &              - &        159.47 &        - &         - \\
-                            \hline
-                            MONK 2 &  SGD (NAG) &              1000 &       5437.32 &              - &        157.63 &        - &         - \\
-                            \hline
-                            MONK 2 &   CGD (PR) &               326 &       3648.71 &            5.0 &   362.99 &  1603.26 &     10.17 \\
-                            \hline
-                            \rowcolor[gray]{.9}
-                            MONK 2 &   CGD (HS) &               149 &       1695.45 &            5.0 &   169.52 &   760.82 &      4.90 \\
-                            \hline
-                            MONK 2 &  CGD (MHS) &               183 &       2023.54 &            5.0 &   198.10 &   892.13 &      5.83 \\
-                            \hline
-                            \hline
-                            MONK 3 &   SGD (CM) &              1000 &       5304.07 &              - &        155.96 &        - &         - \\
-                            \hline
-                            MONK 3 &  SGD (NAG) &              1000 &       5353.35 &              - &        154.01 &        - &         - \\
-                            \hline
-                            \rowcolor[gray]{.9}
-                            MONK 3 &   CGD (PR) &               371 &       4149.39 &            5.0 &   418.39 &  1821.40 &     11.66 \\
-                            \hline
-                            MONK 3 &   CGD (HS) &               377 &       4319.66 &            6.0 &   439.25 &  1891.85 &     12.75 \\
-                            \hline
-                            MONK 3 &  CGD (MHS) &               389 &       4361.18 &            6.0 &   438.78 &  1906.62 &     12.70 \\
-                            \hline
-                        \end{tabular}
+                            \end{tabular}
                     }
                 \end{subtable}
                 \caption{Additional time-related statistics. The unit of time that has been used is the
@@ -442,96 +443,96 @@
         % subsection results_ (end)
     % section monks (end)
 
-    \section{CUP} % (fold)
-        \label{sec:cup}
+    % \section{CUP} % (fold)
+    %     \label{sec:cup}
 
-        A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
-        First of all, in this case, being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
+    %     A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
+    %     First of all, in this case, being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
-        Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
+    %     Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
-        discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
-        implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
-        Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
-        out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
-        Methods is the modified one.
+    %     Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
+    %     discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
+    %     implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
+    %     Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
+    %     out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
+    %     Methods is the modified one.
 
-        \begin{table}[H]
-          \centering
-          \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
-          \begin{minipage}{.4\textwidth}
-              \centering
-              \begin{tabular}{| c | c |}
-                    \hline
-                    Hyperparameters & Ranges\\
-                    \hline
-                    $\eta$ & $\left [0.004, 0.2\right ]$ \\
-                    \hline
-                    $\alpha$ & $[0.5, 0.9]$ \\
-                    \hline
-                    $\lambda$ & $[0.0003, 0.003]$ \\
-                    \hline
-              \end{tabular}
-          \end{minipage}
-          \begin{minipage}{.4\textwidth}
-              \centering
-              \begin{tabular}{| c | c |}
-                    \hline
-                    Hyperparameters & Ranges\\
-                    \hline
-                    $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
-                    \hline
-                    $\rho$ & $[0.0, 1.0]$ \\
-                    \hline
-              \end{tabular}
-            \end{minipage}
-            \label{tab:hyper_cup}
-        \end{table}
+    %     \begin{table}[H]
+    %       \centering
+    %       \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
+    %       \begin{minipage}{.4\textwidth}
+    %           \centering
+    %           \begin{tabular}{| c | c |}
+    %                 \hline
+    %                 Hyperparameters & Ranges\\
+    %                 \hline
+    %                 $\eta$ & $\left [0.004, 0.2\right ]$ \\
+    %                 \hline
+    %                 $\alpha$ & $[0.5, 0.9]$ \\
+    %                 \hline
+    %                 $\lambda$ & $[0.0003, 0.003]$ \\
+    %                 \hline
+    %           \end{tabular}
+    %       \end{minipage}
+    %       \begin{minipage}{.4\textwidth}
+    %           \centering
+    %           \begin{tabular}{| c | c |}
+    %                 \hline
+    %                 Hyperparameters & Ranges\\
+    %                 \hline
+    %                 $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
+    %                 \hline
+    %                 $\rho$ & $[0.0, 1.0]$ \\
+    %                 \hline
+    %           \end{tabular}
+    %         \end{minipage}
+    %         \label{tab:hyper_cup}
+    %     \end{table}
 
-        In tables \ref{tab:cup_sgd} and \ref{tab:cup_cgd} are annotated the average results obtained from 10 executions of each one of the best models identified thanks to the validation step.
+    %     In tables \ref{tab:cup_sgd} and \ref{tab:cup_cgd} are annotated the average results obtained from 10 executions of each one of the best models identified thanks to the validation step.
 
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            Model & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
-                            & MSE (TR - TS) \\
-                            \hline
-                            SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 1.00 - 1.35 \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Stochastic Gradient Descent.}
-                \label{tab:cup_sgd}
-        \end{table}
+    %     \begin{table}[H]
+    %             \centering
+    %             \begin{subtable}{\textwidth}
+    %                 \resizebox{\textwidth}{!}{
+    %                     \begin{tabular}{| c | c | c | c | c | c | c | c |}
+    %                         \hline
+    %                         Model & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
+    %                         & MSE (TR - TS) \\
+    %                         \hline
+    %                         SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 1.00 - 1.35 \\
+    %                         \hline
+    %                     \end{tabular}
+    %                 }
+    %             \end{subtable}
+    %             \caption{Results for the Stochastic Gradient Descent.}
+    %             \label{tab:cup_sgd}
+    %     \end{table}
 
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            $\beta$ & Topology & Batch size & Activation & $\sigma_1$ & $\sigma_2$ & $\rho$
-                            & MSE (TR - TS) \\
-                            \hline
-                            $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.97 - 1.50\\
-                            \hline
-                            $HS^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.39 & 0.0
-                            & 0.97 - 1.50  \\
-                            \hline
-                            $PR^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.86 & 0.00
-                            & 1.15 - 1.41\\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Conjugate Gradient Methods.}
-                \label{tab:cup_cgd}
-        \end{table}
+    %     \begin{table}[H]
+    %             \centering
+    %             \begin{subtable}{\textwidth}
+    %                 \resizebox{\textwidth}{!}{
+    %                     \begin{tabular}{| c | c | c | c | c | c | c | c |}
+    %                         \hline
+    %                         $\beta$ & Topology & Batch size & Activation & $\sigma_1$ & $\sigma_2$ & $\rho$
+    %                         & MSE (TR - TS) \\
+    %                         \hline
+    %                         $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.97 - 1.50\\
+    %                         \hline
+    %                         $HS^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.39 & 0.0
+    %                         & 0.97 - 1.50  \\
+    %                         \hline
+    %                         $PR^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.86 & 0.00
+    %                         & 1.15 - 1.41\\
+    %                         \hline
+    %                     \end{tabular}
+    %                 }
+    %             \end{subtable}
+    %             \caption{Results for the Conjugate Gradient Methods.}
+    %             \label{tab:cup_cgd}
+    %     \end{table}
 
-        As for the experiments with the Monk datasets, we attach the learning curves in Appendix \ref{cha:cup_learning_curves}.
+    %     As for the experiments with the Monk datasets, we attach the learning curves in Appendix \ref{cha:cup_learning_curves}.
 % chapter experiments (end)
