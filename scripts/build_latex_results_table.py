@@ -17,31 +17,19 @@ data = '../data/final_setup/analytics/' if from_analytics else '../data/monks/'
 paths = []
 
 for opt in ['sgd', 'cgd']:
-    if opt == 'sgd':
-        for m in ['standard', 'nesterov']:
-            p = '{}_{}_monks_statistics.csv'.format(opt, m)
+    methods = ['standard', 'nesterov'] if opt == 'sgd' else ['pr', 'hs', 'mhs']
 
-            if epochs is not None:
+    for m in methods:
+        p = '{}_{}_monks_statistics.csv'.format(opt, m)
+
+        if epochs is not None:
                 p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
-            else:
-                if from_analytics:
-                    p = p.replace('.csv', '_no_max_epochs.csv')
+        else:
+            if from_analytics:
+                p = p.replace('.csv', '_no_max_epochs.csv')
 
-            paths.append(data + opt.upper() + '/' + m + '/' + p if
-                         from_analytics else data + p)
-    else:
-        for b in ['pr', 'hs', 'mhs']:
-            p = '{}_{}_monks_statistics.csv'.format(opt, b)
-
-            if epochs is not None:
-                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
-            else:
-                if from_analytics:
-                    p = p.replace('.csv', '_no_max_epochs.csv')
-
-            paths.append(data + opt.upper() + '/' + b + '/' + p if
-                         from_analytics else data + p)
-
+        paths.append(data + opt.upper() + '/' + m + '/' + p if
+                     from_analytics else data + p)
 
 datasets = {'cm': pd.read_csv(paths[0]), 'nag': pd.read_csv(paths[1]),
             'pr': pd.read_csv(paths[2]), 'hs': pd.read_csv(paths[3]),

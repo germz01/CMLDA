@@ -1,3 +1,4 @@
+import ipdb
 import numpy as np
 import pandas as pd
 
@@ -14,10 +15,13 @@ data = '../data/final_setup/analytics/' if from_analytics else '../data/monks/'
 
 paths = []
 
-for opt in ['sgd', 'cgd']:
-    if opt == 'sgd':
-        for m in ['standard', 'nesterov']:
-            p = '{}_{}_monks_time_statistics.csv'.format(opt, m)
+for csv in ['_', '_time_']:
+    for opt in ['sgd', 'cgd']:
+        methods = ['standard', 'nesterov'] if opt == 'sgd' else \
+            ['pr', 'hs', 'mhs']
+
+        for m in methods:
+            p = '{}_{}_monks{}statistics.csv'.format(opt, m, csv)
 
             if epochs is not None:
                 p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
@@ -27,55 +31,14 @@ for opt in ['sgd', 'cgd']:
 
             paths.append(data + opt.upper() + '/' + m + '/' + p if
                          from_analytics else data + p)
-    else:
-        for b in ['pr', 'hs', 'mhs']:
-            p = '{}_{}_monks_time_statistics.csv'.format(opt, b)
-
-            if epochs is not None:
-                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
-            else:
-                if from_analytics:
-                    p = p.replace('.csv', '_no_max_epochs.csv')
-
-            paths.append(data + opt.upper() + '/' + b + '/' + p if
-                         from_analytics else data + p)
-
-datasets_time = {'cm': pd.read_csv(paths[0]), 'nag': pd.read_csv(paths[1]),
-                 'pr': pd.read_csv(paths[2]), 'hs': pd.read_csv(paths[3]),
-                 'mhs': pd.read_csv(paths[4])}
-
-paths = []
-
-for opt in ['sgd', 'cgd']:
-    if opt == 'sgd':
-        for m in ['standard', 'nesterov']:
-            p = '{}_{}_monks_statistics.csv'.format(opt, m)
-
-            if epochs is not None:
-                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
-            else:
-                if from_analytics:
-                    p = p.replace('.csv', '_no_max_epochs.csv')
-
-            paths.append(data + opt.upper() + '/' + m + '/' + p if
-                         from_analytics else data + p)
-    else:
-        for b in ['pr', 'hs', 'mhs']:
-            p = '{}_{}_monks_statistics.csv'.format(opt, b)
-
-            if epochs is not None:
-                p = p.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
-            else:
-                if from_analytics:
-                    p = p.replace('.csv', '_no_max_epochs.csv')
-
-            paths.append(data + opt.upper() + '/' + b + '/' + p if
-                         from_analytics else data + p)
-
 
 datasets = {'cm': pd.read_csv(paths[0]), 'nag': pd.read_csv(paths[1]),
             'pr': pd.read_csv(paths[2]), 'hs': pd.read_csv(paths[3]),
             'mhs': pd.read_csv(paths[4])}
+
+datasets_time = {'cm': pd.read_csv(paths[5]), 'nag': pd.read_csv(paths[6]),
+                 'pr': pd.read_csv(paths[7]), 'hs': pd.read_csv(paths[8]),
+                 'mhs': pd.read_csv(paths[9])}
 
 table = pd.DataFrame(columns=tab_columns)
 
@@ -91,8 +54,7 @@ for monk in [1, 2, 3]:
         elapsed_time = np.round(datasets_time[opt].iloc[monk - 1, 1], 2)
         ls_iterations = np.nan if opt in ['cm', 'nag'] else \
             int(np.round(datasets[opt].iloc[monk - 1, 10]))
-        bp_time = np.nan if opt in ['cm', 'nag'] else \
-            np.round(datasets_time[opt].iloc[monk - 1, 2], 2)
+        bp_time = np.round(datasets_time[opt].iloc[monk - 1, 2], 2)
         ls_time = np.nan if opt in ['cm', 'nag'] else \
             np.round(datasets_time[opt].iloc[monk - 1, 3], 2)
         dir_time = np.nan if opt in ['cm', 'nag'] else \
