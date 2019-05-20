@@ -1,4 +1,3 @@
-import ipdb
 import json
 import utils as u
 import warnings
@@ -6,9 +5,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 analytics = raw_input("ANALYTICS or FINAL TEST[a/f]?  ")
-
-epochs = raw_input('MAX EPOCHS[N/None]: ')
-epochs = int(epochs) if epochs != 'None' else None
 
 path_to_json = '../data/final_setup/analytics/' if analytics == 'a'  \
                 else '../data/final_setup/'
@@ -20,34 +16,16 @@ all_methods = ['nesterov', 'standard', 'hs', 'mhs', 'pr']
 
 for ds in [0, 1, 2]:
 
-    hpsn, hpss, hpsh, hpsm, hpsp = '', '', '', '', ''
-
-    if epochs is None:
-        hpsn = path_to_json + \
-            'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[0], ds + 1)
-        hpss = path_to_json + \
-            'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[1], ds + 1)
-        hpsh = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd.json'.format(betas[0].upper(), ds + 1)
-        hpsm = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd.json'.format(betas[1].upper(), ds + 1)
-        hpsp = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd.json'.format(betas[2].upper(), ds + 1)
-    else:
-        hpsn = path_to_json + \
-            'SGD/{}/MONK{}_curves_sgd_max_epochs_{}.json'.format(momentum[0],
-                                                                 ds + 1,
-                                                                 epochs)
-        hpss = path_to_json + \
-            'SGD/{}/MONK{}_curves_sgd_max_epochs_{}.json'.format(momentum[1],
-                                                                 ds + 1,
-                                                                 epochs)
-        hpsh = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd_max_epochs_{}.json'.format(betas[0].upper(), ds + 1, epochs)
-        hpsm = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd_max_epochs_{}.json'.format(betas[1].upper(), ds + 1, epochs)
-        hpsp = path_to_json + \
-            'CGD/{}/MONK{}_curves_cgd_max_epochs_{}.json'.format(betas[2].upper(), ds + 1, epochs)
+    hpsn = path_to_json + \
+        'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[0], ds + 1)
+    hpss = path_to_json + \
+        'SGD/{}/MONK{}_curves_sgd.json'.format(momentum[1], ds + 1)
+    hpsh = path_to_json + \
+        'CGD/{}/MONK{}_curves_cgd.json'.format(betas[0].upper(), ds + 1)
+    hpsm = path_to_json + \
+        'CGD/{}/MONK{}_curves_cgd.json'.format(betas[1].upper(), ds + 1)
+    hpsp = path_to_json + \
+        'CGD/{}/MONK{}_curves_cgd.json'.format(betas[2].upper(), ds + 1)
 
     with open(hpsn) as json_file:
         SGD_nesterov = json.load(json_file)
@@ -157,35 +135,47 @@ for ds in [0, 1, 2]:
     u.plot_all_learning_curves(ds + 1, all_methods, [[errors_n, errors_s,
                                errors_h, errors_m, errors_p],
                                [time_n, time_s, time_h, time_m, time_p]],
-                               'TIME', 'MSE', type='all', time=True,
-                               fname=fname, epochs=epochs)
+                               'ERRORS', 'MSE', type='all', time=True,
+                               fname=fname)
+
+    u.plot_all_learning_curves(ds + 1, all_methods, [[norm_n, norm_s, norm_h,
+                                                      norm_m, norm_p],
+                               [time_n, time_s, time_h, time_m, time_p]],
+                               'NORM', 'NORM', type='all', time=True,
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, momentum, [[errors_n, errors_s]],
                                'ERRORS', 'MSE', type='momentum',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, momentum, [[acc_n, acc_s]],
                                'ACCURACY', 'ACCURACY', type='momentum',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, momentum, [[norm_n, norm_s]],
                                'NORM', 'NORM', type='momentum',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, betas,
                                [[errors_h, errors_m, errors_p]],
                                'ERRORS', 'MSE', type='beta',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, betas, [[acc_h, acc_m, acc_p]],
                                'ACCURACY', 'ACCURACY', type='beta',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, betas, [[norm_h, norm_m, norm_p]],
                                'NORM', 'NORM', type='beta',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
 
     u.plot_all_learning_curves(ds + 1, all_methods, [[errors_n, errors_s,
                                errors_h, errors_m, errors_p]],
                                'ERRORS', 'MSE', type='all',
-                               fname=fname, epochs=epochs)
+                               fname=fname)
+
+    u.plot_all_learning_curves(ds + 1, all_methods, [[norm_n, norm_s, norm_h,
+                                                      norm_m, norm_p]],
+                               'NORM', 'NORM', type='all', time=False,
+                               fname=fname)
+

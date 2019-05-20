@@ -73,8 +73,27 @@
             \label{tab:hyper_monk}
         \end{table}
 
+        In order to compare the
+        results in a similar configuration between the SGD and the CG, we have decided to adopt only the \textit{batch} mode for training the ANN. 
+            % The regularization constant $\lambda$ is used only in
+            % the third dataset, since Monk 3 is the only one among the three that has noisy samples. 
+
+        In the following tables, the tasks are divided by the kind of dataset that has been used during the iteration, and, for
+        each one of the tasks, the network's topology is the same, that is, 17 -> 4 -> 8 -> 1.
+
+        For each
+        task, the results concerning the MSE and the accuracy are collected by taking the mean of the
+        output of 10 different iterations. In gray we can see the best optimizer for each one of the
+        tasks. We added some additional statistics
+        regarding the execution times in milliseconds of the various iterations. As for the other table, the best
+        optimizers for each of the tasks are colored in gray.
+
         \subsection{Results (no max epochs)} % (fold)
         \label{sub:results_}
+
+            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of convergence goal of the norm of the gradient, has been set to $10^{-3}$. 
+
+            All the methods have been trained with the same hyperparameters, and the only stopping criteria that has been chosen is the decreasing of the norm.
 
             \begin{table}[H]
                 \centering
@@ -85,39 +104,39 @@
                             Task &  Optimizer &  $\sigma_1$ &  $\sigma_2$ &   $\rho$ &   $\eta$ &  $\alpha$ &  $\lambda$ &        MSE (TR - TS) &   Accuracy (TR - TS) (\%) \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 1 &   SGD (CM) &        - &        - &     - &  0.65 &   0.75 &  0.0 &  1.00e-05 - 9.64e-06 &  100 \% - 100 \% \\
+                            MONK 1 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.00e-05 - 9.64e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 1 &  SGD (NAG) &        - &        - &     - &  0.63 &   0.73 &  0.0 &  1.39e-05 - 1.28e-05 &  100 \% - 100 \% \\
+                            MONK 1 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.39e-05 - 1.28e-05 &  100 \% - 100 \% \\
                             \hline
-                            MONK 1 &   CGD (PR) &   0.0001 &     0.18 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
+                            MONK 1 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
                             \hline
-                            MONK 1 &   CGD (HS) &   0.0001 &     0.22 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
+                            MONK 1 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
                             \hline
-                            MONK 1 &  CGD (MHS) &   0.0001 &     0.13 &  0.86 &     - &      - &       - &  1.49e-05 - 1.43e-05 &  100 \% - 100 \% \\
-                            \hline
-                            \hline
-                            MONK 2 &   SGD (CM) &        - &        - &     - &  0.71 &   0.89 &  0.0 &  7.56e-06 - 7.37e-06 &  100 \% - 100 \% \\
-                            \hline
-                            MONK 2 &  SGD (NAG) &        - &        - &     - &  0.64 &   0.85 &  0.0 &  9.27e-06 - 9.82e-06 &  100 \% - 100 \% \\
-                            \hline
-                            MONK 2 &   CGD (PR) &   0.0001 &     0.34 &  0.0 &     - &      - &       - &  8.41e-06 - 5.97e-06 &  100 \% - 100 \% \\
-                            \hline
-                            MONK 2 &   CGD (HS) &   0.0001 &     0.17 &  0.0 &     - &      - &       - &  8.38e-06 - 6.33e-06 &  100 \% - 100 \% \\
-                            \hline
-                            \rowcolor[gray]{.9}
-                            MONK 2 &  CGD (MHS) &   0.0001 &     0.33 &  0.43 &     - &      - &       - &  5.91e-06 - 5.72e-06 &  100 \% - 100 \% \\
+                            MONK 1 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  1.49e-05 - 1.43e-05 &  100 \% - 100 \% \\
                             \hline
                             \hline
-                            MONK 3 &   SGD (CM) &        - &        - &     - &  0.67 &   0.85 &  0.0027 &  2.07e-03 - 3.87e-06 &  97 \% - 100 \% \\
+                            MONK 2 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  7.56e-06 - 7.37e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 3 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.80 &  0.0036 &  1.78e-06 - 2.40e-06 &  100 \% - 100 \% \\
+                            MONK 2 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  9.27e-06 - 9.82e-06 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 2 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  8.41e-06 - 5.97e-06 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 2 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  8.38e-06 - 6.33e-06 &  100 \% - 100 \% \\
                             \hline
                             \rowcolor[gray]{.9}
-                            MONK 3 &   CGD (PR) &   0.0001 &     0.19 &  0.0 &     - &      - &       - &  1.43e-06 - 1.50e-06 &  100 \% - 100 \% \\
+                            MONK 2 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  5.91e-06 - 5.72e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 3 &   CGD (HS) &   0.0001 &     0.36 &  0.0 &     - &      - &       - &  6.20e-03 - 1.43e-06 &  99 \% - 100 \% \\
                             \hline
-                            MONK 3 &  CGD (MHS) &   0.0001 &     0.34 &  0.42 &     - &      - &       - &  1.24e-02 - 3.80e-06 &  98 \% - 100 \% \\
+                            MONK 3 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  2.07e-03 - 3.87e-06 &  97 \% - 100 \% \\
+                            \hline
+                            MONK 3 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.78e-06 - 2.40e-06 &  100 \% - 100 \% \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 3 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  1.43e-06 - 1.50e-06 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 3 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.20e-03 - 1.43e-06 &  99 \% - 100 \% \\
+                            \hline
+                            MONK 3 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  1.24e-02 - 3.80e-06 &  98 \% - 100 \% \\
                             \hline
                         \end{tabular}
                     }
@@ -178,26 +197,34 @@
                 \label{tab:monks_additional_no_max_epochs}
             \end{table}
 
-            In Table \ref{tab:monks_no_max_epochs} we can find the results for the iteration completed without
-            constraining the optimizers by imposing a maximal number of epochs. In order to compare the
-            results in a similar configuration between the SGD and the CG, we have decided to adopt only the
-            \textit{batch} mode for training the ANN. The regularization constant $\lambda$ is used only in
-            the third dataset, since Monk 3 is the only one among the three that has noisy samples. As we can
-            see the tasks are divided by the kind of dataset that has been used during the iteration, and, for
-            each one of the tasks, the network's topology is the same, that is, 17 -> 4 -> 8 -> 1. For each
-            task, the results concerning the MSE and the accuracy are collected by taking the mean of the
-            output of 10 different iterations. In gray we can see the best optimizer for each one of the
-            tasks. In Table \ref{tab:monks_additional_no_max_epochs} we can see some additioanl statistics
-            regarding the execution times of the various iterations, as for the other table, the best
-            optimizers for each of the tasks are colored in gray.
-            In Figure \ref{fig:monks_MSE_all} we can see a comparison between the optimizers, for each one of
-            the three tasks.
+            In Table \ref{tab:monks_no_max_epochs} and \ref{tab:monks_additional_no_max_epochs}   we can find the results for the iterations completed without
+            constraining the optimizers by imposing a maximal number of epochs of training.
 
-            \begin{figure}[t!]
+            It's immediately evident the different number of iterations that the Conjugate Gradient methods and the Stochastic Gradient Descent need in order to converge to the imposed threshold.
+
+            As we can expect from the theory, the CG methods are usually able to converge in the first 1000 iterations, while the SGD is extremely slower, needing more than 20000 iterations in order to arrive to the same level of accuracy.
+
+            It's worth to notice that the all these methods have to face some limitations when dealing with a noisy dataset as Monks 3, even though each one of them still confirms their typical behaviour.
+            
+            Even when looking at the time of execution of the various algorithms, there is no surprise in the results. What is more interesting to underline is, as evident in the plots of Fig. \ref{fig:monks_MSE_all}, is the longer time needed by the SGD, even if a better performace is given by the use of the NAG momentum. 
+            When comparing the plots, we can see that, even though the number of iterations of the CG methods is different, when taking into account the time of execution, some iterations are more costly than other. That means, some methods could need more time in computing the right weights updates, even if they could converge in a lower number of iterations. 
+
+            Futhermore, the majority of the time (more than half of the time) is spent in computing the Line Search, which tipically needs to perform 8 iterations in order to find the right learning step.
+
+            Taking into account also the accuracy in the prediction of the neural network, the $MHS^+$ methods is the one having an overall better behaviour.
+
+            \begin{figure}[t!]{}
                 \centering
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/analytics/1_mse_all_time.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/1_mse_all.pdf}
                     }
                     \caption{}
                     \label{fig:monks_1_MSE_all}
@@ -207,6 +234,13 @@
                         \includegraphics{img/analytics/2_mse_all_time.pdf}
                     }
                     \caption{}
+                    \label{fig:monks_2_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/2_mse_all.pdf}
+                    }
+                    \caption{}
                     \label{fig:monks_2_MSE_all}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
@@ -214,12 +248,19 @@
                         \includegraphics{img/analytics/3_mse_all_time.pdf}
                     }
                     \caption{}
+                    \label{fig:monks_3_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/3_mse_all.pdf}
+                    }
+                    \caption{}
                     \label{fig:monks_3_MSE_all}
                 \end{subfigure}
-                \caption{Comparisons between the diffent optimizers without the constrain of setting a maximal
-                number of epochs for the iterations. In Figure \ref{fig:monks_1_MSE_all} we can see the
-                comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all} we can see the one for
-                MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all} we can see the one for MONKS 3.}
+                \caption{Comparisons between the different optimizers without the constrain of setting a maximal
+                number of epochs for the iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
+                comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all}, \ref{fig:monks_2_MSE_all_t} we can see the one for
+                MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all},  \ref{fig:monks_3_MSE_all_t} we can see the one for MONKS 3.}
                 \label{fig:monks_MSE_all}
             \end{figure}
 
@@ -333,18 +374,31 @@
             \end{table}
 
             Here we present the results from a series of iterations where the maximal number of epochs has
-            been setted to 1000. Similarly to the previous section, in Table \ref{tab:monks_max_epochs} we
+            been setted to 1000, in order to focus on a machine learning point of view. This time, the algorithms have been trained taking into account only the maximal number of epochs or the error goal=$10^{-4}$ for the CG methods.
+
+            Similarly to the previous section, in Table \ref{tab:monks_max_epochs} we
             can find the details regarding the optimizers' performances, while in Table
             \ref{tab:monks_additional_max_epochs} there are the details regarding the time-related
             performances. The considerations done for the iterations with no maximal number of epochs are
             valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_epochs} we can see a
             comparison betweeen the various optimizers.
 
+            In this case, it's more evident a behaviour introduced in the former experiments: in Monk 3, the CG methods and the SGD have spent a similar time of execution, even though the CG ones stopped in the first 300 iterations. 
+
+            For what concernes the accuracy in the prediction, only few of the models get an accuracy of $100\%$, but it is still true that the CG gets very good results in a minor time of execution and in a minor number of iterations.
+
             \begin{figure}[t!]
                 \centering
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/1_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_max_epochs_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/1_mse_all_max_epochs_1000.pdf}
                     }
                     \caption{}
                     \label{fig:monks_1_MSE_all_max_epochs}
@@ -354,6 +408,13 @@
                         \includegraphics{img/comparisons/2_mse_all_time_max_epochs_1000.pdf}
                     }
                     \caption{}
+                    \label{fig:monks_2_MSE_all_max_epochs_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/2_mse_all_max_epochs_1000.pdf}
+                    }
+                    \caption{}
                     \label{fig:monks_2_MSE_all_max_epochs}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
@@ -361,12 +422,19 @@
                         \includegraphics{img/comparisons/3_mse_all_time_max_epochs_1000.pdf}
                     }
                     \caption{}
+                    \label{fig:monks_3_MSE_all_max_epochs_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/3_mse_all_max_epochs_1000.pdf}
+                    }
+                    \caption{}
                     \label{fig:monks_3_MSE_all_max_epochs}
                 \end{subfigure}
-                \caption{Comparisons between the diffent optimizers with the constrain of setting a
-                maximal number of epochs egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_epochs}
-                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_epochs}
-                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_epochs} we
+                \caption{Comparisons between the different optimizers with the constrain of setting a
+                maximal number of epochs egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_epochs}, \ref{fig:monks_1_MSE_all_max_epochs_t}
+                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_epochs}, \ref{fig:monks_2_MSE_all_max_epochs_t}
+                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_epochs}, \ref{fig:monks_3_MSE_all_max_epochs_t} we
                 can see the one for MONKS 3.}
                 \label{fig:monks_MSE_all_max_epochs}
             \end{figure}

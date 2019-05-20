@@ -5,8 +5,8 @@ import pandas as pd
 epochs = raw_input('MAX EPOCHS[N/None]: ')
 epochs = int(epochs) if epochs != 'None' else None
 
-tab_columns = ['Task', 'Optimizer', 'Convergence Epoch', 'Elapsed Time',
-               'LS Iterations', 'BP Time', 'LS Time', 'Dir Time']
+tab_columns = ['Task', 'Optimizer', 'Convergence Epoch', 'LS Iterations',
+               'Elapsed Time', 'BP Time', 'LS Time', 'Dir Time']
 
 path_to_json = '../data/final_setup/'
 from_analytics = True if raw_input('RETRIEVE FROM ANALYTICS[Y/N]? ') == 'Y' \
@@ -61,8 +61,8 @@ for monk in [1, 2, 3]:
             np.round(datasets_time[opt].iloc[monk - 1, 4], 2)
 
         table.loc[table.shape[0]] = \
-            ['MONK {}'.format(monk), opt_name, conv_epoch, elapsed_time,
-             ls_iterations, bp_time, ls_time, dir_time]
+            ['MONK {}'.format(monk), opt_name, conv_epoch, ls_iterations,
+             elapsed_time, bp_time, ls_time, dir_time]
 
 table_name = 'table_time.txt' if epochs is None \
     else 'table_time_max_epochs_{}.txt'.format(epochs)
