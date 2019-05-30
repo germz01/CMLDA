@@ -243,13 +243,13 @@ if validation:
     param_ranges = {}
 
     if opt == 'SGD':
-        param_ranges['eta'] = (0.1, 0.5)
+        param_ranges['eta'] = (0.01, 0.1)
 
         type_m = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
         assert type_m in ['standard', 'nesterov']
         param_ranges['type'] = type_m
 
-        param_ranges['alpha'] = (0.5, 0.9)
+        param_ranges['alpha'] = (0.7, 0.9)
         param_ranges['reg_method'] = 'l2'
         param_ranges['reg_lambda'] = (0.001, 0.01)
         param_ranges['epochs'] = epochs
@@ -272,7 +272,7 @@ if validation:
         else:
             param_ranges['rho'] = 0.0
     param_ranges['optimizer'] = opt
-    param_ranges['hidden_sizes'] = [4, 8]
+    param_ranges['hidden_sizes'] = [16, 32]
     param_ranges['activation'] = 'sigmoid'
     param_ranges['task'] = 'regression'
 
@@ -284,7 +284,7 @@ if validation:
     selection.search(X_design, y_design, nfolds=nfolds)
     best_hyperparameters = selection.select_best_hyperparams(error='mee')
 
-    path = '../data/final_setup/' + str(opt) + '/CUP/'
+    path = '../data/final_setup/' + str(opt) + '/CUP'
     if beta_m is not None:
         path += '/' + str(beta_m)
     else:
