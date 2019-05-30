@@ -84,7 +84,7 @@
 						\end{equation}
 					\item There exist scalars $M \geq 0 $ and $M_G \geq 0 $ s.t.:
 						\begin{equation}
-							\|\mathbb{V}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq M + M_G\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
+							\|\mathbb{V}_{\xi_k}[\textbf{g}(\textbf{W}_k,\xi_k)]\|\leq M + M_G\|\nabla\textit{L}(\textbf{W}_k)\|^2, \forall  k \in \mathbb{N},
 						\end{equation}
 				\end{itemize}
 
@@ -105,8 +105,8 @@
 		The first requirement of assumption \ref{as:sgd_conv2} is respected, being $L$ bounded in the
 		interval $(0, 1)$, that is, having $L_{\mathit{inf}}$ eguals to $0$. The second requirement
 		means that the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of
-		sufficient descent for \textit{L} with a norm comparable to the norm of the gradient, while the
-		third requirement restricts the variance of \textbf{g}.
+		sufficient descent for \textit{L} with a norm comparable to the norm of the gradient. This property holds choosing $\mu_G = \mu = 1$ since, using SGD, $\textbf{g}(\textbf{W}_k, \xi_k)$ is an unbiased estimate of $\nabla L(\textbf{W}_k)$, while the
+		third requirement restricts the variance of \textbf{g}, allowing it to assume non-zero values.
 
 		A property of SGD is that the computation time per update does not grow with the number of training
 		examples, allowing convergence even in presence of a large dataset.
@@ -176,6 +176,8 @@
 			random variable whose observed value represents the choice of a particular minibatch at step $k$ and by
 			$\mathbf{g}_{k}$ the estimate of the true full-batch gradient $\nabla \mathcal{L}(\textbf{W}_{k})$ .
 
+			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for non-convex functions.
+
 			\begin{theorem}[Convergence of Gradient Methods for Non-Convex Functions]
 				Suppose $\mathcal{L}$ is a function with L-Lipschitz continuous gradient,
 				$\mathbb{E} \left [ || \mathbf{g}_{i} - \nabla \mathcal{L}(\textbf{w}_{i}) ||^2 \right ] \le \delta^2$, and
@@ -202,8 +204,7 @@
 				\label{theorem_1}
 			\end{theorem}
 
-			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for
-			non-convex functions.
+			Since our Loss function has L-Lipschitz continuous gradient, as described in \S\ref{sub:properties_of_the_loss_function}
 
 			It's worth to underline that, in case of batch mode and convex functions, Nesterov momentum brings the rate of convergence from $O(\frac{1}{k})$ (after k steps) to $O(\frac{1}{k^2})$\cite{10029946121}. % Nesterov, Y. (1983) A Method for Solving a Convex Programming Problem with Convergence Rate O(1/K2) . Soviet Mathematics Doklady, 27, 372-367.
 			\begin{figure}
