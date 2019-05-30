@@ -37,10 +37,10 @@ test_set = np.hstack((y_test, X_test))
 
 # STANDARDIZATION #############################################################
 
-design_set = (design_set - np.mean(design_set, axis=0)) / \
-    np.std(design_set, axis=0)
-test_set = (test_set - np.mean(test_set, axis=0)) / \
-    np.std(test_set, axis=0)
+# design_set = (design_set - np.mean(design_set, axis=0)) / \
+#     np.std(design_set, axis=0)
+# test_set = (test_set - np.mean(test_set, axis=0)) / \
+#     np.std(test_set, axis=0)
 
 
 ###############################################################################

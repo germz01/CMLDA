@@ -447,11 +447,11 @@
         \label{sec:cup}
 
         A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
-        Being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
+        Being the final task a regression one, in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
         After some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results in a machine learning point of view: the Tables \ref{tab:cup_epochs} shows the mean result of 10 executions of all the models presented so far.
+        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup_epochs} show the mean results of 10 executions of all the models presented so far.
 
         This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training. 
 
@@ -477,9 +477,9 @@
                 \label{fig:cup_MSE_all}
             \end{figure}
 
-        What is evident from Figures in \ref{fig:cup_MSE_all}, the performance in the prediction of the correct values are extremely different between the CG and the SGD, being this latter stuck in higher error.
+        What is evident from Figures in \ref{fig:cup_MSE_all}, is that the performances in the prediction of the correct values are extremely different between the CG and the SGD, being this latter stuck in a higher error.
 
-        It's interesting to show the slow behaviour of the CG methods in order to computer 2000 iterations, worst than the one seen in the Monks dataset. Even though, there is no surprise in that, since the number of iterations of the Line Search is very high.
+        It's interesting to show the slow behaviour of the CG methods in order to compute 2000 iterations: it is worst than the one seen in the Monks dataset. Even though, there is no surprise in that, since the computational cost of the Line Search is tipically very high.
 
         As for the experiments with the Monk datasets, we attach other learning curves in Appendix \ref{cha:cup_learning_curves}.
 
