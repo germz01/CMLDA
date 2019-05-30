@@ -228,7 +228,7 @@ def plot_all_learning_curves(monk, label, data, title, metric,
     if time is True:
         plt.xlabel('TIME(MILLISECONDS)')
     else:
-        plt.xlabel('EPOCHS')
+        plt.xlabel('ITERATION')
 
     plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
