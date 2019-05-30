@@ -49,6 +49,12 @@ time_h = CGD_hs['time']
 time_m = CGD_mhs['time']
 time_p = CGD_pr['time']
 
+errors_n_va = SGD_nesterov['error_va']
+errors_s_va = SGD_standard['error_va']
+errors_h_va = CGD_hs['error_va']
+errors_m_va = CGD_mhs['error_va']
+errors_p_va = CGD_pr['error_va']
+
 # norm_n = SGD_nesterov['gradient_norm']
 # norm_s = SGD_standard['gradient_norm']
 # norm_h = CGD_hs['gradient_norm']
@@ -97,10 +103,31 @@ u.plot_all_learning_curves('CUP', betas,
                            'ERRORS', 'MSE', type='beta',  time=True,
                            fname=fname)
 
+u.plot_all_learning_curves('CUP', ['training', 'validation'],
+                           [[errors_m, errors_m_va]],
+                           'ERRORS', 'MSE', type='mhs',
+                           fname=fname)
 
-# u.plot_all_learning_curves(ds + 1, betas, [[norm_h, norm_m, norm_p]],
-#                            'NORM', 'NORM', type='beta',
-#                            fname=fname)
+u.plot_all_learning_curves('CUP', ['training', 'validation'],
+                           [[errors_p, errors_p_va]],
+                           'ERRORS', 'MSE', type='pr',
+                           fname=fname)
+
+u.plot_all_learning_curves('CUP', ['training', 'validation'],
+                           [[errors_h, errors_h_va]],
+                           'ERRORS', 'MSE', type='hs',
+                           fname=fname)
+
+
+u.plot_all_learning_curves('CUP', ['training', 'validation'],
+                           [[errors_s, errors_s_va]],
+                           'ERRORS', 'MSE', type='std',
+                           fname=fname)
+
+u.plot_all_learning_curves('CUP', ['training', 'validation'],
+                           [[errors_n, errors_n_va]],
+                           'ERRORS', 'MSE', type='nesterov',
+                           fname=fname)
 
 u.plot_all_learning_curves('CUP', all_methods, [[errors_n, errors_s,
                            errors_h, errors_m, errors_p]],

@@ -259,7 +259,7 @@
                     \label{fig:monks_3_MSE_all}
                 \end{subfigure}
                 \caption{Comparisons between the different optimizers without the constrain of setting a maximal
-                number of iterations for the iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
+                number of iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
                 comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all}, \ref{fig:monks_2_MSE_all_t} we can see the one for
                 MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all},  \ref{fig:monks_3_MSE_all_t} we can see the one for MONKS 3.}
                 \label{fig:monks_MSE_all}
@@ -440,99 +440,54 @@
                 \label{fig:monks_MSE_all_max_iterations}
             \end{figure}
 
-        % subsection results_ (end)
-    % section monks (end)
+    %    subsection results_ (end)
+    %section monks (end)
 
-    % \section{CUP} % (fold)
-    %     \label{sec:cup}
+    \section{CUP} % (fold)
+        \label{sec:cup}
 
-    %     A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
-    %     First of all, in this case, being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
+        A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
+        Being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
-    %     Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
+        After some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-    %     Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
-    %     discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
-    %     implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
-    %     Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
-    %     out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
-    %     Methods is the modified one.
+        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results in a machine learning point of view: the Tables \ref{tab:cup_epochs} shows the mean result of 10 executions of all the models presented so far.
 
-    %     \begin{table}[H]
-    %       \centering
-    %       \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
-    %       \begin{minipage}{.4\textwidth}
-    %           \centering
-    %           \begin{tabular}{| c | c |}
-    %                 \hline
-    %                 Hyperparameters & Ranges\\
-    %                 \hline
-    %                 $\eta$ & $\left [0.004, 0.2\right ]$ \\
-    %                 \hline
-    %                 $\alpha$ & $[0.5, 0.9]$ \\
-    %                 \hline
-    %                 $\lambda$ & $[0.0003, 0.003]$ \\
-    %                 \hline
-    %           \end{tabular}
-    %       \end{minipage}
-    %       \begin{minipage}{.4\textwidth}
-    %           \centering
-    %           \begin{tabular}{| c | c |}
-    %                 \hline
-    %                 Hyperparameters & Ranges\\
-    %                 \hline
-    %                 $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
-    %                 \hline
-    %                 $\rho$ & $[0.0, 1.0]$ \\
-    %                 \hline
-    %           \end{tabular}
-    %         \end{minipage}
-    %         \label{tab:hyper_cup}
-    %     \end{table}
+        This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training. 
 
-    %     In tables \ref{tab:cup_sgd} and \ref{tab:cup_cgd} are annotated the average results obtained from 10 executions of each one of the best models identified thanks to the validation step.
 
-    %     \begin{table}[H]
-    %             \centering
-    %             \begin{subtable}{\textwidth}
-    %                 \resizebox{\textwidth}{!}{
-    %                     \begin{tabular}{| c | c | c | c | c | c | c | c |}
-    %                         \hline
-    %                         Model & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
-    %                         & MSE (TR - TS) \\
-    %                         \hline
-    %                         SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 1.00 - 1.35 \\
-    %                         \hline
-    %                     \end{tabular}
-    %                 }
-    %             \end{subtable}
-    %             \caption{Results for the Stochastic Gradient Descent.}
-    %             \label{tab:cup_sgd}
-    %     \end{table}
+            \begin{figure}[t!]{}
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/CUP/CUP_mse_all_time.pdf}
+                    }
+                    \caption{}
+                    \label{fig:cup_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/CUP/CUP_mse_all.pdf}
+                    }
+                    \caption{}
+                    \label{fig:cup_MSE_all}
+                \end{subfigure}
+                \caption{Comparisons between the different optimizers without the constrain of setting a maximal
+                number of iterations.}
+                \label{fig:cup_MSE_all}
+            \end{figure}
 
-    %     \begin{table}[H]
-    %             \centering
-    %             \begin{subtable}{\textwidth}
-    %                 \resizebox{\textwidth}{!}{
-    %                     \begin{tabular}{| c | c | c | c | c | c | c | c |}
-    %                         \hline
-    %                         $\beta$ & Topology & Batch size & Activation & $\sigma_1$ & $\sigma_2$ & $\rho$
-    %                         & MSE (TR - TS) \\
-    %                         \hline
-    %                         $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.97 - 1.50\\
-    %                         \hline
-    %                         $HS^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.39 & 0.0
-    %                         & 0.97 - 1.50  \\
-    %                         \hline
-    %                         $PR^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.86 & 0.00
-    %                         & 1.15 - 1.41\\
-    %                         \hline
-    %                     \end{tabular}
-    %                 }
-    %             \end{subtable}
-    %             \caption{Results for the Conjugate Gradient Methods.}
-    %             \label{tab:cup_cgd}
-    %     \end{table}
+        What is evident from Figures in \ref{fig:cup_MSE_all}, the performance in the prediction of the correct values are extremely different between the CG and the SGD, being this latter stuck in higher error.
 
-    %     As for the experiments with the Monk datasets, we attach the learning curves in Appendix \ref{cha:cup_learning_curves}.
-% chapter experiments (end)
+        It's interesting to show the slow behaviour of the CG methods in order to computer 2000 iterations, worst than the one seen in the Monks dataset. Even though, there is no surprise in that, since the number of iterations of the Line Search is very high.
+
+        As for the experiments with the Monk datasets, we attach other learning curves in Appendix \ref{cha:cup_learning_curves}.
+
+        % Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
+        % discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
+        % implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
+        % Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
+        % out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
+        % Methods is the modified one.
+
+%chapter experiments (end)
