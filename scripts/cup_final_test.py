@@ -40,6 +40,12 @@ X_test, y_test = np.hsplit(ds_ts, [10])
 design_set = np.hstack((y_design, X_design))
 test_set = np.hstack((y_test, X_test))
 
+# STANDARDIZATION #############################################################
+
+design_set = (design_set - np.mean(design_set, axis=0)) / \
+    np.std(design_set, axis=0)
+test_set = (test_set - np.mean(test_set, axis=0)) / \
+    np.std(test_set, axis=0)
 
 ###############################################################################
 # DATASET PARTITIONING ########################################################
@@ -51,11 +57,6 @@ validation_set = design_set[int(design_set.shape[0]*split_percentage):, :]
 
 y_training, X_training = np.hsplit(training_set, [2])
 y_validation, X_validation = np.hsplit(validation_set, [2])
-
-X_training = (X_training - np.mean(X_training, axis=0)) / \
-    np.std(X_training, axis=0)
-X_validation = (X_validation - np.mean(X_validation, axis=0)) / \
-    np.std(X_validation, axis=0)
 
 ###############################################################################
 # OPTIMIZER SELECTIONS ########################################################
