@@ -33,7 +33,7 @@
 
 		where $\eta$ is the learning rate. The latter one is a fundamental hyperparameter which has to been chosen wisely, since it represents how much is right to move along the descent direction: too much and the procedure will be vain, missing the minimum; too little and the converge will be slow.
 
-		Unlike the GD algorithm, that could get a longer time to converges to the minimum because of the potentially big number of training examples, the SGD algorithm requires only the evaluation of one example for epochs (on-line mode).
+		Unlike the GD algorithm, that could get a longer time to converges to the minimum because of the potentially big number of training examples, the SGD algorithm requires only the evaluation of one example for iteration (on-line mode).
 
 		Here, however, we refer to SGD even when using the entire or just a subset of training dataset (batch or mini batch).
 
@@ -46,7 +46,7 @@
 		\end{figure}
 		%Due to its stochastic nature, c. However, it has been shown that SGD almost surely converges to the global cost minimum if the cost function is convex (or pseudo-convex)[1] [1] Bottou, Léon (1998). "Online Algorithms and Stochastic Approximations". Online Learning and Neural Networks. Cambridge University Press. ISBN 978-0-521-65263-6
 
-		For what concernes the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the epochs for ensure convergence.
+		For what concernes the convergence of the stochastic gradient descent algorithm, it depends on the choice of $\eta$: it is necessary to gradually decrease the learning rate over the iterations for ensure convergence.
 %deeplearning
 		A sufficient condition to guarantee convergence of SGD is that the sequence of decreasing learning rates satisfy:
 
@@ -56,7 +56,7 @@
 		\end{equation}
 
 		%The cost function C(w) is three times differentiable with continuous derivatives.4 It is bounded from below, i.e. C(w) ≥ Cmin. We can assume, without loss of generality, that C(w) ≥ 0 - Online Learning and Stochastic Approximations, Leon Bottou
-		Futhermore, if we assume that the Hessian matrix of the Loss function is strictly positive definite at the optimum, which means that the Loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of epochs in the training. %strongly convex
+		Futhermore, if we assume that the Hessian matrix of the Loss function is strictly positive definite at the optimum, which means that the Loss function is strogly convex, the convergence rate is $O(\frac{1}{k})$, with \textit{k} as the number of iterations in the training. %strongly convex
 		Otherwise, relaxing this assumption in presence of a convex problem, the convergence rate becomes $O(\frac{1}{\sqrt[]{k}})$\cite{Goodfellow-et-al-2016,Montavon:2012:NNT:2480981,Saad:1999:OLN:304710}.
 
 		Unfortunatly, as we showed in \S\ref{sub:properties_of_the_loss_function}, our objective function is not convex, so we can't rely on what has been written before. Anyway, this issue seems to be overcomed: as proved in \cite{1606.04838}, the SGD is convergent even in presence of nonconvex functions.
@@ -112,13 +112,13 @@
 		examples, allowing convergence even in presence of a large dataset.
 
 		\begin{algorithm}[H]
-			\caption{Stochastic Gradient Descent Algorithm. The learning rate $\eta$, the $\alpha$ term and the maximum number of epochs are given.}
+			\caption{Stochastic Gradient Descent Algorithm. The learning rate $\eta$, the $\alpha$ term and the maximum number of iterations are given.}
 			\label{alg:sgd}
 			\begin{algorithmic}[1]
 				\Procedure{Stochastic Gradient Descent}{}
 					\State Initialize \textbf{W} and \textbf{v}
 					\State $k \gets 0$
-					\While {$k < max\_epochs$}
+					\While {$k < max\_iterations$}
 						\State Sample a minibatch of \textit{m} training examples \{\textit{$(x_0,y_0),(x_1,y_1),...,(x_m,y_m)$}\}
 						\If {Nesterov Momentum}
 							\State $\textbf{W} \gets \textbf{W} + \alpha \textbf{v}$
@@ -264,7 +264,7 @@
 
 		In our case, the nonlinear conjugate gradient methods are designed to solve the minimization problem defined in Eq.\ref{minimization}.
 
-		As showed in the pseudocode \ref{alg:cgd}, the iterative formula generates a sequence of weights $\{W_k\}$, for every epoch of training \textit{k}, as:
+		As showed in the pseudocode \ref{alg:cgd}, the iterative formula generates a sequence of weights $\{W_k\}$, for every iteration of training \textit{k}, as:
 
 		\begin{equation}
 			\textbf{W}_{k+1} = \textbf{W}_{k} + \alpha_k\textbf{d}_k, \text{  }\text{  }\text{  } \textit{k} = 0,1,...,
@@ -275,13 +275,13 @@
 		% Because the error function E(~,) is nonquadratic, the algorithm will not necessarily con- verge in N steps. If the algorithm has not converged after N steps, the algorithm is restarted, i.e., initializing fik+J to the current steepest descent direction ~k+~  A Scaled Conjugate Gradient Algorithm for Fast Supervised Learning p4
 
 		\begin{algorithm}[H]
-			\caption{Nonlinear Conjugate Gradient Algorithm. The maximum number of epochs and the tolerance are given.}
+			\caption{Nonlinear Conjugate Gradient Algorithm. The maximum number of iterations and the tolerance are given. $\sigma_1$ and $\sigma_2$ are two hyperparameters required in the LS procedure.}
 			\label{alg:cgd}
 			\begin{algorithmic}[1]
 				\Procedure{Nonlinear Conjugate Gradient}{}
 					\State Initialize $\textbf{W}_0$ and $\textit{L}_g$
 					\State $k \gets 0$, $g_0 \gets 0$
-					\While {$k < max\_epochs$}
+					\While {$k < max\_iterations$}
 						\State Evaluate the Loss function $\textit{L}_k$ and its gradient $\textbf{g}_k$
 						\If {$\textit{L}_k < \textit{L}_g \text{ } \text{ or } \text{ } \|\textbf{g}_k\|> tolerance$}
 							\State
@@ -290,7 +290,14 @@
 						\State Compute the $\beta$ with one of the methods HS, MHS, FR, PR
 
 						\State Compute the direction: $\textbf{d}_k \gets - \textbf{g}_k + \beta\textbf{d}_k$
-						\State Compute the learning rate $\alpha_k$ with a Line Search
+						\State Compute the learning rate $\alpha_k$ with a Line Search satisfying the Strong Wolfe conditions, as discussed in \ref{sub:line_search}:
+						\begin{equation*}
+							\textit{L}(\textbf{W}_k+\alpha _k\textbf{d}_k)\leq \textit{L}(\textbf{W}_k)+\sigma_1\alpha\textbf{g}_k^T\textbf{d}_k
+						\end{equation*}
+						\begin{equation*}
+							|\textbf{g}(\textbf{W}_k+\alpha_k\textbf{d}_k)^T\textbf{d}_k|\leq \textit{L}(\textbf{W}_k)+\sigma_2|\textbf{g}_k^T\textbf{d}_k|
+						\end{equation*}
+
 						\State Update the weights: $\textbf{W}_{k+1} \gets \textbf{W}_{k} + \alpha_k\textbf{d}_k$
 						\State $k \gets k + 1$
 					\EndWhile
@@ -344,7 +351,7 @@
 
 			The formulas tested in our implementation are three: the Polak-Ribierère (PR), the Hestenes-Stiefel (HS) and a Modified Hestenes-Stiefel ($MHS^+$).
 
-			One of the properties that must be garanteed, is the global convergence of the method. When the function to be minimized is convex and quadratic, indeed, the Conjugate Gradient algorithm ensures the convergence and the detection of the global minimum in at most N iterations, that is the number of dimensions. Often, expecially when N is very large, there are great chances that the algorithm terminates in less than N epochs.
+			One of the properties that must be garanteed, is the global convergence of the method. When the function to be minimized is convex and quadratic, indeed, the Conjugate Gradient algorithm ensures the convergence and the detection of the global minimum in at most N iterations, that is the number of dimensions. Often, expecially when N is very large, there are great chances that the algorithm terminates in less than N iterations.
 			\cite{DIXON-1975}.
 			However, since in our network we are dealing with a nonquadratic Loss function, as showed in \S\ref{sub:properties_of_the_loss_function}, the direction computed as in Eq. \ref{dir} could not be a descent direction. In order to avoid this issue, all the methods have been modified as follows, ensuring the global convergence \cite{doi:10.1137/0802003}:
 			\begin{equation}
@@ -444,7 +451,7 @@
 			  \end{cases}
 			\end{equation}
 
-			Since the following assumptions are satisfied by the Loss functions in Eq.\ref{mse}:
+			Since the following assumptions are satisfied by the Loss functions in Eq.\ref{mse}, as discussed in \cite{LIVIERIS2013491}:
 
 			\begin{asu} - \label{as:1}
   				The level set $\mathcal{L} = \{w \in \mathbb{R}^n | \textit{L}(\textbf{W}) \leq L(\textbf{W}_0)\}$ is bounded, there exist a constant $B > 0$ s.t. $\|\textbf{W}\| \leq B, \forall \textbf{W} \in \mathcal{L}$;
@@ -457,7 +464,11 @@
 				  \|\textbf{g}(\textbf{W})-\textbf{g}(\widetilde{\textbf{W}})\| \leq L\|\textbf{W}-\widetilde{\textbf{W}}\|, \forall \textbf{ W},\widetilde{\textbf{W}} \in \mathcal{N},
 				\end{equation}
 			\end{asu}
-			if the conjugate gradient algorithm is performed using $MSH^+$ and computing the search direction $\textbf{d}^+$ as defined by Eq.\ref{mod_dir}, we have:
+			if the conjugate gradient algorithm is performed using $MSH^+$ and computing the search direction $\textbf{d}^+$ (as defined by Eq.\ref{mod_dir}), with a Line Search satisying the Armijo-Strong Wolfe conditions described in \S \ref{sub:line_search}, we have:
+
+			\begin{theorem}
+				Suppose that \ref{as:1} and \ref{as:2} hold. If $\{\textbf{w}_k\}$ is obtained by Algorithm $MHS^+$ method, then we have
+			\end{theorem}
 
 			\begin{equation}
 			\label{conv_mhs}

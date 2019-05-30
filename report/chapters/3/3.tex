@@ -88,7 +88,7 @@
         regarding the execution times in milliseconds of the various iterations. As for the other table, the best
         optimizers for each of the tasks are colored in gray.
 
-        \subsection{Results (no max epochs)} % (fold)
+        \subsection{Results (no max iterations)} % (fold)
         \label{sub:results_}
 
             In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of the final value taken by norm of the gradient, has been set to $10^{-3}$. 
@@ -141,9 +141,9 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Comparisons between the iterations having no maximal number of epochs. Each one of the
+                \caption{Comparisons between the iterations having no maximal number of iterations. Each one of the
                 iterations has been completed with a network having topology 17 -> 4 -> 8 -> 1.}
-                \label{tab:monks_no_max_epochs}
+                \label{tab:monks_no_max_iterations}
             \end{table}
 
             \begin{table}[H]
@@ -152,7 +152,7 @@
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c |}
                             \toprule
-                               Task &  Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &   BP Time &   LS Time &  Dir Time \\
+                               Task &  Optimizer & Convergence iteration &  LS Iterations &  Elapsed Time &   BP Time &   LS Time &  Dir Time \\
                             \hline
                              MONK 1 &   SGD (CM) &             25829 &              - &      80835.78 &   6097.73 &         - &         - \\
                             \hline
@@ -195,11 +195,11 @@
                 \end{subtable}
                 \caption{Additional time-related statistics. The unit of time that has been used is the
                 millisecond.}
-                \label{tab:monks_additional_no_max_epochs}
+                \label{tab:monks_additional_no_max_iterations}
             \end{table}
 
-            In Table \ref{tab:monks_no_max_epochs} and \ref{tab:monks_additional_no_max_epochs}   we can find the results for the iterations completed without
-            constraining the optimizers by imposing a maximal number of epochs of training.
+            In Table \ref{tab:monks_no_max_iterations} and \ref{tab:monks_additional_no_max_iterations}   we can find the results for the iterations completed without
+            constraining the optimizers by imposing a maximal number of iterations of training.
 
             It's immediately evident the different number of iterations that the Conjugate Gradient methods and the Stochastic Gradient Descent need in order to converge to the imposed threshold.
 
@@ -259,7 +259,7 @@
                     \label{fig:monks_3_MSE_all}
                 \end{subfigure}
                 \caption{Comparisons between the different optimizers without the constrain of setting a maximal
-                number of epochs for the iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
+                number of iterations for the iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
                 comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all}, \ref{fig:monks_2_MSE_all_t} we can see the one for
                 MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all},  \ref{fig:monks_3_MSE_all_t} we can see the one for MONKS 3.}
                 \label{fig:monks_MSE_all}
@@ -267,7 +267,7 @@
 
         % subsection results_ (end)
 
-        \subsection{Results (max epochs 1000)} % (fold)
+        \subsection{Results (max iterations 1000)} % (fold)
         \label{sub:results_}
 
             \begin{table}[H]
@@ -317,10 +317,10 @@
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Comparisons between the iterations having a maximal number of epochs egual to 1000.
+                \caption{Comparisons between the iterations having a maximal number of iterations egual to 1000.
                 Each one of the iterations has been completed with a network having topology
                 17 -> 4 -> 8 -> 1.}
-                \label{tab:monks_max_epochs}
+                \label{tab:monks_max_iterations}
             \end{table}
 
             \begin{table}[H]
@@ -329,7 +329,7 @@
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c |}
                             \toprule
-                               Task &  Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &  BP Time &  LS Time &  Dir Time \\
+                               Task &  Optimizer & Convergence iteration &  LS Iterations &  Elapsed Time &  BP Time &  LS Time &  Dir Time \\
                             \hline
                              MONK 1 &   SGD (CM) &              1000 &              - &       5163.25 &   149.95 &        - &         - \\
                              \hline
@@ -371,17 +371,17 @@
                 \end{subtable}
                 \caption{Additional time-related statistics. The unit of time that has been used is the
                 millisecond.}
-                \label{tab:monks_additional_max_epochs}
+                \label{tab:monks_additional_max_iterations}
             \end{table}
 
-            Here we present the results from a series of iterations where the maximal number of epochs has
-            been setted to 1000, in order to focus on a machine learning point of view. This time, the algorithms have been trained taking into account only the maximal number of epochs or the error goal=$10^{-4}$ for the CG methods.
+            Here we present the results from a series of iterations where the maximal number of iterations has
+            been setted to 1000, in order to focus on a machine learning point of view. This time, the algorithms have been trained taking into account only the maximal number of iterations or the error goal=$10^{-4}$ for the CG methods.
 
-            Similarly to the previous section, in Table \ref{tab:monks_max_epochs} we
+            Similarly to the previous section, in Table \ref{tab:monks_max_iterations} we
             can find the details regarding the optimizers' performances, while in Table
-            \ref{tab:monks_additional_max_epochs} there are the details regarding the time-related
-            performances. The considerations done for the iterations with no maximal number of epochs are
-            valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_epochs} we can see a
+            \ref{tab:monks_additional_max_iterations} there are the details regarding the time-related
+            performances. The considerations done for the iterations with no maximal number of iterations are
+            valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_iterations} we can see a
             comparison betweeen the various optimizers.
 
             In this case, it's more evident a behaviour introduced in the former experiments: in Monk 3, the CG methods and the SGD have spent a similar time of execution, even though the CG ones stopped in the first 300 iterations. 
@@ -395,49 +395,49 @@
                         \includegraphics{img/comparisons/1_mse_all_time_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_1_MSE_all_max_epochs_t}
+                    \label{fig:monks_1_MSE_all_max_iterations_t}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/1_mse_all_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_1_MSE_all_max_epochs}
+                    \label{fig:monks_1_MSE_all_max_iterations}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/2_mse_all_time_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_2_MSE_all_max_epochs_t}
+                    \label{fig:monks_2_MSE_all_max_iterations_t}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/2_mse_all_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_2_MSE_all_max_epochs}
+                    \label{fig:monks_2_MSE_all_max_iterations}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/3_mse_all_time_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_3_MSE_all_max_epochs_t}
+                    \label{fig:monks_3_MSE_all_max_iterations_t}
                 \end{subfigure}
                 \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
                         \includegraphics{img/comparisons/3_mse_all_max_epochs_1000.pdf}
                     }
                     \caption{}
-                    \label{fig:monks_3_MSE_all_max_epochs}
+                    \label{fig:monks_3_MSE_all_max_iterations}
                 \end{subfigure}
                 \caption{Comparisons between the different optimizers with the constrain of setting a
-                maximal number of epochs egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_epochs}, \ref{fig:monks_1_MSE_all_max_epochs_t}
-                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_epochs}, \ref{fig:monks_2_MSE_all_max_epochs_t}
-                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_epochs}, \ref{fig:monks_3_MSE_all_max_epochs_t} we
+                maximal number of iterations egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_iterations}, \ref{fig:monks_1_MSE_all_max_iterations_t}
+                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_iterations}, \ref{fig:monks_2_MSE_all_max_iterations_t}
+                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_iterations}, \ref{fig:monks_3_MSE_all_max_iterations_t} we
                 can see the one for MONKS 3.}
-                \label{fig:monks_MSE_all_max_epochs}
+                \label{fig:monks_MSE_all_max_iterations}
             \end{figure}
 
         % subsection results_ (end)
