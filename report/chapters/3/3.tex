@@ -78,14 +78,14 @@
             % The regularization constant $\lambda$ is used only in
             % the third dataset, since Monk 3 is the only one among the three that has noisy samples.
 
-        In the following tables, the tasks are divided by the kind of dataset that has been used during the iteration, and, for
+        In the following tables, the tasks are divided by the kind of dataset that has been used during the training, and, for
         each one of the tasks, the network's topology is the same, that is, 17 -> 4 -> 8 -> 1.
 
         For each
         task, the results concerning the MSE and the accuracy are collected by taking the mean of the
-        output of 10 different iterations. In gray we can see the best optimizer for each one of the
+        output of 10 different executions. In gray we can see the best optimizer for each one of the
         tasks. We added some additional statistics
-        regarding the execution times in milliseconds of the various iterations. As for the other table, the best
+        regarding the execution times in milliseconds of the various executions. As for the other table, the best
         optimizers for each of the tasks are colored in gray.
 
         \subsection{Results (no max iterations)} % (fold)
@@ -458,12 +458,12 @@
                         \hline
                         SGD (NAG) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.24e+01 - 4.04e+01 \\
                         \hline
-                        CGD (PR) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.25e-01 - 1.44e+00 \\
+                        CGD (PR) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  4.25e-01 - 1.44e+00 \\
                         \hline
                         \rowcolor[gray]{.9}
-                        CGD (HS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.55e-01 - 1.36e+00 \\
+                        CGD (HS) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  4.55e-01 - 1.36e+00 \\
                         \hline
-                        CGD (MHS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  5.09e-01 - 1.52e+00 \\
+                        CGD (MHS) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  5.09e-01 - 1.52e+00 \\
                         \hline
                     \end{tabular}
                 }
@@ -504,7 +504,7 @@
 
         After some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup} show the mean results of 10 executions of all the models presented so far.
+        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup} and \ref{tab:cup_time}  show the mean results of 10 executions of all the models presented so far.
 
         This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training.
 
@@ -525,8 +525,7 @@
                     \caption{}
                     \label{fig:cup_MSE_all}
                 \end{subfigure}
-                \caption{Comparisons between the different optimizers without the constrain of setting a maximal
-                number of iterations.}
+                \caption{Comparisons between the different optimizers with the constrain of 2000 iterations.}
                 \label{fig:cup_MSE_all}
             \end{figure}
 
