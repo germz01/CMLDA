@@ -74,9 +74,9 @@
         \end{table}
 
         In order to compare the
-        results in a similar configuration between the SGD and the CG, we have decided to adopt only the \textit{batch} mode for training the ANN. 
+        results in a similar configuration between the SGD and the CG, we have decided to adopt only the \textit{batch} mode for training the ANN.
             % The regularization constant $\lambda$ is used only in
-            % the third dataset, since Monk 3 is the only one among the three that has noisy samples. 
+            % the third dataset, since Monk 3 is the only one among the three that has noisy samples.
 
         In the following tables, the tasks are divided by the kind of dataset that has been used during the iteration, and, for
         each one of the tasks, the network's topology is the same, that is, 17 -> 4 -> 8 -> 1.
@@ -91,7 +91,7 @@
         \subsection{Results (no max iterations)} % (fold)
         \label{sub:results_}
 
-            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of the final value taken by norm of the gradient, has been set to $10^{-3}$. 
+            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of the final value taken by norm of the gradient, has been set to $10^{-3}$.
 
             All the methods have been trained with the same hyperparameters, and the only stopping criteria that has been chosen is the decreasing of the norm.
 
@@ -206,9 +206,9 @@
             As we can expect from the theory, the CG methods are usually able to converge in the first 1000 iterations, while the SGD is extremely slower, needing more than 20000 iterations in order to arrive to the same level of accuracy.
 
             It's worth to notice that the all these methods have to face some limitations when dealing with a noisy dataset as Monks 3, even though each one of them still confirms their typical behaviour.
-            
-            Even when looking at the time of execution of the various algorithms, there is no surprise in the results. What is more interesting to underline is, as evident in the plots of Fig. \ref{fig:monks_MSE_all}, is the longer time needed by the SGD, even if a better performace is given by the use of the NAG momentum. 
-            When comparing the plots, we can see that, even though the number of iterations of the CG methods is different, when taking into account the time of execution, some iterations are more costly than other. That means, some methods could need more time in computing the right weights updates, even if they could converge in a lower number of iterations. 
+
+            Even when looking at the time of execution of the various algorithms, there is no surprise in the results. What is more interesting to underline is, as evident in the plots of Fig. \ref{fig:monks_MSE_all}, is the longer time needed by the SGD, even if a better performace is given by the use of the NAG momentum.
+            When comparing the plots, we can see that, even though the number of iterations of the CG methods is different, when taking into account the time of execution, some iterations are more costly than other. That means, some methods could need more time in computing the right weights updates, even if they could converge in a lower number of iterations.
 
             Futhermore, the majority of the time (more than half of the time) is spent in computing the Line Search, which tipically needs to perform 8 iterations in order to find the right learning step.
 
@@ -384,7 +384,7 @@
             valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_iterations} we can see a
             comparison betweeen the various optimizers.
 
-            In this case, it's more evident a behaviour introduced in the former experiments: in Monk 3, the CG methods and the SGD have spent a similar time of execution, even though the CG ones stopped in the first 300 iterations. 
+            In this case, it's more evident a behaviour introduced in the former experiments: in Monk 3, the CG methods and the SGD have spent a similar time of execution, even though the CG ones stopped in the first 300 iterations.
 
             For what concernes the accuracy in the prediction, only few of the models get an accuracy of $100\%$, but it is still true that the CG gets very good results in a minor time of execution and in a minor number of iterations.
 
@@ -446,14 +446,67 @@
     \section{CUP} % (fold)
         \label{sec:cup}
 
+        \begin{table}[H]
+            \centering
+            \begin{subtable}{\textwidth}
+                \resizebox{\textwidth}{!}{
+                    \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                        \hline
+                        Optimizer &  sigma\_1 &  sigma\_2 &  rho &  eta &  alpha &  lambda &        MSE (TR - TS) \\
+                        \hline
+                        SGD (CM) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.15e+01 - 4.26e+01 \\
+                        \hline
+                        SGD (NAG) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.24e+01 - 4.04e+01 \\
+                        \hline
+                        CGD (PR) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.25e-01 - 1.44e+00 \\
+                        \hline
+                        \rowcolor[gray]{.9}
+                        CGD (HS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.55e-01 - 1.36e+00 \\
+                        \hline
+                        CGD (MHS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  5.09e-01 - 1.52e+00 \\
+                        \hline
+                    \end{tabular}
+                }
+            \end{subtable}
+            \caption{Comparisons between the iterations for the CUP dataset.}
+            \label{tab:cup}
+        \end{table}
+
+        \begin{table}[H]
+            \centering
+            \begin{subtable}{\textwidth}
+                \resizebox{\textwidth}{!}{
+                    \begin{tabular}{| c | c | c | c | c | c | c |}
+                        \hline
+                        Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &  BP Time &   LS Time &  Dir Time \\
+                        \hline
+                        SGD (CM) &              2000 &              - &       9473.86 &  3681.96 &         - &         - \\
+                        \hline
+                        \rowcolor[gray]{.9}
+                        SGD (NAG) &              2000 &              - &       8948.41 &  3480.21 &         - &         - \\
+                        \hline
+                        CGD (PR) &              2000 &            1.0 &      61698.25 &  7049.57 &  48857.30 &    101.63 \\
+                        \hline
+                        CGD (HS) &              2000 &            1.0 &      62598.04 &  7160.96 &  49289.54 &    102.46 \\
+                        \hline
+                        CGD (MHS) &              2000 &            1.0 &      63341.87 &  7354.50 &  49544.47 &    104.86 \\
+                        \hline
+                    \end{tabular}
+                }
+            \end{subtable}
+            \caption{Additional time-related statistics for the CUP dataset. The unit of time that has
+            been used is the millisecond.}
+            \label{tab:cup_time}
+        \end{table}
+
         A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
         Being the final task a regression one, in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
         After some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup_epochs} show the mean results of 10 executions of all the models presented so far.
+        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup} show the mean results of 10 executions of all the models presented so far.
 
-        This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training. 
+        This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training.
 
 
             \begin{figure}[t!]{}
