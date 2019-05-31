@@ -1,0 +1,11 @@
+\begin{tabular}{| c | c | c | c | c | c | c |}
+\toprule
+ Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &  BP Time &   LS Time &  Dir Time \\
+\midrule
+  SGD (CM) &              2000 &              - &       9473.86 &  3681.96 &         - &         - \\
+ SGD (NAG) &              2000 &              - &       8948.41 &  3480.21 &         - &         - \\
+  CGD (PR) &              2001 &            1.0 &      61698.25 &  7049.57 &  48857.30 &    101.63 \\
+  CGD (HS) &              2001 &            1.0 &      62598.04 &  7160.96 &  49289.54 &    102.46 \\
+ CGD (MHS) &              2001 &            1.0 &      63341.87 &  7354.50 &  49544.47 &    104.86 \\
+\bottomrule
+\end{tabular}
