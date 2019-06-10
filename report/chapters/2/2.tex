@@ -379,7 +379,7 @@
 
 			\begin{equation}
 			\label{conv_cg}
-			  \lim_{k \to \infty} \|\textbf{g}_k\| = 0,
+			  \lim_{k \to \infty}\text{inf } \|\textbf{g}_k\| = 0,
 			\end{equation}
 			a weaker result with respect to the one involved with strongly convex functions, $\lim_{k \to \infty} \textbf{g}_k = 0.$
 			%SupposethatAssumptions2.1hold. Considerthemethod(1.2)- (1.3) with/3k max{/3R,0}, and with a line search satisfying the Wolfe conditions (2.4)-(2.5) and the sufficient descent condition (4.1). Then liminf Ilgkll O.
@@ -459,13 +459,13 @@
 			\end{asu}
 
 			\begin{asu} - \label{as:2}
-				If in some neighborhood $\mathcal{N} \in \mathcal{L}$, \textit{L} is differentiable and its gradient \textbf{g} is Lipschitz continuous, then there exists a constant $ L > 0 $ such that
+				In some neighborhood $\mathcal{N} \in \mathcal{L}$, \textit{L} is differentiable and its gradient \textbf{g} is Lipschitz continuous, that means there exists a constant $ L > 0 $ such that
 				\begin{equation}
 				\label{ass2}
 				  \|\textbf{g}(\textbf{W})-\textbf{g}(\widetilde{\textbf{W}})\| \leq L\|\textbf{W}-\widetilde{\textbf{W}}\|, \forall \textbf{ W},\widetilde{\textbf{W}} \in \mathcal{N},
 				\end{equation}
 			\end{asu}
-			if the conjugate gradient algorithm is performed using $MSH^+$ and computing the search direction $\textbf{d}^+$ (as defined by Eq.\ref{mod_dir}), with a Line Search satisying the Armijo-Strong Wolfe conditions (described in \S \ref{sub:line_search}), the following theorem holds, as discussed in \cite{LIVIERIS2013491}:
+			then, if the conjugate gradient algorithm is performed using $MSH^+$ and computing the search direction $\textbf{d}^+$ (as defined by Eq.\ref{mod_dir}), with a Line Search satisying the Armijo-Strong Wolfe conditions (described in \S \ref{sub:line_search}), the following theorem holds, as discussed in \cite{LIVIERIS2013491}:
 
 			\begin{theorem}
 				Suppose that \ref{as:1} and \ref{as:2} hold. If $\{\textbf{w}_k\}$ is obtained by Algorithm $MHS^+$ method, then we have
@@ -473,7 +473,7 @@
 
 			\begin{equation}
 			\label{conv_mhs}
-			  \lim_{k \to \infty} \|\textbf{g}_k\| = 0,
+			  \lim_{k \to \infty} \text{inf} \|\textbf{g}_k\| = 0,
 			\end{equation}
 
 			that is the convergence of the algorithm.
