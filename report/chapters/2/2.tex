@@ -178,8 +178,7 @@
 			random variable whose observed value represents the choice of a particular minibatch at step $k$ and by
 			$\mathbf{g}_{k}$ the estimate of the true full-batch gradient $\nabla \mathcal{L}(\textbf{W}_{k})$ .
 
-			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for non-convex functions, at the time being, we are not able to further analyze the Theorem's
-			assumptions.
+			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for non-convex functions. At the time being, we are not able to further analyze the Theorem’s assumptions, that is proving that the gradient norm and the expected value of the difference between the approximate and the real gradient are bounded.
 
 			\begin{theorem}[Convergence of Gradient Methods for Non-Convex Functions]
 				Suppose $\mathcal{L}$ is a function with L-Lipschitz continuous gradient,
