@@ -1,3 +1,7 @@
+"""
+    This script is used for the final test on the CUP dataset.
+"""
+
 import json
 import nn
 import numpy as np

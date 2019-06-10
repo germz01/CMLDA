@@ -1,3 +1,9 @@
+"""
+    This script is used in order to build the LaTex table containing the
+    results for the CUP dataset. The table can be seen in the
+    report's third chapter.
+"""
+
 import numpy as np
 import pandas as pd
 

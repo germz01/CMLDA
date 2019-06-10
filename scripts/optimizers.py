@@ -28,9 +28,53 @@ class Optimizer(object):
     h: list
         a list containing the results of the activation functions' application
         to the nets
+
+    g: list
+        a list containing the gradient for each network's layer
+
+    convergence_goal: float
+        the error's threshold
+
+    error_per_epochs: list
+        a list containing the error for each epoch of training
+
+    error_per_epochs_va: list
+        a list containing the error on the validation for each epoch of
+        training
+
+    accuracy_per_epochs: list
+        a list containing the accuracy score for each epochs of training
+
+    accuracy_per_epochs_va: list
+        a list containing the accuracy score on the validation for each epoch
+        of training
+
+    gradient_norm_per_epochs: list
+        a list containing the gradient's norm for each epoch of training
+
+    f1_score_per_epochs: list
+        a list containing the f1 score for each epoch of training
+
+    f1_score_per_epochs_va: list
+        a list containing the f1 score on the validation for each epoch of
+        training
+
+    time_per_epochs: list
+        a list containing the execution time of each epoch of training
     """
 
     def __init__(self, nn):
+        """
+        The class' constructor.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            a reference to the network
+
+        Returns
+        -------
+        """
         self.delta_W = [0 for i in range(nn.n_layers)]
         self.delta_b = [0 for i in range(nn.n_layers)]
         self.a = [0 for i in range(nn.n_layers)]
@@ -54,6 +98,27 @@ class Optimizer(object):
                            'time_dr': 0}
 
     def forward_propagation(self, nn, x, y):
+        """
+        This function implements the forward propagation algorithm following
+        Deep Learning, pag. 205
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        x: numpy.ndarray
+            a record, or batch, from the dataset
+
+        y: numpy.ndarray
+            the target array for the batch given in input
+
+
+        Returns
+        -------
+        The error between the predicted output and the target one.
+        """
+
         for i in range(nn.n_layers):
             self.a[i] = nn.b[i] + (nn.W[i].dot(x.T if i == 0
                                                else self.h[i - 1]))
@@ -64,6 +129,25 @@ class Optimizer(object):
         return lss.mean_squared_error(self.h[-1].T, y)  # mee
 
     def back_propagation(self, nn, x, y):
+        """
+        This function implements the back propagation algorithm following
+        Deep Learning, pag. 206
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        x: numpy.ndarray
+            a record, or batch, from the dataset
+
+        y: numpy.ndarray
+            the target array for the batch given in input
+
+        Returns
+        -------
+        """
+
         start_time = dt.datetime.now()
         g = 0
 
@@ -96,10 +180,73 @@ class SGD(Optimizer):
 
     Attributes
     ----------
+    error_per_batch: list
+        a list containing the error for each batch
+
+    eta: float
+        the learning rate
+
+    momentum: dict
+        a dictionary containing the momentum's type, either standard or
+        nesterov, and alpha, that is, the momentum constant
+
+    reg_lambda: float
+        the regularization constant
+
+    reg_method: str
+        the regularization method, either l1 or l2
+
+    velocity_W: list
+        a list containing the velocity term for the weights of each network's
+        layer
+
+    velocity_b: list
+        a list containing the velocity term for the biases of each network's
+        layer
+
+    statistics: dict
+        a dictionary containing the time-related statistics collected during
+        the execution
+
+    params: dict
+        a dictionary containing the network's parameters combined with the
+        ones from the optimizer
     """
 
     def __init__(self, nn, eta=0.1, momentum={'type': 'standard', 'alpha': 0.},
                  reg_lambda=0.0, reg_method='l2', **kwargs):
+        """
+        The class constructor.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        eta: float
+            the learning rate
+            (Default value = 0.01)
+
+        momentum: dict
+        a dictionary containing the momentum's type, either standard or
+        nesterov, and alpha, that is, the momentum constant
+        (Default value = {'type': 'standard', 'alpha': 0.})
+
+        reg_lambda: float
+            the regularization constant
+            (Default value = 0.0)
+
+        reg_method: str
+            the regularization method, either l1 or l2
+            (Default value = 'l2')
+
+        kwargs: dict
+            additional parameters
+
+        Returns
+        -------
+        """
+
         super(SGD, self).__init__(nn)
         self.error_per_batch = []
         self.eta = eta
@@ -118,6 +265,19 @@ class SGD(Optimizer):
         self.params = self.get_params(nn)
 
     def get_params(self, nn):
+        """
+        This functions is used in order to get the network's parameters
+        along with the optimizer's ones.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        Returns
+        -------
+        A dictionary of parameters.
+        """
         self.params = dict()
         self.params['alpha'] = self.momentum['alpha']
         self.params['momentum_type'] = self.momentum['type']
@@ -130,6 +290,31 @@ class SGD(Optimizer):
         return self.params
 
     def optimize(self, nn, X, y, X_va, y_va, epochs=None):
+        """
+        This functions implements the optimization routine.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        X : numpy.ndarray
+            the design matrix
+
+        y : numpy.ndarray
+            the target column vector
+
+        X_va: numpy.ndarray
+            the design matrix used for the validation
+
+        y_va: numpy.ndarray
+            the target column vector used for the validation
+
+        epochs: int
+            the optimization routine's maximum number of epochs
+            (Default value = None)
+        """
+
         bin_assess, bin_assess_va = None, None
         start_time = dt.datetime.now()
         e = 0
@@ -252,8 +437,34 @@ class CGD(Optimizer):
     error_prev: float
         the error (loss) for the previous epoch of training
 
-    error_per_epochs: list
-        a list containing the error for each epoch of training
+    beta_m: str
+        the method for computing the beta constant, either 'pr', 'hs' or 'mhs'
+
+    d_m: str
+        the method for computing the direction, either 'standard' of
+        'modified'
+
+    sigma_1: float
+        the first constant for the line search respecting the strong
+        Armijo-Wolfe condition
+
+    sigma_2: float
+        the second constant for the line search respecting the strong
+        Armijo-Wolfe condition
+
+    rho: float
+        the hyperparameter for computing the beta using the mhs method
+
+    max_epochs: int
+        the maximum number of epochs
+
+    error_goal: float
+            the stopping criteria based on a threshold for the maximum error
+            allowed
+
+    params: dict
+        a dictionary containing the network's parameters combined with the
+        ones from the optimizer
     """
 
     def __init__(self, nn, beta_m, max_epochs, error_goal, d_m='standard',
@@ -265,6 +476,39 @@ class CGD(Optimizer):
         ----------
         nn: nn.NeuralNetwork
             the neural network that has to be optimized
+
+        beta_m: str
+            the method for computing the beta constant, either 'pr', 'hs' or
+            'mhs'
+
+        max_epochs: int
+            the maximum number of epochs
+
+        error_goal: float
+            the stopping criteria based on a threshold for the maximum error
+            allowed
+
+        d_m: str
+            the method for computing the direction, either 'standard' of
+            'modified'
+            (Default value = 'standard')
+
+        sigma_1: float
+            the first constant for the line search respecting the strong
+            Armijo-Wolfe condition
+            (Default value = 1e-4)
+
+        sigma_2: float
+            the second constant for the line search respecting the strong
+            Armijo-Wolfe condition
+            (Default value = .4)
+
+        rho: float
+            the hyperparameter for computing the beta using the mhs method
+            (Default value = 0.)
+
+        kwargs: dict
+            additional parameters
         """
 
         super(CGD, self).__init__(nn)
@@ -284,6 +528,19 @@ class CGD(Optimizer):
         self.statistics['time_train'] = dt.datetime.now()
 
     def get_params(self, nn):
+        """
+        This functions is used in order to get the network's parameters
+        along with the optimizer's ones.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        Returns
+        -------
+        A dictionary of parameters.
+        """
         self.params = dict()
         self.params['beta_m'] = self.beta_m
         self.params['rho'] = self.rho
@@ -316,24 +573,23 @@ class CGD(Optimizer):
         y: numpy.ndarray
             the target column vector
 
-        max_iter: int
+        max_epochs: int
             the maximum number of iterations for optimizing the network
 
         error_goal: float
             the stopping criteria based on a threshold for the maximum error
             allowed
 
-        beta_m: str
-            the method for computing the beta constant
+        plus: bool
+            whether or not to use the modified HS formula
+            (Default value = True)
 
-        d_m: str
-            the method for computing the direction; either 'standard' or
-            'modified'
-            (Default value = 'standard')
+        strong: bool
+            whether or not to use the strong Armijo-Wolfe condition
+            (Default value = False)
 
-        sigma_1, sigma_2: float
-            the hyperparameters for the line search respecting the strong
-            Armijo-Wolfe condition
+        kwargs: dict
+            additional parameters
 
         Returns
         -------
@@ -665,6 +921,40 @@ class CGD(Optimizer):
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
         """
+        This function implements the Armijo-Wolfe line search procedure as
+        described in Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        error_0: float
+            the current error
+
+        threshold: float
+            the threshold value for the error's checking
+            (Default value = 1e-14)
+
+        Returns
+        -------
+        The learning rate for the current epoch.
         """
         start_time = dt.datetime.now()
         alpha_prev, alpha_max = 0., 1.
@@ -718,6 +1008,50 @@ class CGD(Optimizer):
     def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0,
              max_iter=10, tolerance=1e-4):
         """
+        This function implements the zoom procedure as described in
+        Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        alpha_lo: float
+            the lower bound for the searching of the learning rate
+
+        alpha_hi: float
+            the upper bound for the searchinf of the learning rate
+
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        error_0: float
+            the current error
+
+        max_iter: int
+            the maximum number of iterations
+            (Default value = 10)
+
+        tolerance: float
+            the threshold value for the error's checking
+            (Default value = 1e-4)
+
+        Returns
+        -------
+        The best learning rate in the given interval.
         """
         start_time = dt.datetime.now()
         i = 0
@@ -770,6 +1104,43 @@ class CGD(Optimizer):
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X, y, d,
                                       alpha_0, tolerance=1e-2):
         """
+        This function implements the quadratic and cubic interpolation
+        procedure, as described in Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        error_0: float
+            the current error
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        alpha_0: float
+            the initial value for the learning rate being tested
+
+        tolerance: float
+            the threshold value for the error's checking
+            (Default value = 1e-4)
+
+        Returns
+        -------
+        The best learning rate in the given interval.
         """
         i = 0
 

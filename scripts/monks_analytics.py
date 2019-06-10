@@ -1,3 +1,8 @@
+"""
+  This script is used in order to test and validate the network for the
+  three MONKS datasets.
+"""
+
 import ipdb
 import json
 import nn

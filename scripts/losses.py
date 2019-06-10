@@ -55,6 +55,9 @@ def mean_euclidean_error(y_hat, y, gradient=False):
         return np.linalg.norm(y_hat - y) / y.shape[0]
 
 
+# THE FOLLOWING FUNCTIONS ARE FOR TESTING ONLY
+
+
 def mee(d, y):
     """mean euclidean error
 

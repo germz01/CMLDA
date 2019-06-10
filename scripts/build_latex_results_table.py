@@ -1,3 +1,9 @@
+"""
+    This script is used in order to build the LaTex table containing the
+    results for the three MONKS datasets. The table can be seen in the
+    report's third chapter.
+"""
+
 import ipdb
 import json
 import numpy as np

@@ -1,3 +1,7 @@
+"""
+    This script is used for the final test on the three MONKS dataset.
+"""
+
 import ipdb
 import json
 import nn

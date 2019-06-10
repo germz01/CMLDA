@@ -9,10 +9,80 @@ import utils as u
 class NeuralNetwork(object):
 
     """
+    This class implements an Artificial Neural Network.
+
+    Attributes
+    ----------
+
+    n_layers: int
+        the network's number of layers
+
+    topology: list
+        the network's topology represented as a list, each list's element
+        represents how many units there are in the corresponding layer
+
+    activation: list or str
+        if list represents the activation functions that have to setted
+        for every network's layer else represents the single activation
+        functions that has to be setted for every network's layer
+
+    W: list
+        the weights' matrix for each one of the network's layer
+
+    W_copy: list
+        a copy of self.W used in case the network has to be resetted
+
+    b: list
+        the biases for each one of the network's layers
+
+    b_copy: list
+        a copy of self.b used in case the network has to be resetted
+
+    task: str
+        the network's task, either 'classifier' or 'regression'
+
+    optimizer: opt.SGD or opt.CGD
+        the network's optimizer
     """
 
     def __init__(self, X, y, hidden_sizes=[10], initialization='glorot',
                  activation='sigmoid', task='classifier'):
+        """
+        The class' constructor.
+
+        Parameters
+        ----------
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        hidden_sizes: list
+            a list of integers. The list's length represents the number of
+            neural network's hidden layers and each integer represents the
+            number of neurons in a hidden layer
+            (Default value = [10])
+
+        initialization: str or dict
+            the method that has to used for initializing the network's weights.
+            (Default value = 'glorot')
+
+        activation: list or str
+            if list represents the activation functions that have to setted
+            for every network's layer else represents the single activation
+            functions that has to be setted for every network's layer
+            (Default value = 'sigmoid')
+
+        task: str
+            the task that the neural network has to perform, either
+            'classifier' or 'regression'
+            (Default value = 'classifier')
+
+        Returns
+        -------
+        """
+
         self.n_layers = len(hidden_sizes) + 1
         self.topology = u.compose_topology(X, hidden_sizes, y, task)
 
@@ -27,6 +97,26 @@ class NeuralNetwork(object):
         self.task = task
 
     def set_activation(self, activation, task):
+        """
+        This function initializes the list containing the activation functions
+        for every network's layer.
+
+        Parameters
+        ----------
+        activation: list or str
+            if list represents the activation functions that have to setted
+            for every network's layer else represents the single activation
+            functions that has to be setted for every network's layer
+
+        task: str
+            the task the network has to pursue, either 'classifier' or
+            'regression'
+
+        Returns
+        -------
+        A list of activation functions
+        """
+
         to_return = list()
 
         if type(activation) is list:
@@ -47,7 +137,20 @@ class NeuralNetwork(object):
 
     def set_weights(self, initialization):
         """
+        This function initializes the network's weights matrices following
+        the rule in Deep Learning, pag. 295
+
+        Parameters
+        ----------
+        initialization: str or dict
+            the method that has to used for initializing the network's weights.
+            (Default value = 'glorot')
+
+        Returns
+        -------
+        A list of weights matrices
         """
+
         assert type(initialization) is str or type(initialization) is dict
 
         W = []
@@ -74,6 +177,14 @@ class NeuralNetwork(object):
 
     def set_bias(self):
         """
+        This function initializes the network's biases.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        A list of biases.
         """
         b = []
 
@@ -84,12 +195,30 @@ class NeuralNetwork(object):
 
     def restore_weights(self):
         """
+        This functions restores the network's weights and biases to their
+        original values.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
         """
 
         self.W = [w.copy() for w in self.W_copy]
         self.b = [b.copy() for b in self.b_copy]
 
     def update_weights(self, W, b):
+        """
+        This function is used to update the network's weights and biases.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
+
         assert len(W) == len(self.W) and len(b) == len(self.b)
 
         self.W = W
@@ -97,6 +226,14 @@ class NeuralNetwork(object):
 
     def update_copies(self, W=None, bias=None):
         """
+        This function is used to update the network's copies of the weights
+        and biases.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
         """
 
         if W is None and bias is None:
@@ -110,6 +247,39 @@ class NeuralNetwork(object):
 
     def train(self, X, y, optimizer, epochs=1000, X_va=None, y_va=None,
               **kwargs):
+        """
+        This function implements the neural network's training routine.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            the design matrix
+
+        y : numpy.ndarray
+            the target column vector
+
+        optimizer: str
+            the type of optimizer, either SGD or CGD, that has to be used
+            during the training
+
+        epochs: int
+            the training routine's number of epochs
+            (Default value = 1000)
+
+        X_va: numpy.ndarray
+            the design matrix used for the validation
+            (Default value = None)
+
+        y_va: numpy.ndarray
+            the target column vector used for the validation
+            (Default value = None)
+
+        kwargs: dict
+            additional parameters for the optimizers' initialization
+
+        Returns
+        -------
+        """
         assert optimizer in ['SGD', 'CGD']
 
         if optimizer == 'SGD':

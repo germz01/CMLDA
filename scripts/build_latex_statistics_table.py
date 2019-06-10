@@ -1,3 +1,9 @@
+"""
+    This script is used in order to build the LaTex table containing the
+    additional time-related statistics for the three MONKS datasets. The table
+    can be seen in the report's third chapter.
+"""
+
 import ipdb
 import numpy as np
 import pandas as pd
