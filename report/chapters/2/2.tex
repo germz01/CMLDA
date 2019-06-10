@@ -107,6 +107,7 @@
 		means that the vector \textbf{−g} (the extimate of the real gradient vector) is a direction of
 		sufficient descent for \textit{L} with a norm comparable to the norm of the gradient. This property holds choosing $\mu_G = \mu = 1$ since, using SGD, $\textbf{g}(\textbf{W}_k, \xi_k)$ is an unbiased estimate of $\nabla L(\textbf{W}_k)$, while the
 		third requirement restricts the variance of \textbf{g}, allowing it to assume non-zero values.
+		At the time being, we are not able to further analyze the clauses of Assumption \ref{as:sgd_conv2}.
 
 		A property of SGD is that the computation time per update does not grow with the number of training
 		examples, allowing convergence even in presence of a large dataset.
@@ -171,12 +172,14 @@
 
 			We now discuss the convergence of a SGD using both classic momentum or Nesterov's accelerated
 			gradient by providing some of the results illustrated in \cite{unified_convergence}, in particular
-			the ones describing the case of the optimization of a non-convex function, that is, our case.
+			the ones describing the case of the optimization of a non-convex function
+			with Lipschitz continuous gradient, that is, our case.
 			We denote by $\mathbb{E}[\cdot]$ the expected value taken with respect to the distribution of the
 			random variable whose observed value represents the choice of a particular minibatch at step $k$ and by
 			$\mathbf{g}_{k}$ the estimate of the true full-batch gradient $\nabla \mathcal{L}(\textbf{W}_{k})$ .
 
-			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for non-convex functions.
+			Theorem \ref{theorem_1} ensures that SGD with or without momentum converges in expectation for non-convex functions, at the time being, we are not able to further analyze the Theorem's
+			assumptions.
 
 			\begin{theorem}[Convergence of Gradient Methods for Non-Convex Functions]
 				Suppose $\mathcal{L}$ is a function with L-Lipschitz continuous gradient,
