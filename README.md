@@ -1,4 +1,6 @@
 ![Unipi](https://img.shields.io/badge/Unipi-Computational%20Mathematics%20for%20Learning%20and%20Data%20Analysis-orange.svg)
+![Python version](https://img.shields.io/badge/Python-2.7-green.svg)
+
 # CMLDA
 Code repository for the Machine Learning group project for the Master's Degree in Computer Science's course *Computational Mathematics for Learning and Data Analysis* at the Pisa's University.
 
