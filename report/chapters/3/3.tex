@@ -35,20 +35,11 @@
         \end{enumerate}
 
         Our validation schema for the MONKS dataset essentially consists in using the random grid
-        search
-        algorithm to investigate some random sampled "points" in the hyperparameters' space, evaluating the
-        performances for each one of this points and finally selecting the best combinations of parameters
-        based
-        on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
-        \textit{recall} and \textit{f1-score}. Both in Tab. \ref{tab:monks_sgd} and Tab.
-        \ref{tab:monks_cgd} we can find the results for the application of our model to the MONKS dataset,
-        using as optimizer, respectively, the Stochastic Gradient Descent and the Conjugate Gradient Methods,
-        represented in a succinct fashion. Each row correspond to a specific dataset. The values for both the
-        MSE and the Accuracy are represented by taking the mean over 10 executions on each dataset using
-        the final configurations for the hyperparameters obtained during the validation phase.
-        In Tab. \ref{tab:hyper_monk} are reported the ranges for the hyperparameters involved in the validation
-        phase, while Tab \ref{tab:additional_monks_sgd} and Tab \ref{tab:additional_monks_cgd} provide some
-        additional statistics about the convergence for, respectively, the SGD and the CG.
+        search algorithm to investigate some random sampled "points" in the hyperparameters' space, evaluating
+        the performances for each one of this points and finally selecting the best combinations of parameters
+        based on the diffent metrics like \textit{generalization error}, \textit{accuracy}, \textit{precision},
+        \textit{recall} and \textit{f1-score}. In Tab. \ref{tab:hyper_monk} are reported the ranges for the
+        hyperparameters involved in the validation phase.
 
         \begin{table}[H]
           \centering
@@ -82,281 +73,473 @@
             \label{tab:hyper_monk}
         \end{table}
 
-        \subsection{Results for Stochastic Gradient Descent} % (fold)
-        \label{sub:results_for_stochastic_gradient_descent}
+        In order to compare the
+        results in a similar configuration between the SGD and the CG, we have decided to adopt only the \textit{batch} mode for training the ANN.
+            % The regularization constant $\lambda$ is used only in
+            % the third dataset, since Monk 3 is the only one among the three that has noisy samples.
+
+        In the following tables, the tasks are divided by the kind of dataset that has been used during the training, and, for
+        each one of the tasks, the network's topology is the same, that is, 17 -> 4 -> 8 -> 1.
+
+        For each
+        task, the results concerning the MSE and the accuracy are collected by taking the mean of the
+        output of 10 different executions. In gray we can see the best optimizer for each one of the
+        tasks. We added some additional statistics
+        regarding the execution times in milliseconds of the various executions. As for the other table, the best
+        optimizers for each of the tasks are colored in gray.
+
+        \subsection{Results (no max iterations)} % (fold)
+        \label{sub:results_}
+
+            In order to compare the behaviour of the different algorithms with a focus on the  optimization, the accuracy, in term of the final value taken by norm of the gradient, has been set to $10^{-3}$.
+
+            All the methods have been trained with the same hyperparameters, and the only stopping criteria that has been chosen is the decreasing of the norm.
 
             \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            Task & Topology & Momentum & $\eta$ & $\alpha$ & $\lambda$
-                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & standard & 0.65 & 0.75 & 0.0 & 0.010 - 0.016 &
-                            100 \% - 99 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & standard & 0.71 & 0.89 & 0.0 & 0.0072 - 0.010 &
-                            100 \% - 100 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & standard & 0.67 & 0.85 & 0.0027
-                            & 0.012 - 0.014 & 98 \% - 98 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & nesterov & 0.63 & 0.73 & 0.0 & 0.016 - 0.024 &
-                            98 \% - 98 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & nesterov & 0.64 & 0.85 & 0.0 & 0.010 - 0.014 &
-                            99 \% - 99 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & nesterov & 0.61 & 0.76 & 0.0036
-                            & 0.014 - 0.016 & 98 \% - 98 \% \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Stochastic Gradient Descent.}
-                \label{tab:monks_sgd}
-            \end{table}
-
-            In order to compare the results in a similar configuration between the SGD and the CG, we have decided to
-            adopt only the \textit{batch} mode for training the ANN.
-            Futhermore, for investigate more about the SGD's performances, we have decided to use both the
-            \textit{Nesterov momentum} and the \textit{Standard momentum}, as described in
-            \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}, both in the validation and testing phases.
-            The regularization constant $\lambda$ is used only in the third dataset, since Monk 3 is the only one among
-            the three that has noisy samples.
-
-            \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c |}
-                            \hline
-                            Task & Momentum & Convergence on Epoch & Max Accuracy on Epoch & Elapsed Time & Backpropagation time \\
-                            \hline
-                            MONK 1 & standard & 1000 & 837 & 5.01 & 2.94\\
-                            \hline
-                            MONK 2 & standard & 1000 & 607 & 5.27 & 2.99\\
-                            \hline
-                            MONK 3 & standard & 1000 & 427 & 5.18 & 2.97\\
-                            \hline
-                            MONK 1 & nesterov & 1000 & 641 & 5.24 & 2.94\\
-                            \hline
-                            MONK 2 & nesterov & 1000 & 450 & 5.37 & 3.02\\
-                            \hline
-                            MONK 3 & nesterov & 1000 & 317 & 5.26 & 2.99\\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Additional statistics for the Stochastic Gradient Descent.}
-                \label{tab:additional_monks_sgd}
-            \end{table}
-
-            As we can see from Tab. \ref{tab:additional_monks_sgd}, the Nesterov's momentum is, in general, faster
-            than the standard one in reaching the epoch in which the accuracy score reaches its maximal value, as
-            described in \cite{Goodfellow-et-al-2016,Sutskever:2013:IIM:3042817.3043064}. The value of $1000$ for
-            the convergence's epochs has to be interpreted as a non convergence for the task, since $1000$ is the
-            maximal number of epochs that we have used for the training and the testing phases. The average time of
-            execution of the train and backpropagation phases are computed in seconds. Both the momentum choices
-            produce similar results.
-
-        % subsection results_for_stochastic_gradient_descent (end)
-
-        \subsection{Results for Conjugate Gradient Methods} % (fold)
-        \label{sub:results_for_conjugate_gradient_method}
-
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
-                    \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
-                            \hline
-                            Task & Topology & Activation & $\beta$ & $\sigma_{1}$ & $\sigma_{2}$ & $\rho$
-                            & MSE (TR - TS) & Accuracy (TR - TS) (\%) \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.12 & 0.85
-                            & 0.0059 - 0.0125 & 99 \% - 97 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.33 & 0.42
-                            & 0.0039 - 0.0113 & 99 \% - 97 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $MHS^{+}$ & 0.0001 & 0.24 & 0.27
-                            & 0.0052 - 0.0169 & 99 \% - 96 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.21 & 0.0
-                            & 0.0029 - 0.0057 & 99 \% - 99 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.16 & 0.0
-                            & 0.0032 - 0.0078 & 99 \% - 98 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $HS^{+}$ & 0.0001 & 0.35 & 0.0
-                            & 0.0045 - 0.0151 & 99 \% - 96 \% \\
-                            \hline
-                            MONK 1 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 &  0.17 & 0.0
-                            & $9.89e-05$ - 0.0069 & 100 \% - 98 \% \\
-                            \hline
-                            MONK 2 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.34 & 0.0
-                            & $9.35e-05$ - 0.0048 & 100 \% - 99 \% \\
-                            \hline
-                            MONK 3 & 17 -> 4 -> 8 -> 1 & sigmoid & $PR^{+}$ & 0.0001 & 0.12 & 0.0
-                            & 0.0088 - 0.0118 & 98 \% - 97 \% \\
-                            \hline
-                        \end{tabular}
-                    }
-                \end{subtable}
-                \caption{Results for the Conjugate Gradient Methods.}
-                \label{tab:monks_cgd}
-        \end{table}
-
-        For what concernes the results for the Conjugate Gradient Methods, for all the configurations tested,
-        the direction has been set to the modified one, since it's the one who gave better results in the
-        preliminary tests. It's immediate to see high performances achieved by the all the methods. In this case, the $PR^+$ method performes better than the other methods, getting an higher accuracy and converging before the other ones. On the contrary, the $MHS^+$ method needs more epochs than the others to get to the convergence and to the highest accuracy rate.
-
-        Like in the results obtained from SGD, the third
-        dataset tested (Monk 3) gets a little worse performances because of the presence of noise in it.
-        Anyway, it's interesting to underline that these models are able to reach higher accuracies with the
-        ability to "auto-tune" themeselves, that is without the necessity to modify at hand hyperparameters as the
-        learning rate or the the momentum term.
-
-        \begin{table}[H]
                 \centering
                 \begin{subtable}{\textwidth}
                     \resizebox{\textwidth}{!}{
                         \begin{tabular}{| c | c | c | c | c | c | c | c | c | c |}
                             \hline
-                            Task & $\beta$ & Convergence Epoch & Max Accuracy Epoch & LS Iterations & Elapsed Time & BP Time & LS Time & Dir Time \\
+                            Task &  Optimizer &  $\sigma_1$ &  $\sigma_2$ &   $\rho$ &   $\eta$ &  $\alpha$ &  $\lambda$ &        MSE (TR - TS) &   Accuracy (TR - TS) (\%) \\
                             \hline
-                            MONK 1 & $MHS^{+}$ & 348 & 216 & 6 & 5.97 & 0.61 & 2.65 & 0.017\\
+                            \rowcolor[gray]{.9}
+                            MONK 1 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.00e-05 - 9.64e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 2 & $MHS^{+}$ & 258 & 176 & 5 & 4.32 & 0.42 & 1.92 & 0.012\\
+                            MONK 1 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.39e-05 - 1.28e-05 &  100 \% - 100 \% \\
                             \hline
-                            MONK 3 & $MHS^{+}$ & 428 & 136 & 5 & 6.88 & 0.69 & 3.0 & 0.020 \\
+                            MONK 1 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
                             \hline
-                            MONK 1 & $HS^{+}$ & 260 & 135 & 6 & 5.01 & 2.94 & 1.59 & 0.111\\
+                            MONK 1 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.11e-03 - 2.00e-02 &  99 \% - 96 \% \\
                             \hline
-                            MONK 2 & $HS^{+}$ & 260 & 117 & 5 & 5.27 & 2.99 & 1.72 & 0.113\\
+                            MONK 1 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  1.49e-05 - 1.43e-05 &  100 \% - 100 \% \\
                             \hline
-                            MONK 3 & $HS^{+}$ & 432 & 94 & 5 & 5.18 & 2.97 & 2.81 & 0.194\\
                             \hline
-                            MONK 1 & $PR^{+}$ & 151 & 95 & 6 & 2.16 & 0.21 & 0.95 & 0.006\\
+                            MONK 2 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  7.56e-06 - 7.37e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 2 & $PR^{+}$ & 117 & 75 & 5 & 1.73 & 0.17 & 0.77 & 0.004\\
+                            MONK 2 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  9.27e-06 - 9.82e-06 &  100 \% - 100 \% \\
                             \hline
-                            MONK 3 & $PR^{+}$ & 189 & 53 & 5 & 2.84 & 0.28 & 1.24 & 0.008\\
+                            MONK 2 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  8.41e-06 - 5.97e-06 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 2 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  8.38e-06 - 6.33e-06 &  100 \% - 100 \% \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 2 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  5.91e-06 - 5.72e-06 &  100 \% - 100 \% \\
+                            \hline
+                            \hline
+                            MONK 3 &   SGD (CM) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  2.07e-03 - 3.87e-06 &  97 \% - 100 \% \\
+                            \hline
+                            MONK 3 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.83 &  0.0 &  1.78e-06 - 2.40e-06 &  100 \% - 100 \% \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 3 &   CGD (PR) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  1.43e-06 - 1.50e-06 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 3 &   CGD (HS) &   0.0001 &     0.3 &  0.0 &     - &      - &       - &  6.20e-03 - 1.43e-06 &  99 \% - 100 \% \\
+                            \hline
+                            MONK 3 &  CGD (MHS) &   0.0001 &     0.3 &  0.67 &     - &      - &       - &  1.24e-02 - 3.80e-06 &  98 \% - 100 \% \\
                             \hline
                         \end{tabular}
                     }
                 \end{subtable}
-                \caption{Additional statistics for the Conjugate Gradient Methods.}
-                \label{tab:additional_monks_cgd}
+                \caption{Comparisons between the iterations having no maximal number of iterations. Each one of the
+                iterations has been completed with a network having topology 17 -> 4 -> 8 -> 1.}
+                \label{tab:monks_no_max_iterations}
             \end{table}
 
-        From Tab.\ref{tab:additional_monks_cgd}, it's interesting to notice that, in all these configurations, the majority of the execution time is spent performing the Line Search: of course, it's an expensive computation because of the frequent evaluation of the Loss function. Futhermore, the average number of iteration per epochs of the LS is included in a range from 5 to 6 times.
+            \begin{table}[H]
+                \centering
+                \begin{subtable}{\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                            \toprule
+                               Task &  Optimizer & Convergence iteration &  LS Iterations &  Elapsed Time &   BP Time &   LS Time &  Dir Time \\
+                            \hline
+                             MONK 1 &   SGD (CM) &             25829 &              - &      80835.78 &   6097.73 &         - &         - \\
+                            \hline
+                             MONK 1 &  SGD (NAG) &             14382 &              - &      44410.24 &   3271.03 &         - &         - \\
+                            \hline
+                             MONK 1 &   CGD (PR) &               806 &            8.0 &       9728.46 &   1364.61 &   5750.07 &     15.10 \\
+                            \hline
+                             MONK 1 &   CGD (HS) &               770 &            8.0 &       9468.09 &   1324.35 &   5595.54 &     14.52 \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                             MONK 1 &  CGD (MHS) &               472 &            8.0 &       5307.14 &    749.90 &   3151.04 &      7.26 \\
+                            \hline
+                            \hline
+                             MONK 2 &   SGD (CM) &             14586 &              - &      56437.37 &   3906.62 &         - &         - \\
+                            \hline
+                             MONK 2 &  SGD (NAG) &              7743 &              - &      28037.07 &   1887.81 &         - &         - \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                             MONK 2 &   CGD (PR) &               292 &            8.0 &       3944.34 &    579.52 &   2236.75 &      5.01 \\
+                            \hline
+                             MONK 2 &   CGD (HS) &               340 &            8.0 &       4385.45 &    650.30 &   2479.65 &      5.45 \\
+                            \hline
+                             MONK 2 &  CGD (MHS) &               513 &            8.0 &       6567.70 &    967.88 &   3769.13 &      8.12 \\
+                            \hline
+                            \hline
+                             MONK 3 &   SGD (CM) &             65306 &              - &     175429.15 &  13298.60 &         - &         - \\
+                            \hline
+                             MONK 3 &  SGD (NAG) &             50918 &              - &     163439.49 &  12167.22 &         - &         - \\
+                            \hline
+                             MONK 3 &   CGD (PR) &              6540 &            8.0 &      74283.88 &  10581.14 &  44239.27 &    109.15 \\
+                            \hline
+                             MONK 3 &   CGD (HS) &              4056 &            8.0 &      50295.56 &   7223.92 &  29842.22 &     75.06 \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                             MONK 3 &  CGD (MHS) &              2209 &            8.0 &      23903.49 &   3417.29 &  14174.89 &     32.84 \\
+                            \hline
+                            \end{tabular}
 
-        Another nice behaviour with respect to the one showed in SGD, is evident from the learning curves in
-        Appendix \ref{cha:monks_learning_curves}: the Conjugate Gradient Methods reach the highest accuracy in
-        the very first epochs, while the Stochastic Gradient Descent needs much more epochs of training to converge
-        towards an optimum value.
+                    }
+                \end{subtable}
+                \caption{Additional time-related statistics. The unit of time that has been used is the
+                millisecond.}
+                \label{tab:monks_additional_no_max_iterations}
+            \end{table}
 
-        This is also evident in the plots of the norm of the gradient, where the SGD get a very smooth curve, but far from the minimum (at least at iteration 1000), meaning there could be still room to an improving. The CG, instead, deals with a very good convergence rate, but with an unregular and nonsmooth behaviour in the curve.
+            In Table \ref{tab:monks_no_max_iterations} and \ref{tab:monks_additional_no_max_iterations}   we can find the results for the iterations completed without
+            constraining the optimizers by imposing a maximal number of iterations of training.
 
-        In the case of CG, the methods have been declared to converge when the norm of the gradient gets a value less than $1e-5$.
+            It's immediately evident the different number of iterations that the Conjugate Gradient methods and the Stochastic Gradient Descent need in order to converge to the imposed threshold.
 
-        % subsection results_for_conjugate_gradient_method (end)
-    % section monks (end)
+            As we can expect from the theory, the CG methods are usually able to converge in the first 1000 iterations, while the SGD is extremely slower, needing more than 20000 iterations in order to arrive to the same level of accuracy.
+
+            It's worth to notice that the all these methods have to face some limitations when dealing with a noisy dataset as Monks 3, even though each one of them still confirms their typical behaviour.
+
+            Even when looking at the time of execution of the various algorithms, there is no surprise in the results. What is more interesting to underline is, as evident in the plots of Fig. \ref{fig:monks_MSE_all}, is the longer time needed by the SGD, even if a better performace is given by the use of the NAG momentum.
+            When comparing the plots, we can see that, even though the number of iterations of the CG methods is different, when taking into account the time of execution, some iterations are more costly than other. That means, some methods could need more time in computing the right weights updates, even if they could converge in a lower number of iterations.
+
+            Futhermore, the majority of the time (more than half of the time) is spent in computing the Line Search, which tipically needs to perform 8 iterations in order to find the right learning step.
+
+            Taking into account also the accuracy in the prediction of the neural network, the $MHS^+$ methods is the one having an overall better behaviour.
+
+            \begin{figure}[t!]{}
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/1_mse_all_time.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/1_mse_all.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/2_mse_all_time.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/2_mse_all.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_all}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/3_mse_all_time.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/analytics/3_mse_all.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_all}
+                \end{subfigure}
+                \caption{Comparisons between the different optimizers without the constrain of setting a maximal
+                number of iterations. In Figure \ref{fig:monks_1_MSE_all}, \ref{fig:monks_1_MSE_all_t} we can see the
+                comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all}, \ref{fig:monks_2_MSE_all_t} we can see the one for
+                MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all},  \ref{fig:monks_3_MSE_all_t} we can see the one for MONKS 3.}
+                \label{fig:monks_MSE_all}
+            \end{figure}
+
+        % subsection results_ (end)
+
+        \subsection{Results (max iterations 1000)} % (fold)
+        \label{sub:results_}
+
+            \begin{table}[H]
+                \centering
+                \begin{subtable}{\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c | c | c | c | c | c | c |}
+                            \hline
+                             Task &  Optimizer &  $\sigma_1$ &  $\sigma_2$ &   $\rho$ &   $\eta$
+                             &  $\alpha$ &  $\lambda$ & MSE (TR - TS) &   Accuracy (TR - TS) (\%) \\
+                             \hline
+                            MONK 1 &   SGD (CM) &        - &        - &     - &  0.65 &   0.75 &  0.0 &  9.92e-03 - 1.48e-02 &  99 \% - 99 \% \\
+                            \hline
+                            MONK 1 &  SGD (NAG) &        - &        - &     - &  0.63 &   0.73 &  0.0 &  2.18e-02 - 3.17e-02 &  97 \% - 96 \% \\
+                            \hline
+                            MONK 1 &   CGD (PR) &   0.0001 &     0.18 &  0.0 &     - &      - &       - &  1.54e-02 - 4.88e-02 &  97 \% - 90 \% \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 1 &   CGD (HS) &   0.0001 &     0.22 &  0.0 &     - &      - &       - &  2.12e-03 - 9.71e-03 &  100 \% - 98 \% \\
+                            \hline
+                            MONK 1 &  CGD (MHS) &   0.0001 &     0.13 &  0.86 &     - &      - &       - &  8.97e-03 - 1.92e-02 &  98 \% - 96 \% \\
+                            \hline
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 2 &   SGD (CM) &        - &        - &     - &  0.71 &   0.89 &  0.0 &  6.99e-03 - 9.65e-03 &  100 \% - 100 \% \\
+                            \hline
+                            MONK 2 &  SGD (NAG) &        - &        - &     - &  0.64 &   0.85 &  0.0 &  1.34e-02 - 1.91e-02 &  98 \% - 98 \% \\
+                            \hline
+                            MONK 2 &   CGD (PR) &   0.0001 &     0.34 &  0.0 &     - &      - &       - &  1.59e-02 - 3.86e-02 &  96 \% - 92 \% \\
+                            \hline
+                            MONK 2 &   CGD (HS) &   0.0001 &     0.17 &  0.0 &     - &      - &       - &  1.06e-02 - 1.43e-02 &  98 \% - 97 \% \\
+                            \hline
+                            MONK 2 &  CGD (MHS) &   0.0001 &     0.33 &  0.43 &     - &      - &       - &  4.53e-03 - 1.13e-02 &  99 \% - 98 \% \\
+                            \hline
+                            \hline
+                            MONK 3 &   SGD (CM) &        - &        - &     - &  0.67 &   0.85 &  0.0027 &  1.18e-02 - 1.31e-02 &  98 \% - 98 \% \\
+                            \hline
+                            MONK 3 &  SGD (NAG) &        - &        - &     - &  0.61 &   0.80 &  0.0036 &  1.67e-02 - 1.98e-02 &  97 \% - 97 \% \\
+                            \hline
+                            MONK 3 &   CGD (PR) &   0.0001 &     0.19 &  0.0 &     - &      - &       - &  2.07e-02 - 3.51e-02 &  94 \% - 93 \% \\
+                            \hline
+                            MONK 3 &   CGD (HS) &   0.0001 &     0.36 &  0.0 &     - &      - &       - &  9.03e-03 - 1.95e-02 &  98 \% - 96 \% \\
+                            \hline
+                            \rowcolor[gray]{.9}
+                            MONK 3 &  CGD (MHS) &   0.0001 &     0.34 &  0.42 &     - &      - &       - &  7.01e-03 - 1.63e-02 &  99 \% - 96 \% \\
+                            \hline
+                        \end{tabular}
+                    }
+                \end{subtable}
+                \caption{Comparisons between the iterations having a maximal number of iterations egual to 1000.
+                Each one of the iterations has been completed with a network having topology
+                17 -> 4 -> 8 -> 1.}
+                \label{tab:monks_max_iterations}
+            \end{table}
+
+            \begin{table}[H]
+                \centering
+                \begin{subtable}{\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                            \toprule
+                               Task &  Optimizer & Convergence iteration &  LS Iterations &  Elapsed Time &  BP Time &  LS Time &  Dir Time \\
+                            \hline
+                             MONK 1 &   SGD (CM) &              1000 &              - &       5163.25 &   149.95 &        - &         - \\
+                             \hline
+                             MONK 1 &  SGD (NAG) &              1000 &              - &       5214.20 &   147.68 &        - &         - \\
+                             \hline
+                             MONK 1 &   CGD (PR) &               445 &            6.0 &       5055.85 &   514.70 &  2233.17 &     14.00 \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 1 &   CGD (HS) &               240 &            6.0 &       2665.58 &   267.58 &  1164.87 &      7.95 \\
+                             \hline
+                             MONK 1 &  CGD (MHS) &               298 &            7.0 &       3278.08 &   328.36 &  1436.53 &      9.57 \\
+                             \hline
+                             \hline
+                             MONK 2 &   SGD (CM) &              1000 &              - &       5385.27 &   159.47 &        - &         - \\
+                             \hline
+                             MONK 2 &  SGD (NAG) &              1000 &              - &       5437.32 &   157.63 &        - &         - \\
+                             \hline
+                             MONK 2 &   CGD (PR) &               326 &            5.0 &       3648.71 &   362.99 &  1603.26 &     10.17 \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 2 &   CGD (HS) &               149 &            5.0 &       1695.45 &   169.52 &   760.82 &      4.90 \\
+                             \hline
+                             MONK 2 &  CGD (MHS) &               183 &            5.0 &       2023.54 &   198.10 &   892.13 &      5.83 \\
+                             \hline
+                             \hline
+                             MONK 3 &   SGD (CM) &              1000 &              - &       5304.07 &   155.96 &        - &         - \\
+                             \hline
+                             MONK 3 &  SGD (NAG) &              1000 &              - &       5353.35 &   154.01 &        - &         - \\
+                             \hline
+                             \rowcolor[gray]{.9}
+                             MONK 3 &   CGD (PR) &               371 &            5.0 &       4149.39 &   418.39 &  1821.40 &     11.66 \\
+                             \hline
+                             MONK 3 &   CGD (HS) &               377 &            6.0 &       4319.66 &   439.25 &  1891.85 &     12.75 \\
+                             \hline
+                             MONK 3 &  CGD (MHS) &               389 &            6.0 &       4361.18 &   438.78 &  1906.62 &     12.70 \\
+                            \hline
+                            \end{tabular}
+                    }
+                \end{subtable}
+                \caption{Additional time-related statistics. The unit of time that has been used is the
+                millisecond.}
+                \label{tab:monks_additional_max_iterations}
+            \end{table}
+
+            Here we present the results from a series of iterations where the maximal number of iterations has
+            been setted to 1000, in order to focus on a machine learning point of view. This time, the algorithms have been trained taking into account only the maximal number of iterations or the error goal=$10^{-4}$ for the CG methods.
+
+            Similarly to the previous section, in Table \ref{tab:monks_max_iterations} we
+            can find the details regarding the optimizers' performances, while in Table
+            \ref{tab:monks_additional_max_iterations} there are the details regarding the time-related
+            performances. The considerations done for the iterations with no maximal number of iterations are
+            valid also for this specific case. In Figure \ref{fig:monks_MSE_all_max_iterations} we can see a
+            comparison betweeen the various optimizers.
+
+            In this case, it's more evident a behaviour introduced in the former experiments: in Monk 3, the CG methods and the SGD have spent a similar time of execution, even though the CG ones stopped in the first 300 iterations.
+
+            For what concernes the accuracy in the prediction, only few of the models get an accuracy of $100\%$, but it is still true that the CG gets very good results in a minor time of execution and in a minor number of iterations.
+
+            \begin{figure}[t!]
+                \centering
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/1_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_max_iterations_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/1_mse_all_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_1_MSE_all_max_iterations}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/2_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_all_max_iterations_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/2_mse_all_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_2_MSE_all_max_iterations}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/3_mse_all_time_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_all_max_iterations_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
+                    \resizebox{\textwidth}{!}{
+                        \includegraphics{img/comparisons/3_mse_all_max_epochs_1000.pdf}
+                    }
+                    \caption{}
+                    \label{fig:monks_3_MSE_all_max_iterations}
+                \end{subfigure}
+                \caption{Comparisons between the different optimizers with the constrain of setting a
+                maximal number of iterations egual to 1000. In Figure \ref{fig:monks_1_MSE_all_max_iterations}, \ref{fig:monks_1_MSE_all_max_iterations_t}
+                we can see the comparison for MONKS 1, while in Figure \ref{fig:monks_2_MSE_all_max_iterations}, \ref{fig:monks_2_MSE_all_max_iterations_t}
+                we can see the one for MONKS 2 and finally in Figure \ref{fig:monks_3_MSE_all_max_iterations}, \ref{fig:monks_3_MSE_all_max_iterations_t} we
+                can see the one for MONKS 3.}
+                \label{fig:monks_MSE_all_max_iterations}
+            \end{figure}
+
+    %    subsection results_ (end)
+    %section monks (end)
 
     \section{CUP} % (fold)
         \label{sec:cup}
 
+        \begin{table}[H]
+            \centering
+            \begin{subtable}{\textwidth}
+                \resizebox{\textwidth}{!}{
+                    \begin{tabular}{| c | c | c | c | c | c | c | c |}
+                        \hline
+                        Optimizer &  sigma\_1 &  sigma\_2 &  rho &  eta &  alpha &  lambda &        MSE (TR - TS) \\
+                        \hline
+                        SGD (CM) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.15e+01 - 4.26e+01 \\
+                        \hline
+                        SGD (NAG) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.24e+01 - 4.04e+01 \\
+                        \hline
+                        CGD (PR) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  4.25e-01 - 1.44e+00 \\
+                        \hline
+                        \rowcolor[gray]{.9}
+                        CGD (HS) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  4.55e-01 - 1.36e+00 \\
+                        \hline
+                        CGD (MHS) &   0.0001 &      0.3 &  0.5 &    - &      - &       - &  5.09e-01 - 1.52e+00 \\
+                        \hline
+                    \end{tabular}
+                }
+            \end{subtable}
+            \caption{Comparisons between the iterations for the CUP dataset.}
+            \label{tab:cup}
+        \end{table}
+
+        \begin{table}[H]
+            \centering
+            \begin{subtable}{\textwidth}
+                \resizebox{\textwidth}{!}{
+                    \begin{tabular}{| c | c | c | c | c | c | c |}
+                        \hline
+                        Optimizer & Convergence Epoch &  LS Iterations &  Elapsed Time &  BP Time &   LS Time &  Dir Time \\
+                        \hline
+                        SGD (CM) &              2000 &              - &       9473.86 &  3681.96 &         - &         - \\
+                        \hline
+                        \rowcolor[gray]{.9}
+                        SGD (NAG) &              2000 &              - &       8948.41 &  3480.21 &         - &         - \\
+                        \hline
+                        CGD (PR) &              2000 &            1.0 &      61698.25 &  7049.57 &  48857.30 &    101.63 \\
+                        \hline
+                        CGD (HS) &              2000 &            1.0 &      62598.04 &  7160.96 &  49289.54 &    102.46 \\
+                        \hline
+                        CGD (MHS) &              2000 &            1.0 &      63341.87 &  7354.50 &  49544.47 &    104.86 \\
+                        \hline
+                    \end{tabular}
+                }
+            \end{subtable}
+            \caption{Additional time-related statistics for the CUP dataset. The unit of time that has
+            been used is the millisecond.}
+            \label{tab:cup_time}
+        \end{table}
+
         A main difference with respect to the models used for Monk, is the choice of the topology of the Network.
-        First of all, in this case, being the final task a regression one in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
+        Being the final task a regression one, in which there are two different values to be predicted, the output layer of the ANN is composed by two neurons of output, each one associated to an identity function.
 
-        Then, after some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
+        After some preliminary trials, we have decided to set the number of the hidden layers to $[16,\ 32]$.
 
-        Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
-        discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
-        implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
-        Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
-        out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
-        Methods is the modified one.
+        Since the goal is to compete for the ML 2018 cup, for this dataset we have choosen to analyze the results from a machine learning point of view: the Tables \ref{tab:cup} and \ref{tab:cup_time}  show the mean results of 10 executions of all the models presented so far.
 
-        \begin{table}[H]
-          \centering
-          \caption{Hyperparameters' ranges for the random grid search algorithm with SGD and CG.}
-          \begin{minipage}{.4\textwidth}
-              \centering
-              \begin{tabular}{| c | c |}
-                    \hline
-                    Hyperparameters & Ranges\\
-                    \hline
-                    $\eta$ & $\left [0.004, 0.2\right ]$ \\
-                    \hline
-                    $\alpha$ & $[0.5, 0.9]$ \\
-                    \hline
-                    $\lambda$ & $[0.0003, 0.003]$ \\
-                    \hline
-              \end{tabular}
-          \end{minipage}
-          \begin{minipage}{.4\textwidth}
-              \centering
-              \begin{tabular}{| c | c |}
-                    \hline
-                    Hyperparameters & Ranges\\
-                    \hline
-                    $\sigma_2$ & $\left [0.1, 0.4 \right ]$\\
-                    \hline
-                    $\rho$ & $[0.0, 1.0]$ \\
-                    \hline
-              \end{tabular}
-            \end{minipage}
-            \label{tab:hyper_cup}
-        \end{table}
+        This time, fixed the hyperparameters for the models, we have set a maximum number of iterations, in order to understand how much the error in the prediction phase can decrease, once fixed a limit in the epochs of training.
 
-        In tables \ref{tab:cup_sgd} and \ref{tab:cup_cgd} are annotated the average results obtained from 10 executions of each one of the best models identified thanks to the validation step.
 
-        \begin{table}[H]
+            \begin{figure}[t!]{}
                 \centering
-                \begin{subtable}{\textwidth}
+                \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            Model & Topology & Batch size & Activation & $\eta$ & $\alpha$ & $\lambda$
-                            & MSE (TR - TS) \\
-                            \hline
-                            SGD & 10 -> 16 -> 32 -> 2 & batch & identity & 0.084 & 0.79 & 0.0009 & 1.00 - 1.35 \\
-                            \hline
-                        \end{tabular}
+                        \includegraphics{img/analytics/CUP/CUP_mse_all_time.pdf}
                     }
-                \end{subtable}
-                \caption{Results for the Stochastic Gradient Descent.}
-                \label{tab:cup_sgd}
-        \end{table}
-
-        \begin{table}[H]
-                \centering
-                \begin{subtable}{\textwidth}
+                    \caption{}
+                    \label{fig:cup_MSE_all_t}
+                \end{subfigure}
+                \begin{subfigure}{0.45\textwidth}
                     \resizebox{\textwidth}{!}{
-                        \begin{tabular}{| c | c | c | c | c | c | c | c |}
-                            \hline
-                            $\beta$ & Topology & Batch size & Activation & $\sigma_1$ & $\sigma_2$ & $\rho$
-                            & MSE (TR - TS) \\
-                            \hline
-                            $MHS^+$ & 10 -> -> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.27 & 0.29 & 0.97 - 1.50\\
-                            \hline
-                            $HS^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.39 & 0.0
-                            & 0.97 - 1.50  \\
-                            \hline
-                            $PR^+$  & 10 ->-> 16 -> 32 -> 2& batch & identity & 0.0001 & 0.86 & 0.00
-                            & 1.15 - 1.41\\
-                            \hline
-                        \end{tabular}
+                        \includegraphics{img/analytics/CUP/CUP_mse_all.pdf}
                     }
-                \end{subtable}
-                \caption{Results for the Conjugate Gradient Methods.}
-                \label{tab:cup_cgd}
-        \end{table}
+                    \caption{}
+                    \label{fig:cup_MSE_all}
+                \end{subfigure}
+                \caption{Comparisons between the different optimizers with the constrain of 2000 iterations.}
+                \label{fig:cup_MSE_all}
+            \end{figure}
 
-        As for the experiments with the Monk datasets, we attach the learning curves in Appendix \ref{cha:cup_learning_curves}.
-% chapter experiments (end)
+        What is evident from Figures in \ref{fig:cup_MSE_all}, is that the performances in the prediction of the correct values are extremely different between the CG and the SGD, being this latter stuck in a higher error.
+
+        It's interesting to show the slow behaviour of the CG methods in order to compute 2000 iterations: it is worst than the one seen in the Monks dataset. Even though, there is no surprise in that, since the computational cost of the Line Search is tipically very high.
+
+        As for the experiments with the Monk datasets, we attach other learning curves in Appendix \ref{cha:cup_learning_curves}.
+
+        % Of course, as for the Monk dataset, we have performed a validation phase on the CUP dataset, in order to
+        % discover the best parameters for the network. As described in Sec. \ref{sec:monks}, it has been
+        % implemented a \textit{3-fold cross validation algorithm} with a (random) \textit{grid search}.
+        % Table \ref{tab:hyper_cup} shows the ranges in which the searching of the hyperparameters has been carried
+        % out. Once again, the momentum type chosen is Nesterov, while the direction used in the Conjugate Gradient
+        % Methods is the modified one.
+
+%chapter experiments (end)

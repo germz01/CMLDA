@@ -1,0 +1,36 @@
+STRUTTURA DEL PROGETTO
+
+================================================================================================
+
+I file di implementazione della rete sono contenuti nella cartella ./script.
+
+------------------------------------------------------------------------------------------------
+
+-activations.py: contiene le funzioni di attivazione utilizzate nella rete;
+
+-losses.py: contiene le funzioni da ottimizzare;
+
+-metrics.py: contiene funzioni per calcolare accuracy, precision e recall;
+
+-nn.py: contiene l'implementazione della rete neurale;
+
+-optimizers.py: contiene l'implementazione degli ottimizzatori (Conjugate Gradient e Stochastic Gradient Descent);
+
+-regularizers.py: restituisce il fattore di regolarizzazione;
+
+-utils.py: contiene funzioni per la stampa dei grafici;
+
+-validation.py: contiene l'implementazione del processo di validazione della rete.
+
+------------------------------------------------------------------------------------------------
+
+I seguenti file possono essere usati per il testing della rete, scegliendo le opzioni che si presentano da terminale:
+
+-cup_analytics.py e monks_analytics.py: possono essere eseguiti per un semplice test di training e prediction, o per effettuare la validazione della rete;
+
+-cup_final_test.py e monks_final_test.py: eseguono il test finale con i migliori iperparametri restituiti dal processo di validazione.
+
+
+------------------------------------------------------------------------------------------------
+
+Nella cartella ./Results sono salvati i csv contenenti i risultati delle esecuzioni presentati nel report.

@@ -49,19 +49,27 @@ def compose_topology(X, hidden_sizes, y, task):
 def plot_learning_curve(optimizer, data, test_type, metric, params,
                         fname='../report/img/'):
     assert test_type in ['VALIDATION', 'TEST'] and \
-        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
+        metric in ['MSE', 'MEE', 'ACCURACY', 'NORM', 'TIME']
 
-    plt.plot(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
-             len(data) > 1 else None)
+    if metric == 'TIME':
+        plt.semilogy(data[0], data[1], alpha=0.65,
+                     label='TRAIN' if len(data) > 1 else None)
+    else:
+        plt.semilogy(range(len(data[0])), data[0], alpha=0.65, label='TRAIN' if
+                 len(data) > 1 else None)
 
-    if len(data) > 1:
-        plt.plot(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+    if len(data) > 1 and metric != 'TIME':
+        plt.semilogy(range(len(data[1])), data[1], alpha=0.65, label=test_type)
+        plt.legend()
+    elif metric == 'TIME':
+        plt.semilogy(data[0], data[2], alpha=0.65, label=test_type)
         plt.legend()
 
     plt.grid()
-    plt.title('{} PER EPOCHS'.format(metric))
-    plt.xlabel('EPOCHS')
-    plt.ylabel(metric)
+    plt.title('{} PER EPOCHS'.format(metric) if metric != 'TIME'
+              else 'MSE PER TIME')
+    plt.xlabel('EPOCHS' if metric != 'TIME' else 'TIME(MILLISECONDS)')
+    plt.ylabel(metric if metric != 'TIME' else 'MSE')
     plt.tight_layout()
 
     saving_str = '../report/img/SGD/' \
@@ -194,20 +202,46 @@ def plot_betas_learning_curves(monk, betas, data, title, metric,
 
 
 def plot_all_learning_curves(monk, label, data, title, metric,
-                             fname='../report/img/', type='beta'):
-    assert metric in ['MSE', 'MEE', 'ACCURACY']
+                             time=False, fname='../report/img/', type='beta',
+                             semilogy=True, epochs=None):
+    assert metric in ['MSE', 'MEE', 'ACCURACY', 'NORM']
 
     for i in range(len(data[0])):
-        plt.semilogy(range(len(data[0][i])), data[0][i], label=label[i],
-                     alpha=.65)
+        if time is True:
+            if semilogy:
+                plt.semilogy((data[1][i]), (data[0][i]), label=label[i],
+                             alpha=.65)
+            else:
+                plt.plot((data[1][i]), (data[0][i]), label=label[i],
+                         alpha=.65)
+        else:
+            if semilogy:
+                plt.semilogy(range(len(data[0][i])), data[0][i],
+                             label=label[i],
+                             alpha=.65)
+            else:
+                plt.plot(range(len(data[0][i])), (data[0][i]), label=label[i],
+                         alpha=.65)
     plt.grid()
     plt.title(title)
-    plt.xlabel('EPOCHS')
+
+    if time is True:
+        plt.xlabel('TIME(MILLISECONDS)')
+    else:
+        plt.xlabel('ITERATIONS')
+
     plt.ylabel(metric)
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
-    plt.savefig(fname + str(monk) + '_' + metric.lower() + '_' + str(type)
-                + '.pdf', bbox_inches='tight')
+    fname = fname + str(monk) + '_' + metric.lower() + '_' + str(type)
+    if time is True:
+        fname += '_time'
+
+    if epochs is not None:
+        fname += '_max_epochs_{}'.format(epochs)
+
+    fname += '.pdf'
+    plt.savefig(fname, bbox_inches='tight')
     plt.close()
 
 

@@ -1,3 +1,7 @@
+"""
+    This script is used for the final test on the three MONKS dataset.
+"""
+
 import ipdb
 import json
 import nn
@@ -12,20 +16,27 @@ warnings.filterwarnings("ignore")
 ###############################################################################
 # EXPERIMENTAL SETUP ##########################################################
 
-ntrials = 10
+ntrials = raw_input('TRIALS[N/None]: ')
+ntrials = int(ntrials) if ntrials != 'None' else None
+
 split_percentage = 0.8
-epochs = 1000
+
+epochs = raw_input('MAX EPOCHS[N/None]: ')
+epochs = int(epochs) if epochs != 'None' else None
+
 path_to_json = '../data/final_setup/'
+save_statistics = True if raw_input('SAVE STATISTICS?[Y/N] ') == 'Y' else False
+saving_curve_stats = True if raw_input('SAVE CURVE STATS?[Y/N] ') == 'Y' \
+    else False
 
 statistics = pd.DataFrame(columns=['DATASET', 'MEAN_MSE_TR', 'STD_MSE_TR',
                                    'MEAN_MSE_TS', 'STD_MSE_TS',
                                    'MEAN_ACCURACY_TR', 'STD_ACCURACY_TR',
                                    'MEAN_ACCURACY_TS', 'STD_ACCURACY_TS',
-                                   'CONVERGENCE', 'ACC_EPOCHS', 'LS'])   # mod
+                                   'CONVERGENCE', 'LS'])   # mod
 
 statistics_time = pd.DataFrame(columns=['DATASET', 'TOT', 'BACKWARD', 'LS',
-                                        'DIRECTION', 'BACKWARD_P',
-                                        'LS_P', 'DIRECTION_P'])
+                                        'DIRECTION'])
 
 ###############################################################################
 # LOADING DATASET #############################################################
@@ -77,7 +88,6 @@ convergence_ts, acc_epochs_ts, ls_ts = list(), list(), list()   # mod
 tot, bw, ls, dr = list(), list(), list(), list()   # mod
 bw_p, ls_p, dr_p = list(), list(), list()   # mod
 
-
 beta, momentum = None, None
 
 if opt == 'CGD':
@@ -87,10 +97,21 @@ else:
     momentum = raw_input('MOMENTUM TYPE[standard/nesterov]: ')
     assert momentum in ['standard', 'nesterov']
 
-sample = None if raw_input('SAMPLE A LEARNING CURVE?[Y/N] ') == 'N' else \
-        np.random.randint(1, ntrials)
+sample = raw_input('WHICH CURVE DO YOU WANT TO SAMPLE?[1/2/3/4/5] ')
+sample = sample.split(',')
+plot_mse = True if '1' in sample else False
+plot_acc = True if '2' in sample else False
+plot_norm = True if '3' in sample else False
+plot_time = True if '4' in sample else False
 
-print 'SAMPLING ITERATION {}'.format(sample) if sample is not None else None
+if plot_time:
+    epochs = None if raw_input('MAX EPOCHS?[Y/N] ') == 'N' else 1000
+    ntrials = 1 if epochs is None else 10
+
+sample = None if sample == [''] else np.random.randint(0, ntrials)
+
+print 'SAMPLING ITERATION {}'.format(sample + 1) if sample is not None \
+    else None
 
 for ds in [0, 1, 2]:
     if opt == 'SGD':
@@ -101,6 +122,9 @@ for ds in [0, 1, 2]:
         hps = path_to_json + \
             'CGD/monks_{}_best_hyperparameters_cgd_{}.json'.\
             format(ds + 1, beta)
+
+    if epochs is None:
+        hps = hps.replace('.json', '_no_max_epochs.json')
 
     with open(hps) as json_file:
         params = json.load(json_file)
@@ -115,6 +139,9 @@ for ds in [0, 1, 2]:
              'alpha': params['hyperparameters']['alpha']}
         params['hyperparameters'].pop('momentum_type')
         params['hyperparameters'].pop('alpha')
+    else:
+        if plot_time and epochs is None:
+            params['hyperparameters']['max_epochs'] = None
 
     params['hyperparameters'].pop('activation')
     params['hyperparameters'].pop('topology')
@@ -125,6 +152,9 @@ for ds in [0, 1, 2]:
         neural_net = nn.NeuralNetwork(X_designs[ds], y_designs[ds],
                                       hidden_sizes=hidden_sizes,
                                       activation='sigmoid', task='classifier')
+
+        # ipdb.set_trace()
+
         neural_net.train(X_designs[ds], y_designs[ds], opt, epochs=epochs,
                          X_va=X_tests[ds],
                          y_va=y_tests[ds], **params['hyperparameters'])
@@ -134,16 +164,14 @@ for ds in [0, 1, 2]:
         acc_tr.append(neural_net.optimizer.accuracy_per_epochs[-1])
         acc_ts.append(neural_net.optimizer.accuracy_per_epochs_va[-1])
         convergence_ts.append(neural_net.optimizer.statistics['epochs'])
-        acc_epochs_ts.append(neural_net.optimizer.statistics['acc_epoch'])
         ls_ts.append(neural_net.optimizer.statistics['ls'])   # mod
-        tot.append(neural_net.optimizer.statistics['time_train']
-                   .total_seconds())
+        tot.append(neural_net.optimizer.statistics['time_train'])
         bw.append(neural_net.optimizer.statistics['time_bw'])
         ls.append(neural_net.optimizer.statistics['time_ls'])
         dr.append(neural_net.optimizer.statistics['time_dr'])
-        bw_p.append((bw[-1]/tot[-1])*100)
-        ls_p.append((ls[-1]/tot[-1])*100)
-        dr_p.append((dr[-1]/tot[-1])*100)
+        #bw_p.append((bw[-1]/tot[-1])*100)
+        #ls_p.append((ls[-1]/tot[-1])*100)
+        #dr_p.append((dr[-1]/tot[-1])*100)
 
         neural_net.restore_weights()
 
@@ -152,39 +180,61 @@ for ds in [0, 1, 2]:
                 if opt == 'SGD' else '{}_monks_{}'.format(beta, ds + 1)
 
             path = '../data/final_setup/' + str(opt)
+
             if momentum is not None:
                 path += '/' + str(momentum)
             if beta is not None:
                 path += '/' + str(beta)
-            with open(path + '/MONK{}_curves_{}.json'.
-                      format(ds + 1, opt.lower()), 'w') as json_file:
-                curves_data = {'error': neural_net.optimizer.error_per_epochs,
-                               'error_va': neural_net.optimizer.
-                               error_per_epochs_va,
-                               'accuracy': neural_net.optimizer.
-                               accuracy_per_epochs,
-                               'accuracy_va': neural_net.optimizer.
-                               accuracy_per_epochs_va,
-                               'gradient_norm': neural_net.optimizer.
-                               gradient_norm_per_epochs}
-                json.dump(curves_data, json_file, indent=4)
 
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.error_per_epochs,
-                 neural_net.optimizer.error_per_epochs_va],
-                'TEST', 'MSE', neural_net.optimizer.params,
-                fname=saving_str)
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.accuracy_per_epochs,
-                 neural_net.optimizer.accuracy_per_epochs_va],
-                'TEST', 'ACCURACY', neural_net.optimizer.params,
-                fname=saving_str)
-            utils.plot_learning_curve(
-                neural_net.optimizer,
-                [neural_net.optimizer.gradient_norm_per_epochs],
-                'TEST', 'NORM', neural_net.optimizer.params, fname=saving_str)
+            if saving_curve_stats:
+                curves_fn = path + \
+                    '/MONK{}_curves_{}_max_epochs_{}.json'.format(ds + 1,
+                                                                  opt.lower(),
+                                                                  epochs)
+
+                with open(curves_fn, 'w') as json_file:
+                    curves_data = {'error': neural_net.optimizer.
+                                   error_per_epochs,
+                                   'error_va': neural_net.optimizer.
+                                   error_per_epochs_va,
+                                   'accuracy': neural_net.optimizer.
+                                   accuracy_per_epochs,
+                                   'accuracy_va': neural_net.optimizer.
+                                   accuracy_per_epochs_va,
+                                   'gradient_norm': neural_net.optimizer.
+                                   gradient_norm_per_epochs,
+                                   'time': neural_net.optimizer.
+                                   time_per_epochs}
+                    json.dump(curves_data, json_file, indent=4)
+
+            if plot_mse:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.error_per_epochs,
+                     neural_net.optimizer.error_per_epochs_va],
+                    'TEST', 'MSE', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_acc:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.accuracy_per_epochs,
+                     neural_net.optimizer.accuracy_per_epochs_va],
+                    'TEST', 'ACCURACY', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_norm:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.gradient_norm_per_epochs],
+                    'TEST', 'NORM', neural_net.optimizer.params,
+                    fname=saving_str)
+            if plot_time:
+                utils.plot_learning_curve(
+                    neural_net.optimizer,
+                    [neural_net.optimizer.time_per_epochs,
+                     neural_net.optimizer.error_per_epochs,
+                     neural_net.optimizer.error_per_epochs_va],
+                    'TEST', 'TIME', neural_net.optimizer.params,
+                    fname=saving_str)
 
     statistics.loc[statistics.shape[0]] = ['MONKS_{}'.format(ds + 1),
                                            np.mean(mse_tr), np.std(mse_tr),
@@ -192,13 +242,10 @@ for ds in [0, 1, 2]:
                                            np.mean(acc_tr), np.std(acc_tr),
                                            np.mean(acc_ts), np.std(acc_ts),
                                            np.mean(convergence_ts),  # mod
-                                           np.mean(acc_epochs_ts),
                                            np.mean(ls_ts)]
-
     statistics_time.loc[statistics_time.shape[0]] = \
         ['MONKS_{}'.format(ds + 1), np.mean(tot), np.mean(bw), np.mean(ls),
-         np.mean(dr), np.round(np.mean(bw_p), 3), np.round(np.mean(ls_p), 3),
-         np.round(np.mean(dr_p), 3)]
+         np.mean(dr)]
 
 file_name = None
 
@@ -213,5 +260,14 @@ else:
     file_name_time = fpath + opt.lower() + '_' + beta + \
         '_monks_time_statistics.csv'
 
-statistics.to_csv(path_or_buf=file_name, index=False)
-statistics_time.to_csv(path_or_buf=file_name_time, index=False)
+if epochs is None:
+    file_name = file_name.replace('.csv', '_no_max_epochs.csv')
+    file_name_time = file_name_time.replace('.csv', '_no_max_epochs.csv')
+else:
+    file_name = file_name.replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+    file_name_time = file_name_time. \
+        replace('.csv', '_max_epochs_{}.csv'.format(epochs))
+
+if save_statistics:
+    statistics.to_csv(path_or_buf=file_name, index=False)
+    statistics_time.to_csv(path_or_buf=file_name_time, index=False)

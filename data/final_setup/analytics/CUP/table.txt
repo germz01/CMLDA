@@ -1,0 +1,11 @@
+\begin{tabular}{| c | c | c | c | c | c | c | c |}
+\toprule
+ Optimizer &  sigma\_1 &  sigma\_2 &  rho &  eta &  alpha &  lambda &        MSE (TR - TS) \\
+\midrule
+  SGD (CM) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.15e+01 - 4.26e+01 \\
+ SGD (NAG) &        - &        - &    - &  0.1 &    0.9 &    0.01 &  4.24e+01 - 4.04e+01 \\
+  CGD (PR) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.25e-01 - 1.44e+00 \\
+  CGD (HS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  4.55e-01 - 1.36e+00 \\
+ CGD (MHS) &   0.0001 &      0.9 &  0.5 &    - &      - &       - &  5.09e-01 - 1.52e+00 \\
+\bottomrule
+\end{tabular}

@@ -330,7 +330,25 @@
                 \item \textbf{Differentiability}. Again, being the sigmoid function the one used by the ANN,
                 and since the sigmoid function is continuously differentiable with bounded Lipschitz continuous
                 derivative, we can consider the MSE as a differentiable function, being the network a
-                composition of continuously differentiable functions.
+                composition of continuously differentiable functions. If we restrict the weights to a
+                bounded set and we adopt only activation functions with Lipschitz derivative, the
+                gradient of our loss functions is Lipschitz continuous, since it is a product of bounded
+                Lipschitz continuous functions. In section \S \ref{sec:initializing_the_network} we
+                described the method we have used to initialize our ANN's weights, this method is
+                guaranteed to restrict the weights to a bounded set, furthermore, the properties of
+                the logistic function permit the gradient of our loss functions to be Lipschitz
+                continuous.
+                % Futhermore, a differentiable
+                % function is said to have an L-Lipschitz continuous gradient if, for some $L>0$ holds:
+
+                % \begin{equation*}
+                %     || \nabla f(\mathbf{x}) - \nabla f(\mathbf{y}) || \le L(|| \mathbf{x} - \mathbf{y}||)
+                %     \quad \forall (\mathbf{x}, \mathbf{y}), \ \in \ \mathbf{dom} \ f.
+                % \end{equation*}
+
+                % Since the Loss function is bounded in the interval dectated by the logistic function, we
+                % can say that the gradient of the function is also bounded in the same interval, so the
+                % MSE has an L-Lipschitz continuous gradient.
                 \item \textbf{Convexity}. We recall that, for $h \ : \ \mathbb{R}^k \to \mathbb{R}$, $g_i \ : \
                 \mathbb{R}^n \to \mathbb{R}$, the function:
 

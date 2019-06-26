@@ -1,6 +1,5 @@
 from __future__ import division
 
-import ipdb
 import losses as lss
 import metrics
 import numpy as np
@@ -29,14 +28,59 @@ class Optimizer(object):
     h: list
         a list containing the results of the activation functions' application
         to the nets
+
+    g: list
+        a list containing the gradient for each network's layer
+
+    convergence_goal: float
+        the error's threshold
+
+    error_per_epochs: list
+        a list containing the error for each epoch of training
+
+    error_per_epochs_va: list
+        a list containing the error on the validation for each epoch of
+        training
+
+    accuracy_per_epochs: list
+        a list containing the accuracy score for each epochs of training
+
+    accuracy_per_epochs_va: list
+        a list containing the accuracy score on the validation for each epoch
+        of training
+
+    gradient_norm_per_epochs: list
+        a list containing the gradient's norm for each epoch of training
+
+    f1_score_per_epochs: list
+        a list containing the f1 score for each epoch of training
+
+    f1_score_per_epochs_va: list
+        a list containing the f1 score on the validation for each epoch of
+        training
+
+    time_per_epochs: list
+        a list containing the execution time of each epoch of training
     """
 
     def __init__(self, nn):
+        """
+        The class' constructor.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            a reference to the network
+
+        Returns
+        -------
+        """
         self.delta_W = [0 for i in range(nn.n_layers)]
         self.delta_b = [0 for i in range(nn.n_layers)]
         self.a = [0 for i in range(nn.n_layers)]
         self.h = [0 for i in range(nn.n_layers)]
         self.g = None
+        self.convergence_goal = 1e-4
 
         self.error_per_epochs = []
         self.error_per_epochs_va = []
@@ -45,14 +89,36 @@ class Optimizer(object):
         self.gradient_norm_per_epochs = []
         self.f1_score_per_epochs = []
         self.f1_score_per_epochs_va = []
+        self.time_per_epochs = []
         self.convergence = 0
         self.max_accuracy = 0
         self.statistics = {'time_train': 0,
                            'time_bw': 0,
                            'time_ls': 0,
-                           'time_dr': 0}  # mod
+                           'time_dr': 0}
 
     def forward_propagation(self, nn, x, y):
+        """
+        This function implements the forward propagation algorithm following
+        Deep Learning, pag. 205
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        x: numpy.ndarray
+            a record, or batch, from the dataset
+
+        y: numpy.ndarray
+            the target array for the batch given in input
+
+
+        Returns
+        -------
+        The error between the predicted output and the target one.
+        """
+
         for i in range(nn.n_layers):
             self.a[i] = nn.b[i] + (nn.W[i].dot(x.T if i == 0
                                                else self.h[i - 1]))
@@ -63,6 +129,25 @@ class Optimizer(object):
         return lss.mean_squared_error(self.h[-1].T, y)  # mee
 
     def back_propagation(self, nn, x, y):
+        """
+        This function implements the back propagation algorithm following
+        Deep Learning, pag. 206
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        x: numpy.ndarray
+            a record, or batch, from the dataset
+
+        y: numpy.ndarray
+            the target array for the batch given in input
+
+        Returns
+        -------
+        """
+
         start_time = dt.datetime.now()
         g = 0
 
@@ -82,7 +167,7 @@ class Optimizer(object):
             # summing over previous layer units
             g = nn.W[layer].T.dot(g)
         self.statistics['time_bw'] += \
-            (dt.datetime.now() - start_time).total_seconds()
+            (dt.datetime.now() - start_time).total_seconds() * 1000
 
         self.g = g
 
@@ -95,10 +180,73 @@ class SGD(Optimizer):
 
     Attributes
     ----------
+    error_per_batch: list
+        a list containing the error for each batch
+
+    eta: float
+        the learning rate
+
+    momentum: dict
+        a dictionary containing the momentum's type, either standard or
+        nesterov, and alpha, that is, the momentum constant
+
+    reg_lambda: float
+        the regularization constant
+
+    reg_method: str
+        the regularization method, either l1 or l2
+
+    velocity_W: list
+        a list containing the velocity term for the weights of each network's
+        layer
+
+    velocity_b: list
+        a list containing the velocity term for the biases of each network's
+        layer
+
+    statistics: dict
+        a dictionary containing the time-related statistics collected during
+        the execution
+
+    params: dict
+        a dictionary containing the network's parameters combined with the
+        ones from the optimizer
     """
 
     def __init__(self, nn, eta=0.1, momentum={'type': 'standard', 'alpha': 0.},
                  reg_lambda=0.0, reg_method='l2', **kwargs):
+        """
+        The class constructor.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        eta: float
+            the learning rate
+            (Default value = 0.01)
+
+        momentum: dict
+        a dictionary containing the momentum's type, either standard or
+        nesterov, and alpha, that is, the momentum constant
+        (Default value = {'type': 'standard', 'alpha': 0.})
+
+        reg_lambda: float
+            the regularization constant
+            (Default value = 0.0)
+
+        reg_method: str
+            the regularization method, either l1 or l2
+            (Default value = 'l2')
+
+        kwargs: dict
+            additional parameters
+
+        Returns
+        -------
+        """
+
         super(SGD, self).__init__(nn)
         self.error_per_batch = []
         self.eta = eta
@@ -117,6 +265,19 @@ class SGD(Optimizer):
         self.params = self.get_params(nn)
 
     def get_params(self, nn):
+        """
+        This functions is used in order to get the network's parameters
+        along with the optimizer's ones.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        Returns
+        -------
+        A dictionary of parameters.
+        """
         self.params = dict()
         self.params['alpha'] = self.momentum['alpha']
         self.params['momentum_type'] = self.momentum['type']
@@ -128,10 +289,37 @@ class SGD(Optimizer):
 
         return self.params
 
-    def optimize(self, nn, X, y, X_va, y_va, epochs):
+    def optimize(self, nn, X, y, X_va, y_va, epochs=None):
+        """
+        This functions implements the optimization routine.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        X : numpy.ndarray
+            the design matrix
+
+        y : numpy.ndarray
+            the target column vector
+
+        X_va: numpy.ndarray
+            the design matrix used for the validation
+
+        y_va: numpy.ndarray
+            the target column vector used for the validation
+
+        epochs: int
+            the optimization routine's maximum number of epochs
+            (Default value = None)
+        """
+
         bin_assess, bin_assess_va = None, None
         start_time = dt.datetime.now()
-        for e in range(epochs):
+        e = 0
+        while True:
+            start_iteration = dt.datetime.now()
             error_per_batch = []
             y_pred, y_pred_va = None, None
 
@@ -156,6 +344,12 @@ class SGD(Optimizer):
                 self.error_per_batch.append(error)
                 error_per_batch.append(error)
                 y_pred = self.h[-1].reshape(-1, 1)
+
+                if error < self.convergence_goal or e >= 10000:
+                    self.statistics['epochs'] = e
+                    self.statistics['time_train'] = \
+                        (dt.datetime.now() - start_time).total_seconds() * 1000
+                    return 1
 
                 self.back_propagation(nn, x_batch, y_batch)
 
@@ -209,13 +403,24 @@ class SGD(Optimizer):
 
                 if (bin_assess_va.accuracy > self.max_accuracy):
                     self.max_accuracy = bin_assess_va.accuracy
-                    self.statistics['acc_epoch'] = e  # mod
+                    self.statistics['acc_epoch'] = e
 
             # GRADIENT'S NORM STORING #########################################
-            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+            norm_gradient = np.linalg.norm(self.g)
+            self.gradient_norm_per_epochs.append(norm_gradient)
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_time).total_seconds() * 1000)
+            e += 1
 
-        self.statistics['epochs'] = e  # mod
-        self.statistics['time_train'] = dt.datetime.now() - start_time
+            if (norm_gradient <= self.convergence_goal) or \
+                    (epochs is not None and e == epochs):
+                self.statistics['epochs'] = e
+                self.statistics['time_train'] = \
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
+                return 0
+
+        self.statistics['epochs'] = e
+        self.statistics['time_train'] = (dt.datetime.now() - start_time).total_seconds() * 1000
 
 
 class CGD(Optimizer):
@@ -232,8 +437,34 @@ class CGD(Optimizer):
     error_prev: float
         the error (loss) for the previous epoch of training
 
-    error_per_epochs: list
-        a list containing the error for each epoch of training
+    beta_m: str
+        the method for computing the beta constant, either 'pr', 'hs' or 'mhs'
+
+    d_m: str
+        the method for computing the direction, either 'standard' of
+        'modified'
+
+    sigma_1: float
+        the first constant for the line search respecting the strong
+        Armijo-Wolfe condition
+
+    sigma_2: float
+        the second constant for the line search respecting the strong
+        Armijo-Wolfe condition
+
+    rho: float
+        the hyperparameter for computing the beta using the mhs method
+
+    max_epochs: int
+        the maximum number of epochs
+
+    error_goal: float
+            the stopping criteria based on a threshold for the maximum error
+            allowed
+
+    params: dict
+        a dictionary containing the network's parameters combined with the
+        ones from the optimizer
     """
 
     def __init__(self, nn, beta_m, max_epochs, error_goal, d_m='standard',
@@ -245,6 +476,39 @@ class CGD(Optimizer):
         ----------
         nn: nn.NeuralNetwork
             the neural network that has to be optimized
+
+        beta_m: str
+            the method for computing the beta constant, either 'pr', 'hs' or
+            'mhs'
+
+        max_epochs: int
+            the maximum number of epochs
+
+        error_goal: float
+            the stopping criteria based on a threshold for the maximum error
+            allowed
+
+        d_m: str
+            the method for computing the direction, either 'standard' of
+            'modified'
+            (Default value = 'standard')
+
+        sigma_1: float
+            the first constant for the line search respecting the strong
+            Armijo-Wolfe condition
+            (Default value = 1e-4)
+
+        sigma_2: float
+            the second constant for the line search respecting the strong
+            Armijo-Wolfe condition
+            (Default value = .4)
+
+        rho: float
+            the hyperparameter for computing the beta using the mhs method
+            (Default value = 0.)
+
+        kwargs: dict
+            additional parameters
         """
 
         super(CGD, self).__init__(nn)
@@ -258,11 +522,25 @@ class CGD(Optimizer):
         self.max_epochs = max_epochs
         self.error_goal = error_goal
         self.params = self.get_params(nn)
-        self.ls_it = 0  # mod
+        self.ls_it = 0
         self.zoom_it = 0
         self.int_it = 0
+        self.statistics['time_train'] = dt.datetime.now()
 
     def get_params(self, nn):
+        """
+        This functions is used in order to get the network's parameters
+        along with the optimizer's ones.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork:
+            a reference to the network
+
+        Returns
+        -------
+        A dictionary of parameters.
+        """
         self.params = dict()
         self.params['beta_m'] = self.beta_m
         self.params['rho'] = self.rho
@@ -302,17 +580,16 @@ class CGD(Optimizer):
             the stopping criteria based on a threshold for the maximum error
             allowed
 
-        beta_m: str
-            the method for computing the beta constant
+        plus: bool
+            whether or not to use the modified HS formula
+            (Default value = True)
 
-        d_m: str
-            the method for computing the direction; either 'standard' or
-            'modified'
-            (Default value = 'standard')
+        strong: bool
+            whether or not to use the strong Armijo-Wolfe condition
+            (Default value = False)
 
-        sigma_1, sigma_2: float
-            the hyperparameters for the line search respecting the strong
-            Armijo-Wolfe condition
+        kwargs: dict
+            additional parameters
 
         Returns
         -------
@@ -324,7 +601,8 @@ class CGD(Optimizer):
         y_pred, y_pred_va = None, None
         bin_assess, bin_assess_va = None, None
 
-        while k != max_epochs:
+        while True:
+            start_iteration = dt.datetime.now()
             dataset = np.hstack((X, y))
             np.random.shuffle(dataset)
             X, y = np.hsplit(dataset, [X.shape[1]])
@@ -339,9 +617,22 @@ class CGD(Optimizer):
 
             g = self.flat_weights(self.delta_W, self.delta_b)
 
-            if self.error < error_goal:
+            if self.error < error_goal:  # mod
+                self.statistics['epochs'] = (k + 1)
+                self.statistics['time_train'] = \
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
+                self.time_per_epochs.append((dt.datetime.now() -
+                                            start_time).total_seconds() * 1000)
+                self.error_per_epochs_va.append(self.error_per_epochs_va[-1])
                 return 1
-            elif np.all(g == 0):
+
+            elif np.all(g <= 1e-10):
+                self.statistics['epochs'] = (k + 1)
+                self.statistics['time_train'] = \
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
+                self.time_per_epochs.append((dt.datetime.now() -
+                                            start_time).total_seconds() * 1000)
+
                 return None
 
             flatted_weights = self.flat_weights(nn.W, nn.b)
@@ -407,14 +698,26 @@ class CGD(Optimizer):
                     self.max_accuracy = bin_assess_va.accuracy
                     self.statistics['acc_epoch'] = k
 
-            self.gradient_norm_per_epochs.append(np.linalg.norm(self.g))
+            norm_gradient = np.linalg.norm(self.g)
+            self.gradient_norm_per_epochs.append(norm_gradient)
 
-            if k > 0 and (np.linalg.norm(g) < 1e-5):
+            if (k > 0 and (norm_gradient <= self.convergence_goal)) or\
+                    (max_epochs is not None and k == max_epochs):
+                self.statistics['epochs'] = (k + 1)
+                self.statistics['ls'] = self.ls_it / (k + 1)
+                self.statistics['time_train'] = \
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
+                self.time_per_epochs.append((dt.datetime.now() -
+                                            start_time).total_seconds() * 1000)
                 return 1
 
-            self.statistics['epochs'] = (k + 1)  # mod
+            self.statistics['epochs'] = (k + 1)
             self.statistics['ls'] = self.ls_it / (k + 1)
-            self.statistics['time_train'] = dt.datetime.now() - start_time
+            self.time_per_epochs.append((dt.datetime.now() -
+                                        start_time).total_seconds() * 1000)
+            self.statistics['time_train'] = \
+                (dt.datetime.now() - start_time).total_seconds() * 1000
+
             k += 1
 
         return 0
@@ -613,11 +916,45 @@ class CGD(Optimizer):
                                np.linalg.norm(g))) * g) \
                  + (beta * d_prev)
         self.statistics['time_dr'] += \
-            (dt.datetime.now() - start_time).total_seconds()
+            (dt.datetime.now() - start_time).total_seconds() * 1000
         return d
 
     def line_search(self, nn, X, y, W, d, g_d, error_0, threshold=1e-14):
         """
+        This function implements the Armijo-Wolfe line search procedure as
+        described in Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        error_0: float
+            the current error
+
+        threshold: float
+            the threshold value for the error's checking
+            (Default value = 1e-14)
+
+        Returns
+        -------
+        The learning rate for the current epoch.
         """
         start_time = dt.datetime.now()
         alpha_prev, alpha_max = 0., 1.
@@ -642,7 +979,7 @@ class CGD(Optimizer):
 
             if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                 self.statistics['time_ls'] += \
-                    (dt.datetime.now() - start_time).total_seconds()
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
                 self.ls_it += i
                 return alpha_current
             elif n_g_d >= 0:
@@ -652,7 +989,7 @@ class CGD(Optimizer):
             elif error_prev - error_current > 0 and \
                     error_prev - error_current < threshold:
                 self.statistics['time_ls'] += \
-                    (dt.datetime.now() - start_time).total_seconds()
+                    (dt.datetime.now() - start_time).total_seconds() * 1000
                 self.ls_it += i
                 return alpha_current
 
@@ -663,14 +1000,58 @@ class CGD(Optimizer):
                 if alpha_prev * 1.1 <= alpha_max else alpha_max
 
             i += 1
-        self.ls_it += i  # mod
+        self.ls_it += i
         self.statistics['time_ls'] += \
-            (dt.datetime.now() - start_time).total_seconds()
+            (dt.datetime.now() - start_time).total_seconds() * 1000
         return alpha_current
 
     def zoom(self, alpha_lo, alpha_hi, nn, X, y, W, d, g_d, error_0,
              max_iter=10, tolerance=1e-4):
         """
+        This function implements the zoom procedure as described in
+        Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        alpha_lo: float
+            the lower bound for the searching of the learning rate
+
+        alpha_hi: float
+            the upper bound for the searchinf of the learning rate
+
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        error_0: float
+            the current error
+
+        max_iter: int
+            the maximum number of iterations
+            (Default value = 10)
+
+        tolerance: float
+            the threshold value for the error's checking
+            (Default value = 1e-4)
+
+        Returns
+        -------
+        The best learning rate in the given interval.
         """
         start_time = dt.datetime.now()
         i = 0
@@ -705,24 +1086,61 @@ class CGD(Optimizer):
 
                 if np.absolute(n_g_d) <= -self.sigma_2 * g_d:
                     self.statistics['time_ls'] += \
-                      (dt.datetime.now() - start_time).total_seconds()
+                      (dt.datetime.now() - start_time).total_seconds() * 1000
                     return alpha_j
                 elif n_g_d * (alpha_hi - alpha_lo) >= 0:
                     alpha_hi = alpha_lo
                 elif (error_j - error_0) < tolerance:
                     self.statistics['time_ls'] += \
-                     (dt.datetime.now() - start_time).total_seconds()
+                     (dt.datetime.now() - start_time).total_seconds() * 1000
                     return alpha_j
 
                 alpha_lo = alpha_j
             i += 1
         self.statistics['time_ls'] += \
-            (dt.datetime.now() - start_time).total_seconds()
+            (dt.datetime.now() - start_time).total_seconds() * 1000
         return alpha_j
 
     def quadratic_cubic_interpolation(self, error_0, g_d, W, nn, X, y, d,
                                       alpha_0, tolerance=1e-2):
         """
+        This function implements the quadratic and cubic interpolation
+        procedure, as described in Convex Optimization, chapter 3.
+
+        Parameters
+        ----------
+        error_0: float
+            the current error
+
+        g_d: float
+            the scalar product between the network's gradient and the
+            descent direction
+
+        nn: nn.NeuralNetwork
+            the neural network which has to be optimized
+
+        X: numpy.ndarray
+            the design matrix
+
+        y: numpy.ndarray
+            the target column vector
+
+        W: numpy.ndarray
+            a column vectorc containing the network's weights and biases
+
+        d: numpy.ndarray
+            the descent direction
+
+        alpha_0: float
+            the initial value for the learning rate being tested
+
+        tolerance: float
+            the threshold value for the error's checking
+            (Default value = 1e-4)
+
+        Returns
+        -------
+        The best learning rate in the given interval.
         """
         i = 0
 
